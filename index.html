@@ -49,36 +49,442 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding:22px 0 8px;color
 /* Controle de estoque */
 .stock-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.stock-search{flex:1;min-width:240px;position:relative}.stock-search input,.stock-form input,.stock-form select{width:100%;background:#0f151c;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 12px;outline:none;font:500 12px Inter}.stock-search input:focus,.stock-form input:focus,.stock-form select:focus{border-color:var(--green)}.stock-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.stock-summary .sum{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}.stock-summary .sum span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.35px}.stock-summary .sum b{display:block;font:700 24px Oswald;margin-top:3px}.stock-table-wrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px}.stock-table{width:100%;border-collapse:collapse;min-width:760px}.stock-table th,.stock-table td{padding:12px 11px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}.stock-table th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.35px}.stock-product{font-weight:700}.stock-qty-input{width:90px!important;padding:8px 9px!important}.urgency{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;white-space:nowrap}.urgency.normal{background:rgba(57,199,165,.12);color:#62dfbf}.urgency.atencao{background:rgba(242,166,65,.13);color:#ffc46d}.urgency.emergencia{background:rgba(230,107,86,.14);color:#ff927f}.urgency-dot{width:7px;height:7px;border-radius:50%;background:currentColor}.stock-actions{display:flex;gap:6px;align-items:center}.stock-actions button{padding:7px 9px}.stock-form{display:grid;grid-template-columns:minmax(220px,2fr) 120px 160px 160px auto;gap:9px;align-items:end;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}.stock-field{display:grid;gap:6px}.stock-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.35px}.stock-empty{padding:30px;text-align:center;color:var(--muted)}.stock-view-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.stock-edit-only{display:none}.stock-edit-mode .stock-edit-only{display:grid}.stock-edit-mode .stock-edit-only.stock-view-actions{display:flex}.stock-readonly-table .stock-table{min-width:620px}.stock-readonly-table td{vertical-align:middle}.stock-mode-note{font-size:11px;color:var(--muted)}@media(max-width:760px){.stock-summary{grid-template-columns:repeat(2,1fr)}.stock-form{grid-template-columns:1fr 1fr}.stock-form .stock-product-field{grid-column:1/-1}}@media(max-width:480px){.stock-summary,.stock-form{grid-template-columns:1fr}}
 
+
+/* ===== MIMAR ARTIGOS · IDENTIDADE 2026 ===== */
+:root{--bg:#f7f4ef;--panel:#ffffff;--panel2:#fff7f1;--line:#eadfd6;--text:#202832;--muted:#69727d;--muted2:#9a938e;--green:#dff238;--green2:#eef7ad;--orange:#e8755f;--orange2:#f6ddd7;--blue:#648ee8;--red:#e84b3c;--gold:#f2b84b}
+html{background:#f7f4ef}body{background:linear-gradient(135deg,#faf8f4 0%,#fffaf7 55%,#f7f4ef 100%);color:var(--text);padding:22px 26px 48px 286px}.wrap{max-width:1440px;margin:0 auto}
+header{min-height:78px;margin:0 0 22px;padding:0 4px;border-bottom:1px solid #eee6df}.brand{position:fixed;z-index:20;left:20px;top:20px;width:230px;align-items:center}.logo{width:58px;height:58px;border:0;border-radius:20px 14px 22px 13px;background:var(--green);color:var(--orange);font:800 29px Oswald;box-shadow:0 8px 24px rgba(255,112,72,.12);transform:rotate(-3deg)}.brand h1{font:700 21px Oswald;color:#242b33}.brand h1::first-letter{color:var(--orange)}.brand p{font-size:11px;color:#8b8179;line-height:1.35}.header-actions{margin-left:auto;justify-content:flex-end}.cloud-state{background:#fff;border:1px solid var(--line)!important;color:#68727b!important;box-shadow:0 4px 14px rgba(60,40,20,.04)}
+.tabs{position:fixed;z-index:15;left:18px;top:112px;bottom:24px;width:236px;max-width:none;display:flex;flex-direction:column;gap:7px;margin:0;padding:12px;background:#fff;border:1px solid #eee5dd;border-radius:20px;box-shadow:0 12px 40px rgba(70,45,25,.06);overflow:visible}.tab{width:100%;text-align:left;padding:13px 15px;border-radius:11px;color:#505963;font-size:13px}.tab:before{display:inline-block;width:25px;color:#8a918f}.tab[data-page="dashboard"]:before{content:"⌂"}.tab[data-page="card-page"]:before{content:"▣"}.tab[data-page="expedicao"]:before{content:"□"}.tab[data-page="estoque-controle"]:before{content:"◇"}.tab[data-page="gestao"]:before{content:"▥"}.tab.active{background:linear-gradient(135deg,#e8755f,#d96350);color:white;box-shadow:0 8px 18px rgba(232,117,95,.20)}.tab.active:before{color:#fff}
+.btn{border-radius:11px;padding:11px 15px;transition:.18s;box-shadow:none}.btn:hover{transform:translateY(-1px);filter:none}.btn-orange{background:linear-gradient(135deg,#e8755f,#d96350);color:#fff}.btn-green{background:#dff238;color:#293019}.btn-dark{background:#fff;color:#3f4851;border:1px solid var(--line)}
+.sourcebar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;color:#938b84}.sourcebar strong{color:#4d5863}.hero{background:linear-gradient(120deg,#e8755f,#df6b56 70%,#ef9a89);border:0;border-radius:22px;padding:28px 30px;color:#fff;box-shadow:0 14px 35px rgba(232,117,95,.14)}.hero-label,.hero-date,.hero-sub{color:rgba(255,255,255,.82)}.hero-num{color:#fff}.chips{margin-top:20px}.chip{background:rgba(255,255,255,.94);border:0;border-radius:14px;color:#202832;box-shadow:0 5px 18px rgba(120,50,20,.08)}.chip span{color:#7c746f}.green b{color:#6f7f00}.orange b{color:#e8755f}.blue b{color:#648ee8}
+.card,.trend-wrap,.backup-box,.stock-form,.stock-table-wrap,.mgmt-kpi{background:#fff!important;border:1px solid var(--line)!important;border-radius:18px!important;box-shadow:0 8px 28px rgba(70,45,25,.045)}.card h2,.mgmt-toolbar h2{color:#252d35}.sub{color:#7d858d}.view-toggle{background:#fff;border-color:var(--line)}.view-toggle button{color:#7c8389}.view-toggle button.active{background:#fae9e5;color:#c95d49}.bar{background:#f2ece7}.bar-full{background:#c9dc28}.bar-stock{background:#e8755f}.donut:after{background:#fff}.upload-zone{background:#fff;border-color:#e7d7ca}.market-row{background:#fff8f3;border-color:#efe2d8}.notice{background:#faece8;border-color:#efc4ba;color:#8f5146}
+/* Estoque */
+#estoque-controle .mgmt-toolbar{background:linear-gradient(120deg,#e8755f,#dc6753);padding:24px 26px;border-radius:20px;margin-bottom:18px;color:#fff}#estoque-controle .mgmt-toolbar h2{color:#fff;font-size:25px}#estoque-controle .mgmt-toolbar .sub{color:rgba(255,255,255,.82)!important}.stock-view-actions .status-pill{background:rgba(255,255,255,.18)!important;color:#fff!important;border-color:rgba(255,255,255,.28)!important}.stock-view-actions .btn-orange{background:#fff;color:#cc604d}.stock-summary{gap:14px}.stock-summary .sum{background:#fff!important;border:1px solid var(--line)!important;border-radius:17px!important;box-shadow:0 8px 25px rgba(70,45,25,.04)}.stock-summary .sum b{color:#252d35}.stock-summary .sum b.orange{color:#f19b19!important}.stock-toolbar input,.stock-toolbar select,.stock-form input,.stock-form select{background:#fff!important;color:#28313a!important;border:1px solid #e8ddd4!important;border-radius:11px!important}.stock-table{color:#303841}.stock-table th{background:#fff8f3!important;color:#6d6b69!important}.stock-table td{border-color:#f0e7e0!important}.urgency-normal{background:#e8f7e9!important;color:#29883c!important}.urgency-atencao{background:#fff3d6!important;color:#b47700!important}.urgency-emergencia{background:#ffe5e1!important;color:#cf3f32!important}
+/* Gestão e card */
+.exp-card-export{background:#fff;border-color:var(--line);color:#273039}.exp-kpi,.employee-card,.exp-status,.exp-date-badge{background:#fff8f3;border-color:#efe2d8;color:#273039}.exp-card-title span,.green-text{color:#8da000!important}.employee-sub,.exp-kpi .label{color:#7d858d}.mgmt-kpi .value.green{color:#8da000}.mgmt-kpi .value.orange{color:#e8755f}.auth-overlay{background:rgba(31,35,39,.48);backdrop-filter:blur(4px)}.auth-box{background:#fff;color:#28313a;border-color:#eadfd6;box-shadow:0 22px 70px rgba(0,0,0,.18)}.auth-field input{background:#fff;color:#28313a;border-color:#dfd5cd}
+footer{color:#9b938c}.site-footer{border-color:#e8dfd7}
+@media(max-width:980px){body{padding:18px}.brand{position:static;width:auto}.tabs{position:static;width:100%;flex-direction:row;overflow:auto;margin-bottom:18px;padding:5px;border-radius:13px}.tab{width:auto;text-align:center}.tab:before{display:none}header{min-height:auto}.wrap{max-width:1160px}}@media(max-width:620px){body{padding:12px}.header-actions{width:100%}.header-actions .btn{flex:1;justify-content:center}.brand h1{font-size:20px}.hero{padding:22px}.hero-num{font-size:52px}}
+
+
+/* ===== CARD DO DIA · CONTRASTE MIMAR ===== */
+#card-page .card-tools{background:#fff;border:1px solid #eadfd6;border-radius:18px;padding:16px 18px;box-shadow:0 8px 28px rgba(70,45,25,.045)}
+#card-page .card-tools h2{color:#252d35;font-size:23px}
+#card-page .card-help{color:#747d86}
+#card-page .history-select{background:#fff;color:#28313a;border:1px solid #e4d8cf}
+#card-page .report-card{max-width:980px;background:linear-gradient(180deg,#fffdfb,#fff7f1);border:1px solid #eadfd6;border-radius:24px;padding:28px;box-shadow:0 14px 38px rgba(70,45,25,.08);color:#252d35}
+#card-page .rc-head{border-color:#eadfd6}
+#card-page .rc-head .eye{color:#e8755f;font-weight:800}
+#card-page .rc-head h3{color:#202832;font-size:29px}
+#card-page .rc-date{color:#767f88}
+#card-page .rc-big{background:#fff;border:1px solid #eadfd6;box-shadow:0 5px 18px rgba(70,45,25,.04)}
+#card-page .rc-big .n{color:#e8755f}
+#card-page .rc-big .l{color:#6d7680}
+#card-page .rc-section h4{color:#252d35;font-size:16px}
+#card-page .exp-card-export{background:transparent!important;border:0!important;padding:0!important}
+#card-page .exp-card-head{background:linear-gradient(120deg,#e8755f,#dc6753);border-radius:18px;padding:18px 20px;color:#fff;margin-bottom:14px}
+#card-page .exp-card-title{color:#fff}
+#card-page .exp-card-title span{color:#efff72!important}
+#card-page .exp-date-badge{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.3)!important;color:#fff!important}
+#card-page .exp-status{background:#fff!important;border:1px solid #eadfd6!important;color:#4b555f!important}
+#card-page .exp-status .ok{color:#6f8500!important}
+#card-page .exp-kpi{background:#fff!important;border:1px solid #eadfd6!important;box-shadow:0 5px 18px rgba(70,45,25,.035)}
+#card-page .exp-kpi .label{color:#777f87!important;font-weight:700}
+#card-page .exp-kpi .value{color:#242d36!important}
+#card-page .exp-kpi .value.blue{color:#557ed7!important}
+#card-page .exp-kpi .value.orange{color:#e8755f!important}
+#card-page .exp-kpi .value.green-text{color:#7f9300!important}
+#card-page .employee-grid{gap:16px}
+#card-page .employee-card{background:#fff!important;border:1px solid #eadfd6!important;border-left:5px solid #ff8a66!important;color:#26303a!important;box-shadow:0 6px 20px rgba(70,45,25,.05)}
+#card-page .employee-card.top1{border-left-color:#f3b91f!important;background:linear-gradient(180deg,#fffdf4,#fff)!important}
+#card-page .employee-card.top2{border-left-color:#a5adb8!important}
+#card-page .employee-card.top3{border-left-color:#d68a52!important}
+#card-page .employee-card.placeholder{border-left-color:#ded6cf!important;background:#fbf8f5!important;color:#8b8580!important}
+#card-page .employee-name{color:#202832!important;font-size:16px}
+#card-page .place-badge{background:#fae9e5!important;color:#e85c37!important;border:1px solid #ffd8c8}
+#card-page .employee-card.top1 .place-badge{background:#fff6d8!important;color:#9f7600!important;border-color:#f3dea1}
+#card-page .employee-total{color:#e8755f!important;font-size:38px}
+#card-page .employee-card.top1 .employee-total{color:#c79500!important}
+#card-page .employee-sub{color:#717b85!important}
+#card-page .capacity-badge{background:#eff5d0!important;color:#657600!important}
+#card-page .capacity-badge.mid{background:#fff1cf!important;color:#a06b00!important}
+#card-page .capacity-badge.low{background:#ffe9e4!important;color:#c84c37!important}
+#card-page .capacity-track{background:#f0ebe6!important}
+#card-page .capacity-fill{background:#c9dc28!important}
+#card-page .capacity-fill.low{background:#ff8060!important}
+#card-page .prod-mini div{background:#fff8f3!important;border:1px solid #eee1d7!important;color:#767f87!important}
+#card-page .prod-mini .full b{color:#7e9100!important}
+#card-page .prod-mini .stock b{color:#e8755f!important}
+#card-page .account-line{border-color:#eee6df!important;color:#4c5660!important}
+#card-page .account-line b{color:#202832!important}
+#card-page .exp-chart-card{background:#fff!important;border:1px solid #eadfd6!important;color:#27313a!important}
+#card-page .exp-chart-title{color:#252d35!important}
+#card-page .exp-chart-sub{color:#7a838c!important}
+#card-page .mini-donut:after{background:#fff!important}
+#card-page .mini-donut-center b{color:#252d35!important}
+#card-page .mini-donut-center span{color:#7c858d!important}
+#card-page .mini-leg-row .nm{color:#424c55!important}
+#card-page .mini-leg-row .vl{color:#68737d!important;font-weight:700}
+#card-page .exp-card-footer,#card-page .rc-footer{color:#9a918a!important}
+@media(max-width:700px){#card-page .report-card{padding:16px}#card-page .exp-card-head{padding:16px}.employee-card{min-height:270px}}
+
+
+/* =========================================================
+   MIMAR UI 2.0 — layout profissional inspirado no conceito
+   ========================================================= */
+:root{
+  --bg:#fff9f4;--panel:#ffffff;--panel2:#fff5ed;--line:#eadfd6;
+  --text:#2d3035;--muted:#7d7a77;--muted2:#a09a95;
+  --green:#8bc34a;--green2:#eaf5d7;--orange:#de7864;--orange2:#f8e1da;
+  --blue:#6887c6;--red:#d85f58;--gold:#d7a64b;
+  --coral:#de7864;--coral-dark:#c86553;--lime:#9ccc4a;--cream:#fff9f4;
+  --shadow:0 10px 28px rgba(92,66,45,.07);--shadow-sm:0 4px 14px rgba(92,66,45,.055);
+}
+html{background:var(--bg)}
+body{
+  background:
+    radial-gradient(circle at 76% -10%,rgba(222,120,100,.08),transparent 30%),
+    radial-gradient(circle at 20% 105%,rgba(156,204,74,.06),transparent 28%),
+    var(--bg)!important;
+  color:var(--text)!important;padding:22px 28px 55px 278px!important;min-height:100vh;
+}
+.wrap{max-width:1480px!important;margin:0 auto!important}
+/* topo */
+header{min-height:56px!important;margin:0 0 24px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;border:0!important;background:transparent!important}
+.brand{position:fixed;left:18px;top:18px;width:224px;z-index:31;display:flex!important;align-items:center!important;gap:11px!important}
+.logo{width:52px!important;height:52px!important;border:0!important;border-radius:16px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 8px 22px rgba(222,120,100,.18)!important;display:block!important;padding:3px!important}
+.logo img{width:100%;height:100%;object-fit:cover;border-radius:13px;display:block}
+.brand h1{font:700 22px Inter!important;color:#35383d!important;letter-spacing:-.5px}.brand h1 span{color:var(--coral)!important}.brand p{color:#99918b!important;font-size:11px!important;margin-top:3px!important}
+.header-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap!important}
+.cloud-state{background:#fff!important;border:1px solid var(--line)!important;border-radius:999px!important;color:#77736f!important;box-shadow:var(--shadow-sm);padding:8px 12px!important}
+.btn{border-radius:11px!important;padding:10px 14px!important;font-weight:700!important;box-shadow:none;transition:.18s ease!important}
+.btn:hover{transform:translateY(-1px);filter:none!important}
+.btn-orange{background:var(--coral)!important;color:white!important}.btn-orange:hover{background:var(--coral-dark)!important}
+.btn-green{background:#9aca50!important;color:#23300f!important}.btn-dark{background:#fff!important;color:#4a4d51!important;border:1px solid var(--line)!important}
+/* sidebar */
+.tabs{position:fixed!important;left:16px!important;top:88px!important;bottom:18px!important;width:232px!important;max-width:none!important;z-index:30!important;display:flex!important;flex-direction:column!important;gap:7px!important;padding:14px 10px!important;margin:0!important;overflow:auto!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(18px);border:1px solid #efe3da!important;border-radius:20px!important;box-shadow:0 16px 42px rgba(84,62,45,.09)!important}
+.tabs:before{content:"NAVEGAÇÃO";font-size:10px;font-weight:800;letter-spacing:1.25px;color:#b1a59c;padding:5px 11px 7px}
+.tab{width:100%!important;text-align:left!important;color:#77736f!important;padding:12px 13px!important;border-radius:12px!important;font:700 13px Inter!important;display:flex!important;align-items:center!important;gap:10px!important;transition:.18s ease!important}
+.tab:before{width:24px;height:24px;border-radius:8px;background:#f5eee8;display:grid;place-items:center;font-size:13px;color:#8a817a;flex:0 0 24px}
+.tab[data-page="dashboard"]:before{content:"⌂"}.tab[data-page="card-page"]:before{content:"▦"}.tab[data-page="expedicao"]:before{content:"⇧"}.tab[data-page="estoque-controle"]:before{content:"□"}.tab[data-page="gestao"]:before{content:"⚙"}
+.tab:hover{background:#fff6f0!important;color:#514b47!important}
+.tab.active{background:linear-gradient(135deg,#de7864,#d86d59)!important;color:#fff!important;box-shadow:0 8px 18px rgba(222,120,100,.23)!important}
+.tab.active:before{background:rgba(255,255,255,.20)!important;color:#fff!important}
+/* page heading */
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:2px 0 20px;padding:0 2px}
+.page-heading .eyebrow{display:block;color:var(--coral);font-size:10px;font-weight:800;letter-spacing:1.45px;margin-bottom:6px}
+.page-heading h1{font:800 30px Inter;margin:0;color:#2d3035;letter-spacing:-1px}
+.page-heading p{margin:6px 0 0;color:#89827c;font-size:13px}.page-accent{width:44px;height:7px;border-radius:999px;background:linear-gradient(90deg,var(--coral) 0 62%,var(--lime) 62%)}
+.page{animation:pageIn .22s ease}@keyframes pageIn{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+.sourcebar{background:#fff;border:1px solid #efe4dc;border-radius:12px;padding:10px 13px!important;margin-bottom:14px!important;color:#9a918b!important;box-shadow:var(--shadow-sm)}.sourcebar strong{color:#625d59!important}
+/* hero e cards */
+.hero{position:relative;overflow:hidden;background:linear-gradient(118deg,#de7864 0%,#e48b77 58%,#efa08c 100%)!important;border:0!important;border-left:0!important;border-radius:22px!important;padding:28px 30px!important;box-shadow:0 15px 34px rgba(211,107,87,.18)!important;color:#fff!important}
+.hero:after{content:"";position:absolute;width:270px;height:270px;border-radius:50%;right:-88px;top:-120px;background:rgba(255,255,255,.11)}
+.hero:before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:100px;bottom:-105px;background:rgba(156,204,74,.22)}
+.hero>*{position:relative;z-index:1}.hero-label,.hero-date,.hero-sub{color:rgba(255,255,255,.82)!important}.hero-num{font-family:Inter!important;font-weight:800!important;letter-spacing:-3px!important}.hero .chip{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.20)!important;color:#fff!important;backdrop-filter:blur(3px)}.hero .chip span{color:rgba(255,255,255,.78)!important}.hero .chip b{color:#fff!important}
+.card,.mgmt-kpi,.trend-wrap,.backup-box,.upload-zone,.exp-card-export,.stock-summary .sum{background:#fff!important;border:1px solid #eee2da!important;border-radius:18px!important;box-shadow:var(--shadow-sm)!important}
+.card{padding:21px 22px!important}.card h2{font:750 17px Inter!important;color:#30343a!important;letter-spacing:-.25px}.sub{color:#99908a!important}.grid2,.grid3{gap:16px!important}
+.kpi{text-align:left!important}.kpi .n{font:800 34px Inter!important;color:#33373d}.kpi .l{font-weight:700;color:#736d68!important}.kpi .hint{color:#a29a94!important}
+.rank-row{padding:8px 0;border-bottom:1px solid #f2ebe5}.rank-row:last-child{border-bottom:0}.rank-name{color:#3f4247!important}.rank-val{color:#6d6864!important;font-family:Inter!important;font-weight:800!important}.bar{background:#f1ece8!important}.bar-full{background:#96c84f!important}.bar-stock{background:#de7864!important}.bar-blue{background:#708dc8!important}
+.donut:after{background:#fff!important}.donut-center b{color:#30343a!important}.donut-center span,.legend-row .val{color:#8a817b!important}.legend-row{color:#504b47!important}
+/* toggles */
+.view-toggle{background:#f6efe9!important;border-color:#ecdfd5!important;border-radius:11px!important;padding:4px!important}.view-toggle button{color:#8c837d!important;border-radius:8px!important}.view-toggle button.active{background:#fff!important;color:#c45f4d!important;box-shadow:0 3px 9px rgba(103,78,59,.09)!important}
+/* expedição */
+#expedicao .upload-zone{background:linear-gradient(120deg,#fff,#fff7f1)!important;border-style:solid!important;text-align:left!important;padding:24px!important}
+.market-row{background:#fff9f5!important;border-color:#eee2da!important}.market-row span{color:#8f8781!important}.market-row b{color:#383b40!important}
+/* card do dia */
+#card-page .card-tools{background:#fff!important;border:1px solid #eee2da;border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+#card-page .card-tools h2{font:800 18px Inter!important;color:#31343a!important}.card-help{color:#938b85!important}
+#card-page .exp-card-export{overflow:hidden!important;padding:0!important}.exp-card-head{background:linear-gradient(118deg,#de7864,#e48b77)!important;padding:22px 24px!important;margin:0!important}.exp-card-title{font-family:Inter!important;color:white!important;letter-spacing:-.6px}.exp-card-title span{color:#efffcf!important}.exp-date-badge{background:rgba(255,255,255,.16)!important;color:#fff!important;border-color:rgba(255,255,255,.24)!important}.exp-status{margin:16px 18px!important;background:#fff9f5!important;border-color:#eee2da!important;color:#6d6864!important}.exp-kpis{padding:0 18px}.exp-kpi{background:#fff!important;border:1px solid #eee2da!important;box-shadow:0 4px 13px rgba(79,58,42,.045)}.exp-kpi .label{color:#968d86!important}.exp-kpi .value{color:#34383d!important;font-family:Inter!important;font-weight:800!important}.employee-grid{padding:0 18px}.employee-card{background:#fff!important;border-color:#ece0d8!important;box-shadow:0 4px 14px rgba(77,56,40,.045)!important}.employee-name{color:#36393e!important}.employee-sub{color:#958d87!important}.employee-total{color:var(--coral)!important;font-family:Inter!important;font-weight:800!important}.employee-card.top1{border-left-color:#d9ab48!important}.employee-card.top2{border-left-color:#9da7b1!important}.employee-card.top3{border-left-color:#c98c62!important}.exp-charts{padding:0 18px 18px}.exp-chart-card{background:#fffaf6!important;border-color:#eee2da!important}.exp-chart-title{color:#363a3f!important}.mini-donut:after{background:#fffaf6!important}.mini-donut-center b{color:#34383d!important}.mini-leg-row .nm{color:#66605b!important}.mini-leg-row .vl{color:#4e4a46!important}.exp-card-footer{background:#fff8f3;padding:13px!important;margin-top:0!important;color:#9d948d!important}
+/* Gestão */
+#gestao .mgmt-toolbar{background:linear-gradient(118deg,#de7864,#e58b77)!important;border:0!important;border-radius:19px!important;box-shadow:0 13px 28px rgba(211,107,87,.15)!important}.mgmt-kpis{gap:14px!important}.mgmt-kpi .label{color:#8f8781!important}.mgmt-kpi .value{color:#30343a!important;font-family:Inter!important}.trend-head h3{color:#33373c!important}.trend-head span{color:#938b85!important}.backup-box{background:linear-gradient(120deg,#fff,#fff9f4)!important}
+/* Estoque */
+#estoque-controle .mgmt-toolbar{background:linear-gradient(118deg,#de7864,#e78f7b)!important;border:0!important;border-radius:20px!important;box-shadow:0 13px 29px rgba(211,107,87,.16)!important;padding:25px 27px!important}
+#estoque-controle .mgmt-toolbar h2{font-family:Inter!important;font-weight:800!important;letter-spacing:-.45px}.stock-view-actions .btn-orange{background:#fff!important;color:#bf5949!important}.stock-summary{gap:14px!important}.stock-summary .sum{padding:18px!important}.stock-summary .sum b{font-family:Inter!important;font-weight:800!important}.stock-toolbar,.stock-form{background:#fff!important;border:1px solid #eee2da!important;border-radius:15px!important;box-shadow:var(--shadow-sm)!important;padding:13px!important}.stock-toolbar input,.stock-toolbar select,.stock-form input,.stock-form select{background:#fffaf7!important;border-color:#eaded5!important;color:#3f4247!important}.stock-table{background:#fff!important;border-radius:16px!important;overflow:hidden!important}.stock-table th{background:#fff7f2!important;color:#887f79!important;font-size:11px!important;letter-spacing:.25px}.stock-table td{color:#474a4f!important;border-color:#f2e9e3!important}.urgency-normal{background:#e9f6dc!important;color:#548126!important}.urgency-atencao{background:#fff0cf!important;color:#9b6b10!important}.urgency-emergencia{background:#fde2de!important;color:#bd4d43!important}
+/* inputs */
+select,input{font-family:Inter!important}.history-select,#management-month{background:#fff!important;color:#4e4a47!important;border:1px solid #e6d9d0!important;border-radius:11px!important}
+/* responsivo */
+@media(max-width:1000px){body{padding:18px 18px 45px!important}.brand{position:static!important;width:auto!important}.tabs{position:static!important;width:100%!important;display:flex!important;flex-direction:row!important;padding:5px!important;margin:0 0 18px!important;border-radius:14px!important;overflow:auto!important}.tabs:before{display:none}.tab{width:auto!important;min-width:max-content!important}.tab:before{display:none!important}header{justify-content:space-between!important}.header-actions{margin-left:auto}.page-heading{margin-top:4px}}
+@media(max-width:680px){body{padding:13px!important}.brand p{display:none}.logo{width:44px!important;height:44px!important}.brand h1{font-size:19px!important}.header-actions{width:100%!important;justify-content:flex-start!important}.header-actions .btn{font-size:11px!important;padding:9px 10px!important}.page-heading h1{font-size:25px}.hero{padding:22px!important}.hero-num{font-size:52px!important}.page-accent{display:none}.grid2,.grid3,.mgmt-kpis{grid-template-columns:1fr!important}}
+
+
+/* ===== Ajuste de espaçamento, centralização e hierarquia ===== */
+@media (min-width:981px){
+  body{padding-left:278px!important;padding-right:30px!important;padding-top:26px!important}
+  .wrap{max-width:1220px!important;width:100%!important;margin:0 auto!important}
+}
+
+/* Cabeçalho de página com eixo visual mais claro */
+.page-heading{max-width:1220px!important;margin:4px auto 28px!important;padding:0 4px!important;align-items:center!important}
+.page-heading>div:first-child{max-width:720px}
+.page-heading .eyebrow{font-size:10px!important;letter-spacing:1.7px!important;margin-bottom:8px!important}
+.page-heading h1{font-size:32px!important;line-height:1.08!important;letter-spacing:-1.15px!important}
+.page-heading p{font-size:13.5px!important;line-height:1.55!important;margin-top:8px!important;max-width:660px!important}
+.page-accent{width:54px!important;height:6px!important}
+
+/* Gestão: mais respiro e sem faixa pesada */
+#gestao{max-width:1220px;margin:0 auto}
+#gestao .mgmt-toolbar{
+  background:#fff!important;
+  border:1px solid #eee2da!important;
+  border-left:4px solid #de7864!important;
+  border-radius:18px!important;
+  box-shadow:0 8px 24px rgba(83,61,45,.055)!important;
+  padding:20px 22px!important;
+  margin:0 0 22px!important;
+  min-height:92px;
+  align-items:center!important;
+}
+#gestao .mgmt-toolbar h2{font:800 20px/1.2 Inter!important;color:#2f3338!important;letter-spacing:-.45px!important;margin:2px 0 0!important}
+#gestao .mgmt-toolbar .sub{color:#8d857f!important;font-size:12.5px!important;line-height:1.45!important}
+#gestao .mgmt-eyebrow{display:block;color:#cf6956;font-size:9.5px;font-weight:800;letter-spacing:1.35px;margin-bottom:4px}
+#gestao #management-month{min-width:165px!important;padding:11px 14px!important;border-radius:12px!important;background:#fffaf6!important;border:1px solid #eadbd1!important;color:#514b47!important;font-size:12px!important;font-weight:700!important}
+
+/* KPIs com melhor leitura e separação */
+#gestao .mgmt-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;margin-bottom:22px!important}
+#gestao .mgmt-kpi{padding:19px 20px!important;min-height:106px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+#gestao .mgmt-kpi .label{font-size:9.5px!important;letter-spacing:.7px!important;margin-bottom:5px!important}
+#gestao .mgmt-kpi .value{font-size:29px!important;line-height:1!important;letter-spacing:-.8px!important}
+#gestao .mgmt-kpi .hint{font-size:10.5px!important;line-height:1.35!important;margin-top:7px!important}
+
+/* Gráfico principal mais confortável */
+#gestao .trend-wrap{padding:24px 24px 20px!important;margin-bottom:22px!important;border-radius:20px!important}
+#gestao .trend-head{margin-bottom:18px!important;align-items:flex-start!important}
+#gestao .trend-head h3{font:800 17px/1.25 Inter!important;letter-spacing:-.35px!important;margin-bottom:5px!important}
+#gestao .trend-head span{font-size:11.5px!important;line-height:1.4!important}
+#management-trend{height:300px!important}
+
+/* Blocos inferiores com mais espaço interno */
+#gestao .grid2{gap:18px!important;margin-bottom:22px!important;grid-template-columns:1.15fr .85fr!important}
+#gestao .card{padding:22px 23px!important;border-radius:20px!important}
+#gestao .card h2{font:800 17px/1.25 Inter!important;letter-spacing:-.35px!important;margin-bottom:6px!important}
+#gestao .card .sub{font-size:12px!important;line-height:1.45!important;margin-bottom:18px!important}
+#gestao .import-table th,#gestao .import-table td{padding:12px 10px!important}
+#gestao .backup-box{padding:22px 23px!important;border-radius:20px!important}
+
+/* Tabelas e textos não ficam colados às bordas */
+.card,.trend-wrap,.mgmt-kpi,.backup-box{overflow:hidden}
+
+@media(max-width:1180px) and (min-width:981px){
+  .wrap,#gestao{max-width:1040px!important}
+  #gestao .mgmt-kpis{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:980px){
+  #gestao .mgmt-kpis{grid-template-columns:repeat(2,1fr)!important}
+  #gestao .grid2{grid-template-columns:1fr!important}
+  .page-heading{margin-bottom:22px!important}
+}
+@media(max-width:620px){
+  #gestao .mgmt-kpis{grid-template-columns:1fr!important}
+  #gestao .mgmt-toolbar{align-items:flex-start!important;padding:18px!important}
+  #gestao #management-month{width:100%!important}
+  .page-heading h1{font-size:27px!important}
+}
+
+
+/* ===== NAVEGAÇÃO SIMPLIFICADA · IMPORTAÇÕES NA GESTÃO ===== */
+.management-imports{margin-bottom:24px!important;padding:24px!important}
+.management-import-head h2{margin:4px 0 5px;font-size:22px}
+.management-import-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.import-action{display:flex;align-items:center;gap:14px;padding:17px 18px;border:1px solid #eadbd4;border-radius:16px;background:#fffaf7;cursor:pointer;transition:.18s ease}
+.import-action:hover{transform:translateY(-1px);border-color:#df806c;box-shadow:0 8px 22px rgba(85,48,37,.08)}
+.import-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#f6ddd7;color:#c95f4e;font-size:24px;font-weight:800}
+.import-action b{display:block;color:#253142;font-size:15px;margin-bottom:3px}.import-action small{color:#8d7b74;font-size:12px}
+.management-imports input[type=file]{display:none}
+@media(max-width:720px){.management-import-grid{grid-template-columns:1fr}}
+
+
+/* ===== ÍCONES DE NAVEGAÇÃO · MIMAR ===== */
+.tab{display:flex!important;align-items:center;gap:11px!important;font-weight:700!important;letter-spacing:-.1px}
+.tab:before{display:none!important;content:none!important}
+.nav-icon{width:22px;height:22px;display:grid;place-items:center;flex:0 0 22px;color:#8f989c;transition:.18s ease}
+.nav-icon svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab:hover .nav-icon{color:#c96552}
+.tab.active .nav-icon{color:#fff}
+.tab[data-page="estoque-controle"] .nav-icon svg{stroke-width:1.9}
+.tab[data-page="gestao"] .nav-icon svg{stroke-width:1.75}
+@media(max-width:980px){.tab{gap:7px!important}.nav-icon{width:19px;height:19px;flex-basis:19px}.nav-icon svg{width:18px;height:18px}}
+
+
+/* ===== Barra fixa de coletas · demonstração ===== */
+:root{--pickup-coral:#df715e;--pickup-gold:#d99a18;--pickup-green:#15945c;--pickup-blue:#4b84d8}
+body{padding-top:18px!important}
+.tabs:before{content:"MIMAR EXPEDIÇÃO"!important}
+.pickup-strip{position:sticky;top:0;z-index:60;margin:0 0 22px;background:rgba(250,248,245,.96);backdrop-filter:blur(16px);border:1px solid #eadfd7;border-radius:18px;box-shadow:0 10px 30px rgba(79,58,44,.08);padding:12px 14px}
+.pickup-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.pickup-title{display:flex;align-items:center;gap:9px;min-width:0}.pickup-title svg{width:22px;height:22px;stroke:var(--pickup-coral);fill:none;stroke-width:1.9}.pickup-title strong{font-size:13px;letter-spacing:.2px}.pickup-title span{font-size:10px;color:#8b8179;display:block;margin-top:2px}
+.pickup-admin-actions{display:flex;gap:7px;align-items:center}.pickup-manage{display:none}.admin-mode .pickup-manage{display:inline-flex}
+.pickup-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}.pickup-card{flex:1 0 235px;min-width:235px;border:1px solid #e7ded7;border-radius:12px;background:#fff;padding:10px 11px;display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center}.pickup-card.waiting{border-color:#e5ded8;background:#fbfaf9}.pickup-card.waiting .pickup-state{background:#f0ece8;color:#7d7771}.pickup-card.active{border-color:#b9dfca;background:#f4fbf7}.pickup-card.collected{border-color:#cde4d7;background:#f7fbf8}.pickup-card.late{border-color:#efc8bf;background:#fff8f6}.pickup-account{font-weight:800;font-size:12px;color:#27313b}.pickup-time{font-weight:700;font-size:12px;color:#44515e}.pickup-state{justify-self:end;font-size:9px;font-weight:800;border-radius:999px;padding:4px 7px;background:#eef4fb;color:#4b84d8;white-space:nowrap}.pickup-card.active .pickup-state,.pickup-card.collected .pickup-state{background:#e2f5e9;color:#158552}.pickup-card.late .pickup-state{background:#fde9e4;color:#c35e49}.pickup-count{font:800 18px/1.05 Inter;color:#25303a;letter-spacing:.3px}.pickup-note{font-size:9px;color:#89929a}.pickup-card.active .pickup-count{color:#158552}.pickup-card.collected .pickup-count{color:#158552}.pickup-done-btn{grid-column:2;grid-row:2/4;align-self:center;border:1px solid #d9e0e5;background:#f5f7f8;color:#77838d;border-radius:8px;padding:8px 9px;font:700 9px Inter;cursor:pointer;white-space:nowrap}.pickup-card.active .pickup-done-btn{background:#15945c;color:white;border-color:#15945c}.pickup-card.collected .pickup-done-btn{display:none}
+.pickup-overlay{position:fixed;inset:0;display:none;z-index:10000;background:rgba(31,35,39,.5);backdrop-filter:blur(4px);padding:22px;align-items:center;justify-content:center}.pickup-overlay.open{display:flex}.pickup-modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid #eadfd6;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.18);padding:22px}.pickup-modal-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.pickup-modal h3{margin:0;font:700 21px Oswald}.pickup-modal p{margin:4px 0 0;color:#7c858d;font-size:11px}.pickup-close{border:0;background:#f2ede9;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:18px}.pickup-editor-row{display:grid;grid-template-columns:minmax(150px,1fr) 110px 110px auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #f0e8e2}.pickup-editor-row input{width:100%;border:1px solid #ddd4cd;border-radius:8px;padding:9px 10px;font:600 12px Inter;background:#fff;color:#27313b}.pickup-remove{border:0;background:#fff0ec;color:#c45d49;border-radius:8px;padding:9px 10px;font:700 10px Inter;cursor:pointer}.pickup-modal-actions{display:flex;justify-content:space-between;gap:9px;margin-top:16px;flex-wrap:wrap}.pickup-add{border:1px dashed #d9c7bc;background:#fffaf7;color:#8a6555;border-radius:9px;padding:9px 12px;font:700 11px Inter;cursor:pointer}.pickup-save{border:0;background:#df715e;color:#fff;border-radius:9px;padding:10px 15px;font:800 11px Inter;cursor:pointer}
+@media(max-width:1000px){.pickup-strip{position:sticky;top:0}.pickup-card{flex-basis:220px}.pickup-title span{display:none}}
+@media(max-width:620px){.pickup-head{align-items:flex-start}.pickup-admin-actions{flex-direction:column;align-items:stretch}.pickup-editor-row{grid-template-columns:1fr 1fr}.pickup-editor-row input:first-child{grid-column:1/-1}.pickup-remove{grid-column:1/-1}}
+
+
+
+/* ===== Destaque do mês + gestão com contraste reforçado ===== */
+.tabs{overflow:auto!important}
+.month-highlight{margin-top:10px;padding:14px 13px 13px;border-top:1px solid #eee5dd;display:grid;gap:8px}
+.month-highlight .mh-eyebrow{display:flex;align-items:center;gap:7px;color:#6f7780;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.month-highlight .mh-trophy{color:#d59a1b;font-size:16px;line-height:1}
+.month-highlight .mh-month{font-size:11px;color:#8d8a86;font-weight:700}
+.month-highlight .mh-name{font:800 24px/1.05 Inter;color:#c78a12;letter-spacing:-.5px}
+.month-highlight .mh-total{font:800 32px/1 Inter;color:#1f2933;letter-spacing:-1px}
+.month-highlight .mh-label{font-size:10px;color:#7f8790;margin-top:-3px}
+.month-highlight .mh-message{font-size:10px;line-height:1.45;color:#5f6972;padding-top:8px;border-top:1px solid #efe7e1}
+.month-highlight .mh-edit{display:none;margin-top:2px;width:100%;justify-content:center;background:#fff;border:1px solid #e6d9d0;color:#a65f50}
+.admin-mode .month-highlight .mh-edit{display:inline-flex}
+
+.month-highlight-modal{position:fixed;inset:0;display:none;z-index:10050;background:rgba(30,36,42,.52);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+.month-highlight-modal.open{display:flex}.month-highlight-box{width:min(460px,100%);background:#fff;border:1px solid #eadfd6;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.2);padding:22px}.month-highlight-box h3{margin:0 0 4px;font:800 22px Inter;color:#252d35}.month-highlight-box p{margin:0 0 16px;color:#7c858d;font-size:11px}.mh-form{display:grid;gap:10px}.mh-form label{font-size:9px;font-weight:800;color:#8b8179;text-transform:uppercase;letter-spacing:.7px}.mh-form input{width:100%;margin-top:5px;border:1px solid #ded3cb;border-radius:10px;padding:10px 11px;font:600 12px Inter;color:#27313b;background:#fff}.mh-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* Gestão: mais contraste, sem perder o visual claro */
+#gestao .page-heading h1{color:#1e2730!important;font-size:31px!important}
+#gestao .page-heading p{color:#59636d!important;font-size:13px!important}
+#gestao .mgmt-toolbar{background:#fff!important;border:1px solid #dfd4cc!important;box-shadow:0 10px 28px rgba(70,45,25,.075)!important}
+#gestao .mgmt-toolbar h2{color:#202832!important;font-size:21px!important}
+#gestao .mgmt-toolbar .sub{color:#59636d!important}
+#gestao .mgmt-eyebrow{color:#b95746!important}
+#gestao .mgmt-kpi{border:1px solid #dfd4cc!important;box-shadow:0 8px 22px rgba(70,45,25,.065)!important}
+#gestao .mgmt-kpi .label{color:#6f7479!important;font-weight:800!important}
+#gestao .mgmt-kpi .value{color:#18212a!important;font-weight:800!important}
+#gestao .mgmt-kpi .hint{color:#777f87!important}
+#gestao .trend-wrap,#gestao .card,#gestao .backup-box{border-color:#dfd4cc!important;box-shadow:0 9px 26px rgba(70,45,25,.065)!important}
+#gestao .trend-head h3,#gestao .card h2{color:#202832!important}
+#gestao .trend-head span,#gestao .card .sub{color:#67717a!important}
+#gestao .import-table th{color:#5d6670!important;font-weight:800!important;background:#fbf6f2!important}
+#gestao .import-table td{color:#313b44!important}
+#gestao .quality-item{background:#fbf7f3!important;border:1px solid #e7ddd6!important;color:#3d4650!important}
+
+@media(max-width:980px){.month-highlight{display:none}}
+
+</style>
+
+<style id="mimar-pattern-refresh">
+/* Identidade Mimar: navegação mais leve, sem bloco de logo espremido */
+body{padding-left:278px!important}
+header{min-height:48px!important;margin-bottom:26px!important}
+.tabs{top:18px!important;bottom:18px!important;padding-top:16px!important}
+.tabs:before{content:"MIMAR · PAINEL"!important;color:#c46e5d!important;font-weight:900!important;letter-spacing:1.35px!important;padding:7px 11px 13px!important}
+
+/* Pattern autoral inspirado nas formas orgânicas da marca */
+:root{
+  --mimar-pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='120' viewBox='0 0 160 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.20' stroke-width='2'%3E%3Cpath d='M20 15c13-8 29-6 37 5 8 12 4 28-9 37-13 9-29 7-37-5-8-11-4-27 9-37Z'/%3E%3Cpath d='M108 12c10 3 17 14 14 24-3 11-14 18-25 15-11-3-17-14-14-25 3-10 14-17 25-14Z'/%3E%3Cpath d='M82 73c15-6 31 1 36 15 5 14-2 29-17 34-14 5-29-2-34-15-5-14 2-28 15-34Z'/%3E%3Cpath d='M9 84c9-9 23-10 32-2 8 8 8 21-1 30-9 8-23 9-31 1-9-7-9-20 0-29Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Hero de produção: remove os círculos e usa pattern de marca */
+.hero{
+  background-image:var(--mimar-pattern),linear-gradient(118deg,#de7864 0%,#e48b77 58%,#efa08c 100%)!important;
+  background-size:170px 128px,auto!important;
+  background-position:right -18px top -10px,center!important;
+  background-repeat:repeat,no-repeat!important;
+}
+.hero:before,.hero:after{display:none!important}
+
+/* Reaproveita o pattern de forma sutil em áreas-chave */
+#card-page .exp-card-head,
+#gestao .mgmt-toolbar{
+  background-image:var(--mimar-pattern),linear-gradient(118deg,#de7864,#e58b77)!important;
+  background-size:180px 135px,auto!important;
+  background-position:right -28px center,center!important;
+  background-repeat:repeat,no-repeat!important;
+}
+
+/* Pequeno detalhe de identidade, sem ocupar espaço útil */
+.page-heading{position:relative;padding-left:16px!important}
+.page-heading:before{
+  content:"";position:absolute;left:0;top:7px;width:5px;height:42px;border-radius:5px;
+  background:linear-gradient(180deg,#de7864 0 66%,#9ccc4a 66% 100%);
+}
+.page-accent{display:none!important}
+
+@media(max-width:900px){
+  body{padding-left:20px!important}
+  .tabs{top:auto!important}
+}
+</style>
+
+<style id="mimar-sidebar-final">
+/* ===== Sidebar final · Mimar Expedição ===== */
+.tabs:before{display:none!important;content:none!important}
+.tabs{padding:20px 16px 16px!important;gap:8px!important;overflow-y:auto!important}
+.side-brand{padding:4px 8px 18px;margin-bottom:2px;border-bottom:1px solid #eee4dc}
+.side-brand .brand-title{font:900 21px/1 Inter,system-ui,sans-serif;letter-spacing:.2px;color:#232d36}
+.side-brand .brand-title .brand-mimar{color:#d8735f}
+.side-brand .brand-sub{margin-top:5px;font:800 10px/1.2 Inter,system-ui,sans-serif;letter-spacing:1.65px;color:#8d9297;text-transform:uppercase}
+.side-section-label{padding:12px 10px 5px;font:800 9px/1 Inter,system-ui,sans-serif;letter-spacing:1.5px;color:#a19a94;text-transform:uppercase}
+.tab{min-height:44px!important;border-radius:11px!important;padding:10px 12px!important}
+.tab .nav-icon{width:24px!important;height:24px!important;flex-basis:24px!important;border-radius:8px;display:grid;place-items:center}
+.tab .nav-icon svg{width:20px!important;height:20px!important}
+.tab.active .nav-icon{background:rgba(255,255,255,.16)}
+.tab[data-page="gestao"] .nav-icon svg{stroke-width:1.9!important}
+.month-highlight{margin-top:auto!important;border-top:1px solid #eee4dc!important;padding-top:16px!important}
+@media(max-width:980px){.side-brand{padding-bottom:12px}.side-brand .brand-title{font-size:18px}.side-brand .brand-sub,.side-section-label{display:none}}
+</style>
+
+<style id="mimar-daily-comparison">
+.daily-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:-2px 0 18px}
+.compare-card{background:#fff;border:1px solid #eadfd7;border-radius:16px;padding:16px 18px;box-shadow:0 7px 20px rgba(70,45,25,.055)}
+.compare-card .compare-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.compare-card .compare-label{font-size:11px;font-weight:800;color:#716b66;letter-spacing:.15px}
+.compare-card .compare-value{font:800 27px/1 Inter;color:#252e37;letter-spacing:-1px}
+.compare-card .compare-note{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;margin-top:8px}
+.compare-note.up{color:#43855c}.compare-note.down{color:#c35c4d}.compare-note.same{color:#7c858d}.compare-note.neutral{color:#8e969d}
+.compare-note .compare-badge{width:20px;height:20px;border-radius:7px;display:grid;place-items:center;font-size:11px;background:#f3f1ef}
+.compare-note.up .compare-badge{background:#e6f4ea}.compare-note.down .compare-badge{background:#fbe9e6}.compare-note.same .compare-badge{background:#edf0f2}
+.compare-card.primary{border-color:#dfd2c9}.compare-card.primary .compare-value{color:#d66e5a}
+@media(max-width:760px){.daily-compare-grid{grid-template-columns:1fr}.compare-card{padding:14px 16px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <div class="brand"><div class="logo">M</div><div><h1>Mimar — Painel Operacional</h1><p>Produção, estoque, expedição e card diário em um único lugar</p></div></div>
-  <div class="header-actions">
+    <div class="header-actions">
     <span class="cloud-state" id="cloud-state"><i class="cloud-dot"></i><span id="cloud-state-text">Conectando...</span></span>
-    <label class="btn btn-orange admin-only" for="prod-file">↑ Atualizar produção</label>
-    <input id="prod-file" type="file" accept=".xlsx,.xls,.xlsm">
-    <label class="btn btn-green admin-only" for="exp-file">↑ Atualizar Expedição</label>
-    <input id="exp-file" type="file" accept=".csv,.xlsx,.xls" multiple>
     <button class="btn btn-dark" id="admin-login-btn">🔐 Acesso administrativo</button>
   </div>
 </header>
 <nav class="tabs">
-  <button class="tab active" data-page="dashboard">Visão geral</button>
-  <button class="tab" data-page="card-page">Card do dia</button>
-  <button class="tab" data-page="expedicao">Expedição</button>
-  <button class="tab admin-only" data-page="gestao">Gestão</button>
-  <button class="tab" data-page="estoque-controle">Estoque</button>
+  <div class="side-brand"><div class="brand-title"><span class="brand-mimar">MIMAR</span> EXPEDIÇÃO</div><div class="brand-sub">Painel operacional</div></div>
+  <div class="side-section-label">Navegação</div>
+  <button class="tab active" data-page="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span><span>Visão geral</span></button>
+  <button class="tab" data-page="card-page"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="M6 17l4.2-4.2a1.5 1.5 0 0 1 2.1 0L15 15.5l1.2-1.2a1.5 1.5 0 0 1 2.1 0L21 17"/></svg></span><span>Card do dia</span></button>
+  <button class="tab" data-page="estoque-controle"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg></span><span>Estoque</span></button>
+  <button class="tab admin-only" data-page="gestao"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h3"/><path d="M11 12h9"/><circle cx="9" cy="12" r="2"/><path d="M4 18h8"/><path d="M16 18h4"/><circle cx="14" cy="18" r="2"/></svg></span><span>Gestão <span style="font-size:10px;opacity:.7">🔒</span></span></button>
+  <div class="month-highlight" id="month-highlight">
+    <div class="mh-eyebrow"><span class="mh-trophy">🏆</span><span>Destaque do mês</span></div>
+    <div class="mh-month" id="mh-month">Agosto/2026</div>
+    <div class="mh-name" id="mh-name">Fagner</div>
+    <div class="mh-total" id="mh-total">1.504</div>
+    <div class="mh-label">produtos feitos</div>
+    <div class="mh-message" id="mh-message">“Disciplina hoje, resultados sempre!”</div>
+    <button class="btn mh-edit" id="mh-edit">✎ Editar destaque</button>
+  </div>
 </nav>
 
+
+<div class="pickup-strip" id="pickup-strip">
+  <div class="pickup-head">
+    <div class="pickup-title">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3z"/><path d="M14 10h3l4 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+      <div><strong>Horário de coleta das contas</strong><span>Acompanhe os horários e marque quando cada coleta for realizada.</span></div>
+    </div>
+    <div class="pickup-admin-actions"><button class="btn btn-dark pickup-manage" id="pickup-manage">⚙ Gerenciar contas</button><button class="btn" id="pickup-edit-times">✎ Editar horários</button></div>
+  </div>
+  <div class="pickup-row" id="pickup-row"></div>
+</div>
+
 <section class="page active" id="dashboard">
+  <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Visão geral</h1><p>Acompanhe a operação do dia em um só lugar.</p></div><div class="page-accent"></div></div>
   <div class="sourcebar"><span>Produção: <strong id="prod-source">snapshot carregado</strong></span><span>Atualizado: <strong id="prod-time">—</strong></span></div>
   <div class="view-toggle" id="prod-view"><button class="active" data-view="today">Hoje</button><button data-view="period">Período total</button></div>
   <div class="hero">
     <div class="hero-top"><span class="hero-label" id="hero-label">Produção de hoje</span><span class="hero-date" id="hero-date"></span></div>
     <div class="hero-num" id="hero-total">0</div><div class="hero-sub">itens produzidos</div>
     <div class="chips"><div class="chip green"><b id="hero-full">0</b><span>Full</span></div><div class="chip orange"><b id="hero-stock">0</b><span>Estoque</span></div><div class="chip"><b id="hero-done">0</b><span>Linhas concluídas</span></div><div class="chip blue"><b id="hero-exp">0</b><span>Expedidos no dia</span></div></div>
+  </div>
+  <div class="daily-compare-grid" id="daily-compare-grid">
+    <div class="compare-card primary"><div class="compare-top"><span class="compare-label">Pedidos expedidos hoje</span><span class="compare-value" id="cmp-exp-value">0</span></div><div class="compare-note neutral" id="cmp-exp-note"><span class="compare-badge">•</span><span>Aguardando comparativo com ontem</span></div></div>
+    <div class="compare-card"><div class="compare-top"><span class="compare-label">Produção de hoje</span><span class="compare-value" id="cmp-prod-value">0</span></div><div class="compare-note neutral" id="cmp-prod-note"><span class="compare-badge">•</span><span>Aguardando comparativo com ontem</span></div></div>
+    <div class="compare-card"><div class="compare-top"><span class="compare-label">Full produzido hoje</span><span class="compare-value" id="cmp-full-value">0</span></div><div class="compare-note neutral" id="cmp-full-note"><span class="compare-badge">•</span><span>Aguardando comparativo com ontem</span></div></div>
   </div>
   <div class="grid2">
     <div class="card"><h2>Ranking da produção</h2><div class="sub" id="rank-sub">Quem mais produziu hoje</div><div id="prod-ranking"></div></div>
@@ -88,7 +494,8 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding:22px 0 8px;color
 </section>
 
 <section class="page" id="card-page">
-  <div class="card-tools"><div><h2>Card diário da operação</h2><div class="card-help">Expedição + produção Full + Estoque conectadas pela mesma data. O seletor exibe somente dias que possuem estatística de expedição registrada.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="history-date" class="history-select"></select><button class="btn btn-green" id="download-card">↓ Baixar card do dia (PNG)</button></div></div>
+  <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Card do dia</h1><p>Resumo visual pronto para apresentar e compartilhar.</p></div><div class="page-accent"></div></div>
+  <div class="card-tools"><div><h2>Card diário da operação</h2><div class="card-help">Expedição + produção Full + Estoque conectadas pela mesma data. Os dados são atualizados pelas importações da Gestão e o seletor exibe os dias com estatística registrada.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="history-date" class="history-select"></select><button class="btn btn-green" id="download-card">↓ Baixar card do dia (PNG)</button></div></div>
   <div class="exp-card-wrap">
     <div class="exp-card-export" id="report-card">
       <div class="exp-card-head">
@@ -113,19 +520,23 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding:22px 0 8px;color
   </div>
 </section>
 
-<section class="page" id="expedicao">
-  <div class="upload-zone">
-    <h2>Atualizar Expedição</h2>
-    <p>Envie um ou vários arquivos <strong>statistics_employee</strong>, inclusive de dias anteriores. Cada data identificada no relatório é registrada automaticamente; somente dias com estatística de expedição aparecem no histórico e no seletor do card.</p>
-    <label class="btn btn-green admin-only" for="exp-file-2">↑ Atualizar Expedição</label><input id="exp-file-2" type="file" accept=".csv,.xlsx,.xls" multiple>
-    <div class="file-badge" id="exp-source">Nenhum arquivo diário carregado</div><div class="history-note" id="history-note"></div>
-  </div>
-  <div class="grid3"><div class="card kpi"><div class="n" id="exp-total">0</div><div class="l">Pedidos expedidos</div><div class="hint" id="exp-date">Data não identificada</div></div><div class="card kpi"><div class="n" id="exp-people">0</div><div class="l">Funcionários com expedição</div><div class="hint">com quantidade maior que zero</div></div><div class="card kpi"><div class="n" id="exp-accounts">0</div><div class="l">Contas movimentadas</div><div class="hint">marketplaces com pedidos</div></div></div>
-  <div class="grid2"><div class="card"><h2>Ranking da expedição</h2><div class="sub">Total expedido por funcionário</div><div id="exp-ranking"></div></div><div class="card"><h2>Volume por conta</h2><div class="sub">Distribuição do dia entre os marketplaces</div><div class="market-grid" id="market-list"></div></div></div>
-</section>
+<div id="expedicao-compat" style="display:none" aria-hidden="true">
+  <span id="exp-source"></span><span id="history-note"></span><span id="exp-total"></span><span id="exp-date"></span><span id="exp-people"></span><span id="exp-accounts"></span><div id="exp-ranking"></div><div id="market-list"></div>
+</div>
 
 <section class="page" id="gestao">
-  <div class="mgmt-toolbar"><div><h2>Gestão operacional</h2><div class="sub" style="margin:3px 0 0">Leitura mensal consolidada da expedição e produção.</div></div><select id="management-month"></select></div>
+  <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Gestão</h1><p>Indicadores consolidados para decisões da operação.</p></div><div class="page-accent"></div></div>
+  <div class="card management-imports admin-only">
+    <div class="management-import-head"><div><span class="mgmt-eyebrow">ATUALIZAÇÃO DE DADOS</span><h2>Importar planilhas</h2><div class="sub">Atualize Produção e Expedição aqui. Os dados alimentam automaticamente a Visão Geral, o Card do Dia e os indicadores de Gestão.</div></div></div>
+    <div class="management-import-grid">
+      <label class="import-action" for="prod-file"><span class="import-icon">↥</span><span><b>Importar Produção</b><small>Planilha XLSX / XLS</small></span></label>
+      <input id="prod-file" type="file" accept=".xlsx,.xls,.xlsm">
+      <label class="import-action" for="exp-file"><span class="import-icon">↥</span><span><b>Importar Expedição</b><small>statistics_employee · CSV / XLSX</small></span></label>
+      <input id="exp-file" type="file" accept=".csv,.xlsx,.xls" multiple>
+      <input id="exp-file-2" type="file" accept=".csv,.xlsx,.xls" multiple>
+    </div>
+  </div>
+  <div class="mgmt-toolbar"><div><span class="mgmt-eyebrow">RESUMO DO MÊS</span><h2>Indicadores operacionais</h2><div class="sub" style="margin:5px 0 0">Expedição e produção consolidadas no período selecionado.</div></div><select id="management-month"></select></div>
   <div class="mgmt-kpis">
     <div class="mgmt-kpi"><div class="label">Expedição no mês</div><div class="value blue" id="mg-exp-total">0</div><div class="hint" id="mg-exp-days">0 dias registrados</div></div>
     <div class="mgmt-kpi"><div class="label">Média expedida/dia</div><div class="value" id="mg-exp-avg">0</div><div class="hint">somente dias com estatística</div></div>
@@ -141,6 +552,7 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding:22px 0 8px;color
 </section>
 
 <section class="page" id="estoque-controle">
+  <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Estoque</h1><p>Consulta rápida e controle dos produtos disponíveis.</p></div><div class="page-accent"></div></div>
   <div class="mgmt-toolbar">
     <div><h2 id="stock-title">Estoque</h2><div class="sub" id="stock-subtitle" style="margin:3px 0 0">Consulte e pesquise os produtos disponíveis.</div></div>
     <div class="stock-view-actions"><span class="status-pill status-ok" id="stock-sync-status">Supabase</span><button class="btn btn-orange" id="stock-edit-toggle" type="button">✎ Alterar estoque</button></div>
@@ -164,6 +576,29 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding:22px 0 8px;color
   </div>
   <div class="stock-table-wrap stock-readonly-table"><table class="stock-table"><thead id="stock-table-head"><tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th></tr></thead><tbody id="stock-table-body"><tr><td colspan="5" class="stock-empty">Carregando estoque...</td></tr></tbody></table></div>
 </section>
+
+
+<div class="month-highlight-modal" id="mh-modal" aria-hidden="true">
+  <div class="month-highlight-box">
+    <h3>Editar destaque do mês</h3>
+    <p>Somente usuários com acesso administrativo podem alterar estas informações.</p>
+    <div class="mh-form">
+      <label>Mês<input id="mh-input-month" placeholder="Agosto/2026"></label>
+      <label>Funcionário<input id="mh-input-name" placeholder="Fagner"></label>
+      <label>Produtos feitos<input id="mh-input-total" type="number" min="0" step="1" placeholder="1504"></label>
+      <label>Mensagem<input id="mh-input-message" placeholder="Disciplina hoje, resultados sempre!"></label>
+    </div>
+    <div class="mh-actions"><button class="btn btn-dark" id="mh-cancel">Cancelar</button><button class="btn btn-orange" id="mh-save">Salvar destaque</button></div>
+  </div>
+</div>
+
+<div class="pickup-overlay" id="pickup-overlay" aria-hidden="true">
+  <div class="pickup-modal" role="dialog" aria-modal="true" aria-labelledby="pickup-modal-title">
+    <div class="pickup-modal-head"><div><h3 id="pickup-modal-title">Gerenciar horários de coleta</h3><p>Administrador pode adicionar futuras contas. Os horários desta demonstração ficam salvos neste navegador.</p></div><button class="pickup-close" id="pickup-close" aria-label="Fechar">×</button></div>
+    <div id="pickup-editor"></div>
+    <div class="pickup-modal-actions"><button class="pickup-add" id="pickup-add">＋ Adicionar conta</button><button class="pickup-save" id="pickup-save">Salvar horários</button></div>
+  </div>
+</div>
 
 <div class="auth-overlay" id="auth-overlay" aria-hidden="true">
   <div class="auth-box">
@@ -252,10 +687,33 @@ async function deleteStockRow(id){requireAdmin();const {error}=await cloud.from(
 
 function rankHTML(obj,type='production'){const a=Object.entries(obj).map(([n,v])=>({n,...(typeof v==='number'?{total:v}:v)})).sort((x,y)=>y.total-x.total),mx=Math.max(1,...a.map(x=>x.total));if(!a.some(x=>x.total))return '<div class="empty">Sem dados para este período.</div>';return a.map((x,i)=>`<div class="rank-row"><div class="rank-top"><span class="rank-name">${i<3?['🥇 ','🥈 ','🥉 '][i]:''}${x.n}</span><span class="rank-val">${fmt(x.total)}</span></div><div class="bar">${type==='production'?`<div class="bar-full" style="width:${(x.full||0)/mx*100}%"></div><div class="bar-stock" style="width:${(x.stock||0)/mx*100}%"></div>`:`<div class="bar-blue" style="width:${x.total/mx*100}%"></div>`}</div></div>`).join('')}
 function donut(obj,elId,totalId,legendId){const e=Object.entries(obj).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]),tot=e.reduce((s,[,v])=>s+v,0),d=document.getElementById(elId),l=document.getElementById(legendId);document.getElementById(totalId).textContent=fmt(tot);if(!tot){d.style.background='conic-gradient(var(--panel2) 0 360deg)';l.innerHTML='<div class="empty">Sem dados.</div>';return}let a=0;d.style.background='conic-gradient('+e.map(([,v],i)=>{let st=a/tot*360;a+=v;return `${COLORS[i%COLORS.length]} ${st}deg ${a/tot*360}deg`}).join(',')+')';l.innerHTML=e.map(([n,v],i)=>`<div class="legend-row"><i class="dot" style="background:${COLORS[i%COLORS.length]}"></i><span class="name">${n}</span><span class="val">${fmt(v)}</span></div>`).join('')}
-function renderProduction(){const useToday=prodView==='today',t=useToday?agg.today:agg.totals,e=useToday?agg.todayEmployees:agg.employees;document.getElementById('hero-label').textContent=useToday?'Produção de hoje':'Produção no período';document.getElementById('hero-date').textContent=useToday?new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'}):'';document.getElementById('hero-total').textContent=fmt(t.total);document.getElementById('hero-full').textContent=fmt(t.full);document.getElementById('hero-stock').textContent=fmt(t.stock);document.getElementById('hero-done').textContent=fmt(t.done);document.getElementById('rank-sub').textContent=useToday?'Quem mais produziu hoje':'Quem mais produziu no período';document.getElementById('prod-ranking').innerHTML=rankHTML(e);donut(agg.stockCats,'stock-donut','stock-total','stock-legend');const ep=Object.entries(agg.stockProd).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=ep[0]?.[1]||1;document.getElementById('stock-products').innerHTML=ep.length?ep.map(([n,v])=>`<div class="prod-row"><span>${n}</span><span class="val">${fmt(v)}</span><div class="bar"><div class="bar-stock" style="width:${v/mx*100}%"></div></div></div>`).join(''):'<div class="empty">Sem produtos em estoque.</div>'}
+function previousISO(iso){const d=dateObj(iso);d.setDate(d.getDate()-1);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+function productionSnapshotForDate(iso){
+  if(prodHistory[iso]?.totals)return prodHistory[iso].totals;
+  const out={total:0,full:0,stock:0,done:0};
+  for(const r of (cloudProductionRecords||[])){if(norm(r.data)!==iso)continue;const q=Number(r.quantidade)||0,tipo=strip(r.tipo);out.total+=q;if(tipo==='full')out.full+=q;else if(tipo==='estoque')out.stock+=q;if(strip(r.status).includes('conclu'))out.done++}return out
+}
+function comparisonText(today,yesterday){
+  today=Number(today)||0;yesterday=Number(yesterday)||0;
+  if(yesterday===0)return {cls:'neutral',icon:'•',text:today>0?'Ontem não houve registro':'Sem dados para comparar com ontem'};
+  const diff=today-yesterday,pct=Math.abs(diff/yesterday*100);
+  if(diff>0)return {cls:'up',icon:'↑',text:`${fmt(diff)} a mais que ontem (+${Math.round(pct)}%)`};
+  if(diff<0)return {cls:'down',icon:'↓',text:`${fmt(Math.abs(diff))} a menos que ontem (-${Math.round(pct)}%)`};
+  return {cls:'same',icon:'=',text:'Mesmo resultado de ontem'}
+}
+function setComparison(noteId,today,yesterday){const el=document.getElementById(noteId);if(!el)return;const c=comparisonText(today,yesterday);el.className=`compare-note ${c.cls}`;el.innerHTML=`<span class="compare-badge">${c.icon}</span><span>${c.text}</span>`}
+function renderDailyComparisons(){
+  const iso=todayISO(),prev=previousISO(iso),prod=productionSnapshotForDate(iso),prevProd=productionSnapshotForDate(prev);
+  const expToday=Number(expHistory[iso]?.total)||0,expPrev=Number(expHistory[prev]?.total)||0;
+  document.getElementById('cmp-exp-value').textContent=fmt(expToday);
+  document.getElementById('cmp-prod-value').textContent=fmt(prod.total||0);
+  document.getElementById('cmp-full-value').textContent=fmt(prod.full||0);
+  setComparison('cmp-exp-note',expToday,expPrev);setComparison('cmp-prod-note',prod.total||0,prevProd.total||0);setComparison('cmp-full-note',prod.full||0,prevProd.full||0);
+}
+function renderProduction(){const useToday=prodView==='today',t=useToday?agg.today:agg.totals,e=useToday?agg.todayEmployees:agg.employees;document.getElementById('hero-label').textContent=useToday?'Produção de hoje':'Produção no período';document.getElementById('hero-date').textContent=useToday?new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'}):'';document.getElementById('hero-total').textContent=fmt(t.total);document.getElementById('hero-full').textContent=fmt(t.full);document.getElementById('hero-stock').textContent=fmt(t.stock);document.getElementById('hero-done').textContent=fmt(t.done);document.getElementById('rank-sub').textContent=useToday?'Quem mais produziu hoje':'Quem mais produziu no período';document.getElementById('prod-ranking').innerHTML=rankHTML(e);donut(agg.stockCats,'stock-donut','stock-total','stock-legend');const ep=Object.entries(agg.stockProd).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=ep[0]?.[1]||1;document.getElementById('stock-products').innerHTML=ep.length?ep.map(([n,v])=>`<div class="prod-row"><span>${n}</span><span class="val">${fmt(v)}</span><div class="bar"><div class="bar-stock" style="width:${v/mx*100}%"></div></div></div>`).join(''):'<div class="empty">Sem produtos em estoque.</div>';renderDailyComparisons()}
 function cleanAccountName(h){return norm(h).replace(/^\d+\.\s*/,'').replace(/\s*\(Cl\)\s*$/i,'').replace(/\s*-\s*/g,' ')}
 function buildExp(headers,rows,source,dateIso){const emp={},acct={},employeeAccounts={};headers=headers.map(norm);rows.forEach(r=>{const name=norm(r[0]);if(!name)return;let sum=0;employeeAccounts[name]={};headers.slice(1).forEach((h,i)=>{let n=Number(String(r[i+1]??0).replace(',','.'));if(!Number.isFinite(n))n=0;sum+=n;acct[h]=(acct[h]||0)+n;if(n>0){const cn=cleanAccountName(h);employeeAccounts[name][cn]=(employeeAccounts[name][cn]||0)+n}});emp[name]=(emp[name]||0)+sum});const total=Object.values(emp).reduce((a,b)=>a+b,0);const iso=dateIso||expDateISOFromName(source);expData={headers,rows,employeeTotals:emp,employeeAccounts,accountTotals:acct,total,date:labelDate(iso),dateISO:iso,source};if(iso){expHistory[iso]={headers,employeeTotals:emp,employeeAccounts,accountTotals:acct,total,source,dateISO:iso};saveStore(EXP_HISTORY_KEY,expHistory);selectedDate=iso}refreshHistorySelect();renderAll()}
-function renderExpedition(){document.getElementById('exp-source').textContent=expData.source||'Nenhum arquivo diário carregado';document.getElementById('exp-total').textContent=fmt(expData.total);document.getElementById('exp-date').textContent=expData.dateISO?`Referência: ${labelDate(expData.dateISO)}`:'Data não identificada';document.getElementById('exp-people').textContent=Object.values(expData.employeeTotals).filter(v=>v>0).length;document.getElementById('exp-accounts').textContent=Object.values(expData.accountTotals||{}).filter(v=>v>0).length;document.getElementById('exp-ranking').innerHTML=rankHTML(expData.employeeTotals,'expedition');const ents=Object.entries(expData.accountTotals||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);document.getElementById('market-list').innerHTML=ents.length?ents.map(([n,v])=>`<div class="market-row"><span>${cleanAccountName(n)}</span><b>${fmt(v)}</b></div>`).join(''):'<div class="empty">Sem detalhamento de contas para este dia.</div>';document.getElementById('hero-exp').textContent=fmt(expData.total);document.getElementById('history-note').textContent=`Histórico registrado: ${Object.keys(expHistory).length} dia(s) de expedição · ${Object.keys(prodHistory).length} dia(s) com produção.`}
+function renderExpedition(){document.getElementById('exp-source').textContent=expData.source||'Nenhum arquivo diário carregado';document.getElementById('exp-total').textContent=fmt(expData.total);document.getElementById('exp-date').textContent=expData.dateISO?`Referência: ${labelDate(expData.dateISO)}`:'Data não identificada';document.getElementById('exp-people').textContent=Object.values(expData.employeeTotals).filter(v=>v>0).length;document.getElementById('exp-accounts').textContent=Object.values(expData.accountTotals||{}).filter(v=>v>0).length;document.getElementById('exp-ranking').innerHTML=rankHTML(expData.employeeTotals,'expedition');const ents=Object.entries(expData.accountTotals||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);document.getElementById('market-list').innerHTML=ents.length?ents.map(([n,v])=>`<div class="market-row"><span>${cleanAccountName(n)}</span><b>${fmt(v)}</b></div>`).join(''):'<div class="empty">Sem detalhamento de contas para este dia.</div>';document.getElementById('hero-exp').textContent=fmt(expData.total);renderDailyComparisons();document.getElementById('history-note').textContent=`Histórico registrado: ${Object.keys(expHistory).length} dia(s) de expedição · ${Object.keys(prodHistory).length} dia(s) com produção.`}
 function dateObj(iso){if(!iso)return new Date();const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d)}
 function weekdayPt(d){return ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'][d.getDay()]}
 function sumHistoryInRange(start,end){const out={};Object.entries(expHistory).forEach(([iso,snap])=>{const d=dateObj(iso);if(d<start||d>end)return;Object.entries(snap.employeeTotals||{}).forEach(([n,v])=>out[n]=(out[n]||0)+(Number(v)||0))});return out}
@@ -318,7 +776,7 @@ bindSingle('prod-file',loadProdFile);bindMulti('exp-file');bindMulti('exp-file-2
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.page).classList.add('active')});
 document.getElementById('prod-view').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#prod-view button').forEach(x=>x.classList.remove('active'));b.classList.add('active');prodView=b.dataset.view;renderProduction()});
 document.getElementById('history-date').addEventListener('change',e=>loadHistoryDate(e.target.value));
-document.getElementById('download-card').addEventListener('click',async function(){const iso=selectedDate||expData.dateISO;if(!iso||!expHistory[iso]){alert('Importe uma estatística de expedição antes de baixar o card.');return}const original=this.textContent;this.textContent='Gerando...';this.disabled=true;try{const canvas=await html2canvas(document.getElementById('report-card'),{backgroundColor:'#10161c',scale:2});const a=document.createElement('a');a.download=`Mimar-operacao-${iso}.png`;a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('Não foi possível gerar o card.\n'+e.message)}finally{this.textContent=original;this.disabled=false}});
+document.getElementById('download-card').addEventListener('click',async function(){const iso=selectedDate||expData.dateISO;if(!iso||!expHistory[iso]){alert('Importe uma estatística de expedição antes de baixar o card.');return}const original=this.textContent;this.textContent='Gerando...';this.disabled=true;try{const canvas=await html2canvas(document.getElementById('report-card'),{backgroundColor:'#fffaf7',scale:2});const a=document.createElement('a');a.download=`Mimar-operacao-${iso}.png`;a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('Não foi possível gerar o card.\n'+e.message)}finally{this.textContent=original;this.disabled=false}});
 
 document.getElementById('management-month').addEventListener('change',renderManagement);
 document.getElementById('export-backup').addEventListener('click',exportBackup);
@@ -334,6 +792,65 @@ document.getElementById('admin-login-btn').addEventListener('click',async()=>{if
 document.getElementById('auth-cancel').addEventListener('click',closeAuth);
 document.getElementById('auth-overlay').addEventListener('click',e=>{if(e.target.id==='auth-overlay')closeAuth()});
 document.getElementById('auth-form').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('auth-submit'),err=document.getElementById('auth-error');btn.disabled=true;btn.textContent='Entrando...';err.textContent='';try{await signInAdmin(document.getElementById('auth-email').value.trim(),document.getElementById('auth-password').value)}catch(ex){err.textContent=ex.message||'Não foi possível entrar.'}finally{btn.disabled=false;btn.textContent='Entrar'}});
+
+
+// ===== Destaque do mês · edição somente administrativa =====
+const MONTH_HIGHLIGHT_KEY='mimar_month_highlight_v1';
+let monthHighlight=(()=>{try{return JSON.parse(localStorage.getItem(MONTH_HIGHLIGHT_KEY)||'null')||{month:'Agosto/2026',name:'Fagner',total:1504,message:'Disciplina hoje, resultados sempre!'}}catch(e){return{month:'Agosto/2026',name:'Fagner',total:1504,message:'Disciplina hoje, resultados sempre!'}}})();
+function renderMonthHighlight(){
+  document.getElementById('mh-month').textContent=monthHighlight.month||'—';
+  document.getElementById('mh-name').textContent=monthHighlight.name||'—';
+  document.getElementById('mh-total').textContent=Number(monthHighlight.total||0).toLocaleString('pt-BR');
+  document.getElementById('mh-message').textContent='“'+(monthHighlight.message||'')+'”';
+}
+function openMonthHighlight(){if(!isAdmin){openAuth();return}document.getElementById('mh-input-month').value=monthHighlight.month||'';document.getElementById('mh-input-name').value=monthHighlight.name||'';document.getElementById('mh-input-total').value=monthHighlight.total||0;document.getElementById('mh-input-message').value=monthHighlight.message||'';const m=document.getElementById('mh-modal');m.classList.add('open');m.setAttribute('aria-hidden','false')}
+function closeMonthHighlight(){const m=document.getElementById('mh-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true')}
+document.getElementById('mh-edit').addEventListener('click',openMonthHighlight);
+document.getElementById('mh-cancel').addEventListener('click',closeMonthHighlight);
+document.getElementById('mh-modal').addEventListener('click',e=>{if(e.target.id==='mh-modal')closeMonthHighlight()});
+document.getElementById('mh-save').addEventListener('click',()=>{if(!isAdmin){closeMonthHighlight();openAuth();return}monthHighlight={month:document.getElementById('mh-input-month').value.trim()||'—',name:document.getElementById('mh-input-name').value.trim()||'—',total:Math.max(0,Number(document.getElementById('mh-input-total').value||0)),message:document.getElementById('mh-input-message').value.trim()||''};localStorage.setItem(MONTH_HIGHLIGHT_KEY,JSON.stringify(monthHighlight));renderMonthHighlight();closeMonthHighlight()});
+renderMonthHighlight();
+
+// ===== Horários de coleta · demo local =====
+const PICKUP_KEY='mimar_pickup_schedule_demo_v1';
+const PICKUP_DEFAULT=[
+  {id:'mimar',name:'Mimar',start:'12:30',end:'14:30',collected:false,collectedAt:null},
+  {id:'utilize',name:'Utilize',start:'14:30',end:'16:00',collected:false,collectedAt:null},
+  {id:'tem-de-tudo',name:'Tem de Tudo',start:'14:30',end:'16:00',collected:false,collectedAt:null},
+  {id:'shopee',name:'Shopee',start:'15:00',end:'17:00',collected:false,collectedAt:null}
+];
+const PICKUP_DATE_KEY='mimar_pickup_schedule_date_v1';
+function pickupTodayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+let pickupSchedule=(()=>{
+  try{
+    const savedDate=localStorage.getItem(PICKUP_DATE_KEY);
+    const x=JSON.parse(localStorage.getItem(PICKUP_KEY)||'null');
+    if(savedDate===pickupTodayKey() && Array.isArray(x)) return x;
+    const fresh=PICKUP_DEFAULT.map(a=>({...a,start:'',end:'',collected:false,collectedAt:null}));
+    localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());
+    localStorage.setItem(PICKUP_KEY,JSON.stringify(fresh));
+    return fresh;
+  }catch(e){return PICKUP_DEFAULT.map(a=>({...a,start:'',end:'',collected:false,collectedAt:null}))}
+})();
+function pickupSaveLocal(){localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());localStorage.setItem(PICKUP_KEY,JSON.stringify(pickupSchedule))}
+function pickupSecs(t){const [h,m]=String(t||'00:00').split(':').map(Number);return h*3600+m*60}
+function pickupFmt(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':')}
+function pickupStatus(a,now){if(!a.start||!a.end)return{cls:'waiting',state:'Aguardando horário',count:'—',note:'adicione o horário do dia'};const cur=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(),start=pickupSecs(a.start),end=pickupSecs(a.end);if(a.collected)return{cls:'collected',state:'✓ Coletado',count:a.collectedAt||'Concluído',note:a.collectedAt?'coletado às '+a.collectedAt:'coleta concluída'};if(cur<start)return{cls:'',state:'Próxima',count:pickupFmt(start-cur),note:'para iniciar'};if(cur<=end)return{cls:'active',state:'Em andamento',count:pickupFmt(end-cur),note:'restantes'};return{cls:'late',state:'Encerrada',count:'00:00:00',note:'aguardando confirmação'}}
+function renderPickups(){const row=document.getElementById('pickup-row');if(!row)return;const now=new Date();row.innerHTML=pickupSchedule.map(a=>{const st=pickupStatus(a,now);return `<div class="pickup-card ${st.cls}" data-pickup-id="${a.id}"><div><div class="pickup-account">${stockSafe(a.name)}</div><div class="pickup-time">${a.start&&a.end?stockSafe(a.start)+' ~ '+stockSafe(a.end):'Horário não definido'}</div></div><span class="pickup-state">${st.state}</span><div><div class="pickup-count">${st.count}</div><div class="pickup-note">${st.note}</div></div>${a.collected?'':`<button class="pickup-done-btn" data-pickup-done="${a.id}">✓ Marcar coletado</button>`}</div>`}).join('')}
+function openPickupEditor(){if(!isAdmin){openAuth();return}renderPickupEditor();const o=document.getElementById('pickup-overlay');o.classList.add('open');o.setAttribute('aria-hidden','false')}
+function closePickupEditor(){const o=document.getElementById('pickup-overlay');o.classList.remove('open');o.setAttribute('aria-hidden','true')}
+function renderPickupEditor(){const ed=document.getElementById('pickup-editor');ed.innerHTML=pickupSchedule.map((a,i)=>`<div class="pickup-editor-row" data-i="${i}"><input data-field="name" value="${stockSafe(a.name)}" placeholder="Nome da conta"><input data-field="start" type="time" value="${a.start}"><input data-field="end" type="time" value="${a.end}"><button class="pickup-remove" data-remove="${i}">Remover</button></div>`).join('')}
+function collectPickupEditor(){document.querySelectorAll('.pickup-editor-row').forEach((r,i)=>{if(!pickupSchedule[i])return;pickupSchedule[i].name=r.querySelector('[data-field="name"]').value.trim()||'Conta';pickupSchedule[i].start=r.querySelector('[data-field="start"]').value||'';pickupSchedule[i].end=r.querySelector('[data-field="end"]').value||''})}
+document.getElementById('pickup-row').addEventListener('click',e=>{const b=e.target.closest('[data-pickup-done]');if(!b)return;const a=pickupSchedule.find(x=>x.id===b.dataset.pickupDone);if(!a)return;a.collected=true;a.collectedAt=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});pickupSaveLocal();renderPickups()});
+document.getElementById('pickup-edit-times').addEventListener('click',openPickupEditor);
+document.getElementById('pickup-manage').addEventListener('click',openPickupEditor);
+document.getElementById('pickup-close').addEventListener('click',closePickupEditor);
+document.getElementById('pickup-overlay').addEventListener('click',e=>{if(e.target.id==='pickup-overlay')closePickupEditor()});
+document.getElementById('pickup-add').addEventListener('click',()=>{collectPickupEditor();pickupSchedule.push({id:'conta-'+Date.now(),name:'Nova conta',start:'',end:'',collected:false,collectedAt:null});renderPickupEditor()});
+document.getElementById('pickup-editor').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;collectPickupEditor();pickupSchedule.splice(Number(b.dataset.remove),1);renderPickupEditor()});
+document.getElementById('pickup-save').addEventListener('click',()=>{collectPickupEditor();pickupSchedule.forEach(a=>{a.collected=false;a.collectedAt=null});pickupSaveLocal();renderPickups();closePickupEditor()});
+renderPickups();setInterval(renderPickups,1000);
+
 cloud.auth.onAuthStateChange(()=>setTimeout(refreshAuthUI,0));
 
 /* Inicialização: Supabase é a fonte principal; localStorage fica apenas como cache de emergência. */
