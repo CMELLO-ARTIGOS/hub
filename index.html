@@ -433,6 +433,91 @@ header{min-height:48px!important;margin-bottom:26px!important}
 .compare-card.primary{border-color:#dfd2c9}.compare-card.primary .compare-value{color:#d66e5a}
 @media(max-width:760px){.daily-compare-grid{grid-template-columns:1fr}.compare-card{padding:14px 16px}}
 </style>
+
+<style id="stock-rotation-style">
+.stock-rotation-grid{display:grid;grid-template-columns:1.35fr .9fr;gap:14px;margin:0 0 16px}
+.stock-rotation-card,.stock-last-card{background:#fff;border:1px solid #eee2da;border-radius:18px;box-shadow:0 8px 26px rgba(70,45,25,.05);padding:18px}
+.stock-rotation-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.stock-rotation-head h3,.stock-last-card h3{margin:0;color:#2e3338;font-size:15px}.stock-rotation-head p,.stock-last-card p{margin:4px 0 0;color:#8b8580;font-size:12px}
+.rotation-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.rotation-item{border:1px solid #f0e6df;background:#fffaf7;border-radius:14px;padding:12px}.rotation-item.active{border-color:#e38a75;background:#fff4ef;box-shadow:inset 0 0 0 1px rgba(222,120,100,.08)}.rotation-day{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#7d7772;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}.rotation-day .today{background:#e8755f;color:#fff;border-radius:999px;padding:3px 7px;font-size:9px}.rotation-names{font-weight:800;color:#33383d;margin-top:7px;font-size:13px}.rotation-note{color:#918b86;font-size:11px;margin-top:4px;line-height:1.35}
+.stock-last-card{display:flex;flex-direction:column;justify-content:center}.last-update-box{display:flex;align-items:center;gap:11px;margin-top:13px;padding:12px;border-radius:14px;background:#f8faf8;border:1px solid #e6eee3}.last-update-icon{width:38px;height:38px;border-radius:12px;background:#e7f3df;display:grid;place-items:center;font-size:18px}.last-update-main b{display:block;color:#30363a;font-size:13px}.last-update-main span{display:block;color:#86827e;font-size:11px;margin-top:3px}.last-update-help{margin-top:10px!important;line-height:1.45!important}
+.stock-counter-owner{display:flex;align-items:end;gap:10px;margin:0 0 14px;background:#fff;border:1px solid #eee2da;border-radius:15px;padding:13px;box-shadow:0 8px 24px rgba(70,45,25,.04)}.stock-counter-owner label{font-size:11px;color:#7e7772;font-weight:800;display:block;margin-bottom:6px}.stock-owner-select-row{display:flex;gap:8px;align-items:center}.stock-counter-owner select{min-width:220px;background:#fffaf7;border:1px solid #eaded5;border-radius:11px;padding:10px 12px;color:#343a3f;font-weight:700}.owner-add-btn{white-space:nowrap;border:1px solid #e7d8cf;background:#fff;color:#ca684d;border-radius:11px;padding:10px 12px;font-weight:800;cursor:pointer}.owner-add-btn:hover{background:#fff7f2}.owner-hint{font-size:11px;color:#918a84;padding-bottom:4px}.owner-add-panel{display:none;align-items:end;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f0e7e1}.owner-add-panel.open{display:flex}.owner-add-panel label{margin:0;flex:1}.owner-add-panel input{width:100%;background:#fffaf7;border:1px solid #eaded5;border-radius:11px;padding:10px 12px;color:#343a3f;font-weight:700;outline:none}.owner-add-panel input:focus{border-color:#d98770;box-shadow:0 0 0 3px rgba(217,135,112,.12)}.owner-add-panel .btn{padding:10px 14px}.stock-updater{display:flex;flex-direction:column;gap:3px;min-width:120px}.stock-updater b{font-size:11px;color:#41474c}.stock-updater span{font-size:10px;color:#99918b}.stock-updater.unknown b{color:#aaa39e;font-weight:600}
+.rotation-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rotation-edit-btn{border:1px solid #e5d7ce;background:#fff;color:#bd624f;border-radius:10px;padding:8px 10px;font:800 10px Inter;cursor:pointer}.rotation-edit-btn:hover{background:#fff6f1}.rotation-item.featured{border-color:#d86f59;background:linear-gradient(135deg,#fff4ef,#fffaf7);box-shadow:0 8px 18px rgba(216,111,89,.09)}.rotation-item .rotation-person-main{font-size:16px;color:#ca624e}.rotation-next{margin-top:6px;padding-top:6px;border-top:1px dashed #eadfd7;color:#948b85;font-size:10px}.rotation-next b{color:#5f5a56}.rotation-week-chip{display:inline-flex;align-items:center;gap:5px;background:#f6eee8;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:800;color:#8f6b5f;margin-top:7px}.rotation-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rotation-admin-card{border:1px solid #eee2da;border-radius:14px;padding:14px;background:#fffaf7}.rotation-admin-card h4{margin:0 0 10px;color:#33383d;font-size:13px}.rotation-admin-card label{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.55px;color:#8f8580;margin:8px 0 4px}.rotation-admin-card input,.rotation-admin-card select{width:100%;border:1px solid #e4d8cf;background:#fff;border-radius:9px;padding:9px 10px;color:#33383d;font:700 12px Inter}.rotation-preview{margin-top:14px;padding:12px;border-radius:12px;background:#f5f8f2;border:1px solid #e2eadc;color:#5d6758;font-size:11px;line-height:1.55}.rotation-preview b{color:#384034}.rotation-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.rotation-week-focus{margin:0 0 14px;padding:12px 14px;border:1px solid #f0dfd5;background:#fff7f2;border-radius:13px;display:flex;justify-content:space-between;gap:12px;align-items:center}.rotation-week-focus strong{color:#3a3d41;font-size:12px}.rotation-week-focus span{color:#c7634f;font-size:11px;font-weight:800}
+@media(max-width:980px){.stock-rotation-grid{grid-template-columns:1fr}.rotation-list{grid-template-columns:1fr}.stock-counter-owner{align-items:stretch;flex-direction:column}.stock-counter-owner select{width:100%}.stock-owner-select-row{align-items:stretch;flex-direction:column}.owner-add-panel{align-items:stretch;flex-direction:column}.rotation-admin-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="pickup-right-sidebar-demo">
+/* ===== Coletas na lateral direita · conceito ===== */
+@media (min-width: 1281px){
+  body{padding-right:338px!important;}
+  .wrap{max-width:1180px!important;}
+  .pickup-strip{
+    position:fixed!important;
+    top:18px!important;
+    right:18px!important;
+    bottom:18px!important;
+    left:auto!important;
+    width:302px!important;
+    margin:0!important;
+    padding:17px 14px!important;
+    border-radius:20px!important;
+    z-index:70!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    background:rgba(250,248,245,.97)!important;
+    box-shadow:0 18px 48px rgba(62,46,36,.13)!important;
+  }
+  .pickup-head{display:block!important;margin-bottom:13px!important;border-bottom:1px solid #eee5de;padding-bottom:12px!important;}
+  .pickup-title{align-items:flex-start!important;}
+  .pickup-title svg{width:24px!important;height:24px!important;margin-top:1px!important;}
+  .pickup-title strong{font-size:15px!important;color:#26313b!important;}
+  .pickup-title span{display:block!important;font-size:10px!important;line-height:1.45!important;margin-top:3px!important;max-width:210px!important;}
+  .pickup-admin-actions{display:flex!important;gap:7px!important;margin-top:12px!important;}
+  .pickup-admin-actions .btn{flex:1!important;justify-content:center!important;padding:8px 9px!important;font-size:10px!important;}
+  .pickup-row{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:9px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:0 2px 8px 0!important;
+    scrollbar-width:thin;
+  }
+  .pickup-card{
+    flex:0 0 auto!important;
+    min-width:0!important;
+    width:100%!important;
+    padding:12px!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:6px 8px!important;
+    border-radius:13px!important;
+  }
+  .pickup-account{font-size:13px!important;}
+  .pickup-time{font-size:11px!important;margin-top:2px!important;}
+  .pickup-count{font-size:20px!important;margin-top:2px!important;}
+  .pickup-note{font-size:9px!important;}
+  .pickup-done-btn{grid-column:1/-1!important;grid-row:auto!important;width:100%!important;margin-top:2px!important;padding:8px!important;font-size:9px!important;}
+  .pickup-state{font-size:8px!important;}
+  .pickup-strip:after{
+    content:'Painel operacional · atualização em tempo real';
+    display:block;
+    margin-top:auto;
+    padding-top:11px;
+    border-top:1px solid #eee5de;
+    color:#99918a;
+    font-size:8px;
+    text-align:center;
+    letter-spacing:.15px;
+  }
+}
+
+/* Em telas menores, volta para o topo para preservar a leitura do conteúdo. */
+@media (max-width:1280px){
+  .pickup-strip{position:sticky!important;top:0!important;right:auto!important;bottom:auto!important;width:auto!important;margin:0 0 22px!important;}
+  .pickup-row{flex-direction:row!important;overflow-x:auto!important;}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -465,7 +550,7 @@ header{min-height:48px!important;margin-bottom:26px!important}
   <div class="pickup-head">
     <div class="pickup-title">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3z"/><path d="M14 10h3l4 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
-      <div><strong>Horário de coleta das contas</strong><span>Acompanhe os horários e marque quando cada coleta for realizada.</span></div>
+      <div><strong>Coletas de hoje</strong><span>Acompanhe horários, contadores e confirmações.</span></div>
     </div>
     <div class="pickup-admin-actions"><button class="btn btn-dark pickup-manage" id="pickup-manage">⚙ Gerenciar contas</button><button class="btn" id="pickup-edit-times">✎ Editar horários</button></div>
   </div>
@@ -557,6 +642,38 @@ header{min-height:48px!important;margin-bottom:26px!important}
     <div><h2 id="stock-title">Estoque</h2><div class="sub" id="stock-subtitle" style="margin:3px 0 0">Consulte e pesquise os produtos disponíveis.</div></div>
     <div class="stock-view-actions"><span class="status-pill status-ok" id="stock-sync-status">Supabase</span><button class="btn btn-orange" id="stock-edit-toggle" type="button">✎ Alterar estoque</button></div>
   </div>
+
+  <div class="stock-rotation-grid">
+    <div class="stock-rotation-card">
+      <div class="stock-rotation-head"><div><h3>Rodízio de contagem</h3><p>O responsável alterna automaticamente a cada semana.</p></div><div class="rotation-actions"><span class="status-pill" id="rotation-today-status">Esta semana</span><button class="rotation-edit-btn admin-only" id="rotation-edit-btn" type="button">⚙ Alterar rodízio</button></div></div>
+      <div class="rotation-week-focus"><strong>Responsáveis desta semana</strong><span id="rotation-week-label">—</span></div>
+      <div class="rotation-list">
+        <div class="rotation-item" id="rotation-tuesday"><div class="rotation-day"><span>Terça-feira</span><span class="today" style="display:none">HOJE</span></div><div class="rotation-names rotation-person-main" id="rotation-tuesday-person">Thiago</div><div class="rotation-note">Responsável da semana</div><div class="rotation-next">Próxima terça: <b id="rotation-tuesday-next">Leonardo</b></div></div>
+        <div class="rotation-item" id="rotation-friday"><div class="rotation-day"><span>Sexta-feira</span><span class="today" style="display:none">HOJE</span></div><div class="rotation-names rotation-person-main" id="rotation-friday-person">Rafael</div><div class="rotation-note">Responsável da semana</div><div class="rotation-next">Próxima sexta: <b id="rotation-friday-next">Fagner</b></div></div>
+        <div class="rotation-item"><div class="rotation-day"><span>Mensal</span></div><div class="rotation-names">Equipe completa</div><div class="rotation-note">Todos os produtos e todas as unidades</div><div class="rotation-week-chip">Contagem geral mensal</div></div>
+      </div>
+    </div>
+    <div class="stock-last-card">
+      <h3>Última atualização do estoque</h3><p>Referência rápida para saber com quem confirmar uma divergência.</p>
+      <div class="last-update-box"><div class="last-update-icon">✓</div><div class="last-update-main"><b id="stock-last-person">Ainda sem responsável registrado</b><span id="stock-last-time">As próximas alterações ficarão identificadas.</span></div></div>
+      <p class="last-update-help">Cada produto também mostra quem realizou sua última alteração.</p>
+    </div>
+  </div>
+  <div class="stock-counter-owner stock-edit-only">
+    <div style="flex:1;min-width:280px">
+      <label for="stock-current-owner">Quem está realizando a contagem?</label>
+      <div class="stock-owner-select-row">
+        <select id="stock-current-owner"><option value="">Selecione seu nome</option></select>
+        <button class="owner-add-btn" id="stock-owner-add-toggle" type="button">＋ Adicionar pessoa</button>
+      </div>
+      <div class="owner-add-panel" id="stock-owner-add-panel">
+        <label>Nome do funcionário<input id="stock-owner-new-name" type="text" maxlength="50" placeholder="Ex.: Matheus"></label>
+        <button class="btn btn-green" id="stock-owner-add-save" type="button">Adicionar e selecionar</button>
+        <button class="btn btn-dark" id="stock-owner-add-cancel" type="button">Cancelar</button>
+      </div>
+    </div>
+    <div class="owner-hint" id="stock-owner-hint">O nome selecionado será registrado nas alterações feitas nesta sessão. Se outra pessoa assumir a contagem, basta adicioná-la aqui.</div>
+  </div>
   <form class="stock-form stock-edit-only" id="stock-add-form">
     <div class="stock-field stock-product-field"><label for="stock-new-product">Produto</label><input id="stock-new-product" type="text" placeholder="Ex.: Árvore 1,80m Verde 127V" required></div>
     <div class="stock-field"><label for="stock-new-qty">Quantidade</label><input id="stock-new-qty" type="number" min="0" step="1" value="0" required></div>
@@ -577,6 +694,18 @@ header{min-height:48px!important;margin-bottom:26px!important}
   <div class="stock-table-wrap stock-readonly-table"><table class="stock-table"><thead id="stock-table-head"><tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th></tr></thead><tbody id="stock-table-body"><tr><td colspan="5" class="stock-empty">Carregando estoque...</td></tr></tbody></table></div>
 </section>
 
+
+<div class="pickup-overlay" id="rotation-overlay" aria-hidden="true">
+  <div class="pickup-modal" style="width:min(690px,100%)">
+    <div class="pickup-modal-head"><div><h3>Alterar rodízio semanal</h3><p>Defina os nomes e quem inicia nesta semana. Nas próximas semanas, o sistema alterna sozinho.</p></div><button class="pickup-close" id="rotation-close" type="button">×</button></div>
+    <div class="rotation-admin-grid">
+      <div class="rotation-admin-card"><h4>Terça-feira</h4><label>Funcionário A</label><input id="rotation-tue-a" value="Thiago" maxlength="50"><label>Funcionário B</label><input id="rotation-tue-b" value="Leonardo" maxlength="50"><label>Responsável desta semana</label><select id="rotation-tue-current"></select></div>
+      <div class="rotation-admin-card"><h4>Sexta-feira</h4><label>Funcionário A</label><input id="rotation-fri-a" value="Rafael" maxlength="50"><label>Funcionário B</label><input id="rotation-fri-b" value="Fagner" maxlength="50"><label>Responsável desta semana</label><select id="rotation-fri-current"></select></div>
+    </div>
+    <div class="rotation-preview" id="rotation-preview">—</div>
+    <div class="rotation-modal-actions"><button class="btn btn-dark" id="rotation-cancel" type="button">Cancelar</button><button class="btn btn-orange" id="rotation-save" type="button">Salvar rodízio</button></div>
+  </div>
+</div>
 
 <div class="month-highlight-modal" id="mh-modal" aria-hidden="true">
   <div class="month-highlight-box">
@@ -675,14 +804,47 @@ async function upsertImportDates(dates,tipo,arquivo){if(!dates.length)return;con
 async function uploadProductionFile(file){requireAdmin();const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array',cellDates:true});const sn=wb.SheetNames.find(x=>strip(x).includes('produ'))||wb.SheetNames[0],grid=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null}),nameRow=(grid[1]||[]).map(norm),bl=detectBlocks(nameRow);if(!bl.length)throw new Error('Não encontrei os nomes dos funcionários na linha 2 da aba Produção.');const records=[];for(const row of grid.slice(3)){for(const b of bl){const iso=dateISO(row[b.start]),q=Number(row[b.start+2]);if(!iso||!Number.isFinite(q))continue;records.push({data:iso,funcionario:b.name,produto:norm(row[b.start+1])||null,quantidade:Math.round(q),tipo:norm(row[b.start+3])||null,categoria:norm(row[b.start+4])||null,status:norm(row[b.start+5])||null})}}if(!records.length)throw new Error('Nenhum registro válido de produção foi encontrado.');const dates=[...new Set(records.map(r=>r.data))];setCloudState('Salvando produção...');for(const d of dates)await deleteDateRows('producao',d);await insertChunks('producao',records);await upsertImportDates(dates,'producao',file.name);await loadCloudData();alert(`Produção atualizada na nuvem. ${records.length} registro(s) em ${dates.length} dia(s).`)}
 async function uploadExpeditionFiles(files){requireAdmin();const arr=[...files];if(!arr.length)return;let ok=0,errors=[];setCloudState('Salvando expedição...');for(const file of arr){try{const p=await parseExpFile(file),records=[];for(const row of p.rows){const name=norm(row[0]);if(!name)continue;p.headers.slice(1).forEach((h,i)=>{let q=Number(String(row[i+1]??0).replace(',','.'));if(!Number.isFinite(q)||q<=0)return;records.push({data:p.iso,funcionario:name,marketplace:cleanAccountName(h),quantidade:Math.round(q),arquivo_origem:file.name})})}await deleteDateRows('expedicao',p.iso);if(records.length)await insertChunks('expedicao',records);await upsertImportDates([p.iso],'expedicao',file.name);ok++}catch(e){errors.push(file.name+': '+e.message)}}await loadCloudData();if(errors.length)alert(`${ok} arquivo(s) salvo(s).\n\nFalhas:\n- ${errors.join('\n- ')}`);else alert(`${ok} arquivo(s) de expedição salvo(s) na nuvem.`)}
 
+
+const STOCK_AUDIT_KEY='mimar_stock_audit_v1';
+const STOCK_OWNER_KEY='mimar_stock_current_owner_v1';
+const STOCK_PEOPLE_KEY='mimar_stock_people_v1';
+const DEFAULT_STOCK_PEOPLE=['Thiago','Leonardo','Rafael','Fagner'];
+function getStockPeople(){try{const saved=JSON.parse(localStorage.getItem(STOCK_PEOPLE_KEY)||'[]');return [...new Set([...DEFAULT_STOCK_PEOPLE,...(Array.isArray(saved)?saved:[])].map(x=>String(x||'').trim()).filter(Boolean))]}catch{return [...DEFAULT_STOCK_PEOPLE]}}
+function saveStockPeople(list){localStorage.setItem(STOCK_PEOPLE_KEY,JSON.stringify([...new Set(list.map(x=>String(x||'').trim()).filter(Boolean))]))}
+function renderStockPeople(preferred=''){const sel=document.getElementById('stock-current-owner');if(!sel)return;const people=getStockPeople(),wanted=(preferred||sel.value||localStorage.getItem(STOCK_OWNER_KEY)||'').trim();sel.innerHTML='<option value="">Selecione seu nome</option>'+people.map(n=>`<option value="${stockSafe(n)}">${stockSafe(n)}</option>`).join('');if(people.includes(wanted))sel.value=wanted}
+function addStockPerson(name){name=String(name||'').trim().replace(/\s+/g,' ');if(!name)throw new Error('Digite o nome do funcionário.');if(name.length<2)throw new Error('Digite um nome válido.');const people=getStockPeople();const existing=people.find(p=>strip(p)===strip(name));const finalName=existing||name;if(!existing){people.push(name);saveStockPeople(people)}renderStockPeople(finalName);localStorage.setItem(STOCK_OWNER_KEY,finalName);return finalName}
+function getStockAudit(){try{return JSON.parse(localStorage.getItem(STOCK_AUDIT_KEY)||'{"items":{},"last":null}')}catch{return {items:{},last:null}}}
+function saveStockAudit(a){localStorage.setItem(STOCK_AUDIT_KEY,JSON.stringify(a))}
+function currentStockOwner(){return (document.getElementById('stock-current-owner')?.value||localStorage.getItem(STOCK_OWNER_KEY)||'').trim()}
+function requireStockOwner(){const name=currentStockOwner();if(!name){document.getElementById('stock-current-owner')?.focus();throw new Error('Selecione quem está realizando a contagem antes de salvar.')}return name}
+function registerStockAudit(id,name,when=new Date()){const a=getStockAudit(),iso=when.toISOString();a.items=a.items||{};if(id)a.items[String(id)]={name,at:iso};a.last={name,at:iso};saveStockAudit(a);renderStockAudit()}
+function auditFor(id){return getStockAudit().items?.[String(id)]||null}
+function auditTime(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return '—'}}
+function updaterHTML(id){const x=auditFor(id);return x?`<div class="stock-updater"><b>${stockSafe(x.name)}</b><span>${auditTime(x.at)}</span></div>`:`<div class="stock-updater unknown"><b>Não identificado</b><span>registro anterior</span></div>`}
+const STOCK_ROTATION_KEY='mimar_stock_rotation_v2';
+function isoWeekInfo(d=new Date()){const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);const y0=new Date(Date.UTC(x.getUTCFullYear(),0,1));const week=Math.ceil((((x-y0)/86400000)+1)/7);return {year:x.getUTCFullYear(),week}}
+function weekSerial(info){return info.year*53+info.week}
+function defaultRotation(){const w=isoWeekInfo();return {anchorSerial:weekSerial(w),tue:['Thiago','Leonardo'],fri:['Rafael','Fagner'],tueStart:0,friStart:0}}
+function getRotation(){try{const x=JSON.parse(localStorage.getItem(STOCK_ROTATION_KEY)||'null');if(x&&Array.isArray(x.tue)&&Array.isArray(x.fri))return x}catch(e){}return defaultRotation()}
+function saveRotation(x){localStorage.setItem(STOCK_ROTATION_KEY,JSON.stringify(x))}
+function rotationIndex(cfg,type,weekOffset=0){const now=weekSerial(isoWeekInfo())+weekOffset,diff=now-Number(cfg.anchorSerial||now),start=Number(cfg[type+'Start']||0);return ((start+diff)%2+2)%2}
+function rotationPerson(cfg,type,weekOffset=0){const arr=cfg[type]||[];return arr[rotationIndex(cfg,type,weekOffset)]||'—'}
+function renderRotation(){const cfg=getRotation(),wk=isoWeekInfo(),tue=rotationPerson(cfg,'tue'),fri=rotationPerson(cfg,'fri'),tueNext=rotationPerson(cfg,'tue',1),friNext=rotationPerson(cfg,'fri',1);document.getElementById('rotation-tuesday-person').textContent=tue;document.getElementById('rotation-friday-person').textContent=fri;document.getElementById('rotation-tuesday-next').textContent=tueNext;document.getElementById('rotation-friday-next').textContent=friNext;document.getElementById('rotation-week-label').textContent=`Semana ${String(wk.week).padStart(2,'0')} · ${tue} / ${fri}`;const day=new Date().getDay(),tu=document.getElementById('rotation-tuesday'),fr=document.getElementById('rotation-friday'),st=document.getElementById('rotation-today-status');[tu,fr].forEach(x=>{x?.classList.remove('active','featured');const b=x?.querySelector('.today');if(b)b.style.display='none'});tu?.classList.add('featured');fr?.classList.add('featured');let msg=`Semana: ${tue} e ${fri}`;if(day===2){tu?.classList.add('active');const b=tu?.querySelector('.today');if(b)b.style.display='inline-block';msg=`Hoje: ${tue}`}else if(day===5){fr?.classList.add('active');const b=fr?.querySelector('.today');if(b)b.style.display='inline-block';msg=`Hoje: ${fri}`}if(st)st.textContent=msg}
+function renderStockAudit(){const a=getStockAudit(),p=document.getElementById('stock-last-person'),t=document.getElementById('stock-last-time');if(a.last){if(p)p.textContent=a.last.name+' atualizou o estoque';if(t)t.textContent=auditTime(a.last.at)}else{if(p)p.textContent='Ainda sem responsável registrado';if(t)t.textContent='As próximas alterações ficarão identificadas.'}renderRotation()}
+function updateRotationPreview(){const ta=document.getElementById('rotation-tue-a')?.value.trim()||'—',tb=document.getElementById('rotation-tue-b')?.value.trim()||'—',fa=document.getElementById('rotation-fri-a')?.value.trim()||'—',fb=document.getElementById('rotation-fri-b')?.value.trim()||'—',ti=Number(document.getElementById('rotation-tue-current')?.value||0),fi=Number(document.getElementById('rotation-fri-current')?.value||0),p=document.getElementById('rotation-preview');if(p)p.innerHTML=`<b>Esta semana:</b> terça ${stockSafe([ta,tb][ti])} · sexta ${stockSafe([fa,fb][fi])}<br><b>Próxima semana:</b> terça ${stockSafe([ta,tb][1-ti])} · sexta ${stockSafe([fa,fb][1-fi])}`}
+function refreshRotationEditorSelects(cfg=getRotation()){const ta=document.getElementById('rotation-tue-a').value.trim()||'Funcionário A',tb=document.getElementById('rotation-tue-b').value.trim()||'Funcionário B',fa=document.getElementById('rotation-fri-a').value.trim()||'Funcionário A',fb=document.getElementById('rotation-fri-b').value.trim()||'Funcionário B',ts=document.getElementById('rotation-tue-current'),fs=document.getElementById('rotation-fri-current');ts.innerHTML=`<option value="0">${stockSafe(ta)}</option><option value="1">${stockSafe(tb)}</option>`;fs.innerHTML=`<option value="0">${stockSafe(fa)}</option><option value="1">${stockSafe(fb)}</option>`;ts.value=String(rotationIndex(cfg,'tue'));fs.value=String(rotationIndex(cfg,'fri'));updateRotationPreview()}
+function openRotationEditor(){if(!isAdmin){openAuth();return}const cfg=getRotation();document.getElementById('rotation-tue-a').value=cfg.tue?.[0]||'Thiago';document.getElementById('rotation-tue-b').value=cfg.tue?.[1]||'Leonardo';document.getElementById('rotation-fri-a').value=cfg.fri?.[0]||'Rafael';document.getElementById('rotation-fri-b').value=cfg.fri?.[1]||'Fagner';refreshRotationEditorSelects(cfg);const o=document.getElementById('rotation-overlay');o.classList.add('open');o.setAttribute('aria-hidden','false')}
+function closeRotationEditor(){const o=document.getElementById('rotation-overlay');o.classList.remove('open');o.setAttribute('aria-hidden','true')}
+function saveRotationEditor(){if(!isAdmin){closeRotationEditor();openAuth();return}const tue=[document.getElementById('rotation-tue-a').value.trim(),document.getElementById('rotation-tue-b').value.trim()],fri=[document.getElementById('rotation-fri-a').value.trim(),document.getElementById('rotation-fri-b').value.trim()];if(tue.some(x=>!x)||fri.some(x=>!x)){alert('Preencha os quatro nomes do rodízio.');return}saveRotation({anchorSerial:weekSerial(isoWeekInfo()),tue,fri,tueStart:Number(document.getElementById('rotation-tue-current').value||0),friStart:Number(document.getElementById('rotation-fri-current').value||0)});renderRotation();closeRotationEditor()}
+
 function volumeLabel(v){return v==='caixa_master'?'Caixa Master':v==='fardo'?'Fardo':'Unidade'}
 function urgencyLabel(v){return v==='emergencia'?'Emergência':v==='atencao'?'Atenção':'Normal'}
 function stockSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function stockDate(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return '—'}}
 async function loadStock(){const st=document.getElementById('stock-sync-status');if(st)st.textContent='Sincronizando...';const {data,error}=await cloud.from('estoque_controle').select('id,produto,quantidade,volume,urgencia,atualizado_em').order('urgencia',{ascending:false}).order('produto',{ascending:true});if(error){if(st){st.textContent='Tabela não configurada';st.className='status-pill status-warn'};console.error('Estoque:',error);stockRecords=[];renderStock();return}stockRecords=data||[];if(st){st.textContent='Sincronizado';st.className='status-pill status-ok'}renderStock()}
-function renderStock(){const body=document.getElementById('stock-table-body');if(!body)return;const section=document.getElementById('estoque-controle'),head=document.getElementById('stock-table-head'),toggle=document.getElementById('stock-edit-toggle'),title=document.getElementById('stock-title'),subtitle=document.getElementById('stock-subtitle');if(section)section.classList.toggle('stock-edit-mode',stockEditMode);if(toggle)toggle.textContent=stockEditMode?'← Voltar para consulta':'✎ Alterar estoque';if(title)title.textContent=stockEditMode?'Alterar estoque':'Estoque';if(subtitle)subtitle.textContent=stockEditMode?'Cadastre produtos, altere quantidades, volumes e sinalizações.':'Consulte e pesquise os produtos disponíveis.';const term=strip(document.getElementById('stock-search')?.value||''),filter=document.getElementById('stock-filter')?.value||'todos';const rows=stockRecords.filter(r=>(!term||strip(r.produto).includes(term))&&(filter==='todos'||r.urgencia===filter));document.getElementById('stock-count').textContent=fmt(stockRecords.length);document.getElementById('stock-qty-total').textContent=fmt(stockRecords.reduce((s,r)=>s+(Number(r.quantidade)||0),0));document.getElementById('stock-attention-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='atencao').length);document.getElementById('stock-emergency-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='emergencia').length);if(stockEditMode){if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Ações</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="6" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr data-stock-id="${r.id}"><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><input class="stock-qty-input" data-role="qty" type="number" min="0" step="1" value="${Number(r.quantidade)||0}"></td><td><select class="history-select" data-role="volume"><option value="unidade" ${(r.volume||'unidade')==='unidade'?'selected':''}>Unidade</option><option value="fardo" ${r.volume==='fardo'?'selected':''}>Fardo</option><option value="caixa_master" ${r.volume==='caixa_master'?'selected':''}>Caixa Master</option></select></td><td><select class="history-select" data-role="urgency"><option value="normal" ${r.urgencia==='normal'?'selected':''}>🟢 Normal</option><option value="atencao" ${r.urgencia==='atencao'?'selected':''}>🟡 Atenção</option><option value="emergencia" ${r.urgencia==='emergencia'?'selected':''}>🔴 Emergência</option></select></td><td>${stockDate(r.atualizado_em)}</td><td><div class="stock-actions"><button class="btn btn-green" data-action="save">Salvar</button>${isAdmin?'<button class="btn btn-dark" data-action="delete" title="Excluir">Excluir</button>':''}</div></td></tr>`).join('')}else{if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="5" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><b>${fmt(Number(r.quantidade)||0)}</b></td><td>${volumeLabel(r.volume)}</td><td><span class="urgency ${r.urgencia||'normal'}"><i class="urgency-dot"></i>${urgencyLabel(r.urgencia)}</span></td><td>${stockDate(r.atualizado_em)}</td></tr>`).join('')}}
-async function addStockProduct(produto,quantidade,volume,urgencia){const {error}=await cloud.from('estoque_controle').insert({produto:produto.trim(),quantidade:Math.max(0,Math.round(Number(quantidade)||0)),volume,urgencia,atualizado_em:new Date().toISOString()});if(error)throw error;await loadStock()}
-async function saveStockRow(id,quantidade,volume,urgencia){const {error}=await cloud.from('estoque_controle').update({quantidade:Math.max(0,Math.round(Number(quantidade)||0)),volume,urgencia,atualizado_em:new Date().toISOString()}).eq('id',id);if(error)throw error;await loadStock()}
+function renderStock(){const body=document.getElementById('stock-table-body');if(!body)return;const section=document.getElementById('estoque-controle'),head=document.getElementById('stock-table-head'),toggle=document.getElementById('stock-edit-toggle'),title=document.getElementById('stock-title'),subtitle=document.getElementById('stock-subtitle');if(section)section.classList.toggle('stock-edit-mode',stockEditMode);if(toggle)toggle.textContent=stockEditMode?'← Voltar para consulta':'✎ Alterar estoque';if(title)title.textContent=stockEditMode?'Alterar estoque':'Estoque';if(subtitle)subtitle.textContent=stockEditMode?'Cadastre produtos, altere quantidades, volumes e sinalizações.':'Consulte e pesquise os produtos disponíveis.';const term=strip(document.getElementById('stock-search')?.value||''),filter=document.getElementById('stock-filter')?.value||'todos';const rows=stockRecords.filter(r=>(!term||strip(r.produto).includes(term))&&(filter==='todos'||r.urgencia===filter));document.getElementById('stock-count').textContent=fmt(stockRecords.length);document.getElementById('stock-qty-total').textContent=fmt(stockRecords.reduce((s,r)=>s+(Number(r.quantidade)||0),0));document.getElementById('stock-attention-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='atencao').length);document.getElementById('stock-emergency-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='emergencia').length);if(stockEditMode){if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th><th>Ações</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="7" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr data-stock-id="${r.id}"><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><input class="stock-qty-input" data-role="qty" type="number" min="0" step="1" value="${Number(r.quantidade)||0}"></td><td><select class="history-select" data-role="volume"><option value="unidade" ${(r.volume||'unidade')==='unidade'?'selected':''}>Unidade</option><option value="fardo" ${r.volume==='fardo'?'selected':''}>Fardo</option><option value="caixa_master" ${r.volume==='caixa_master'?'selected':''}>Caixa Master</option></select></td><td><select class="history-select" data-role="urgency"><option value="normal" ${r.urgencia==='normal'?'selected':''}>🟢 Normal</option><option value="atencao" ${r.urgencia==='atencao'?'selected':''}>🟡 Atenção</option><option value="emergencia" ${r.urgencia==='emergencia'?'selected':''}>🔴 Emergência</option></select></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterHTML(r.id)}</td><td><div class="stock-actions"><button class="btn btn-green" data-action="save">Salvar</button>${isAdmin?'<button class="btn btn-dark" data-action="delete" title="Excluir">Excluir</button>':''}</div></td></tr>`).join('')}else{if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="6" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><b>${fmt(Number(r.quantidade)||0)}</b></td><td>${volumeLabel(r.volume)}</td><td><span class="urgency ${r.urgencia||'normal'}"><i class="urgency-dot"></i>${urgencyLabel(r.urgencia)}</span></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterHTML(r.id)}</td></tr>`).join('')}}
+async function addStockProduct(produto,quantidade,volume,urgencia){const owner=requireStockOwner(),now=new Date();const {data,error}=await cloud.from('estoque_controle').insert({produto:produto.trim(),quantidade:Math.max(0,Math.round(Number(quantidade)||0)),volume,urgencia,atualizado_em:now.toISOString()}).select('id').single();if(error)throw error;registerStockAudit(data?.id,owner,now);await loadStock()}
+async function saveStockRow(id,quantidade,volume,urgencia){const owner=requireStockOwner(),now=new Date();const {error}=await cloud.from('estoque_controle').update({quantidade:Math.max(0,Math.round(Number(quantidade)||0)),volume,urgencia,atualizado_em:now.toISOString()}).eq('id',id);if(error)throw error;registerStockAudit(id,owner,now);await loadStock()}
 async function deleteStockRow(id){requireAdmin();const {error}=await cloud.from('estoque_controle').delete().eq('id',id);if(error)throw error;await loadStock()}
 
 function rankHTML(obj,type='production'){const a=Object.entries(obj).map(([n,v])=>({n,...(typeof v==='number'?{total:v}:v)})).sort((x,y)=>y.total-x.total),mx=Math.max(1,...a.map(x=>x.total));if(!a.some(x=>x.total))return '<div class="empty">Sem dados para este período.</div>';return a.map((x,i)=>`<div class="rank-row"><div class="rank-top"><span class="rank-name">${i<3?['🥇 ','🥈 ','🥉 '][i]:''}${x.n}</span><span class="rank-val">${fmt(x.total)}</span></div><div class="bar">${type==='production'?`<div class="bar-full" style="width:${(x.full||0)/mx*100}%"></div><div class="bar-stock" style="width:${(x.stock||0)/mx*100}%"></div>`:`<div class="bar-blue" style="width:${x.total/mx*100}%"></div>`}</div></div>`).join('')}
@@ -858,6 +1020,22 @@ cloud.auth.onAuthStateChange(()=>setTimeout(refreshAuthUI,0));
   try{await refreshAuthUI();await loadCloudData();await loadStock()}
   catch(e){console.error(e);setCloudState('Offline · cache local','err');expHistory=loadStore(EXP_HISTORY_KEY);prodHistory=loadStore(PROD_HISTORY_KEY);const dates=allHistoryDates();selectedDate=dates[0]||'';if(selectedDate)loadHistoryDate(selectedDate);else renderAll();document.getElementById('prod-source').textContent='Cache local (sem conexão com o Supabase)';document.getElementById('prod-time').textContent='—'}
 })();
+
+document.getElementById('stock-current-owner')?.addEventListener('change',e=>{localStorage.setItem(STOCK_OWNER_KEY,e.target.value||'')});
+document.getElementById('stock-owner-add-toggle')?.addEventListener('click',()=>{const p=document.getElementById('stock-owner-add-panel');p?.classList.toggle('open');if(p?.classList.contains('open'))document.getElementById('stock-owner-new-name')?.focus()});
+document.getElementById('stock-owner-add-cancel')?.addEventListener('click',()=>{document.getElementById('stock-owner-add-panel')?.classList.remove('open');const i=document.getElementById('stock-owner-new-name');if(i)i.value=''});
+function saveNewStockPerson(){const input=document.getElementById('stock-owner-new-name');try{const name=addStockPerson(input?.value||'');if(input)input.value='';document.getElementById('stock-owner-add-panel')?.classList.remove('open');document.getElementById('stock-owner-hint').textContent=`${name} foi selecionado para esta contagem. As próximas alterações ficarão registradas nesse nome.`}catch(err){alert(err.message)}}
+document.getElementById('rotation-edit-btn')?.addEventListener('click',openRotationEditor);
+document.getElementById('rotation-close')?.addEventListener('click',closeRotationEditor);
+document.getElementById('rotation-cancel')?.addEventListener('click',closeRotationEditor);
+document.getElementById('rotation-save')?.addEventListener('click',saveRotationEditor);
+document.getElementById('rotation-overlay')?.addEventListener('click',e=>{if(e.target.id==='rotation-overlay')closeRotationEditor()});
+['rotation-tue-a','rotation-tue-b','rotation-fri-a','rotation-fri-b'].forEach(id=>document.getElementById(id)?.addEventListener('input',()=>{const ts=document.getElementById('rotation-tue-current')?.value||'0',fs=document.getElementById('rotation-fri-current')?.value||'0',ta=document.getElementById('rotation-tue-a').value.trim()||'Funcionário A',tb=document.getElementById('rotation-tue-b').value.trim()||'Funcionário B',fa=document.getElementById('rotation-fri-a').value.trim()||'Funcionário A',fb=document.getElementById('rotation-fri-b').value.trim()||'Funcionário B';document.getElementById('rotation-tue-current').innerHTML=`<option value="0">${stockSafe(ta)}</option><option value="1">${stockSafe(tb)}</option>`;document.getElementById('rotation-fri-current').innerHTML=`<option value="0">${stockSafe(fa)}</option><option value="1">${stockSafe(fb)}</option>`;document.getElementById('rotation-tue-current').value=ts;document.getElementById('rotation-fri-current').value=fs;updateRotationPreview()}));
+document.getElementById('rotation-tue-current')?.addEventListener('change',updateRotationPreview);
+document.getElementById('rotation-fri-current')?.addEventListener('change',updateRotationPreview);
+document.getElementById('stock-owner-add-save')?.addEventListener('click',saveNewStockPerson);
+document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveNewStockPerson()}if(e.key==='Escape')document.getElementById('stock-owner-add-cancel')?.click()});
+(function initStockAuditUI(){renderStockPeople(localStorage.getItem(STOCK_OWNER_KEY)||'');renderStockAudit()})();
 </script>
 </body>
 </html>
