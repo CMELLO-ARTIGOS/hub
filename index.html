@@ -452,6 +452,67 @@ body{padding-top:18px!important}
   .bucket-edit-week-grid{grid-template-columns:1fr}
 }
 
+
+/* ===== Ajuste visual: cards do rodízio de baldes ===== */
+.bucket-week-card{
+  overflow:hidden;
+}
+.bucket-week-head{
+  min-width:0;
+}
+.bucket-week-head>div:first-child{
+  min-width:0;
+}
+.bucket-week-head .rotation-actions{
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.bucket-week-grid{
+  width:100%;
+}
+.bucket-day{
+  min-width:0;
+  overflow:hidden;
+  gap:12px;
+}
+.bucket-day>div{
+  min-width:0;
+  max-width:100%;
+}
+.bucket-day .day-name,
+.bucket-day .day-person,
+.bucket-day .day-sub{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.bucket-day .day-person{
+  line-height:1.18;
+}
+.bucket-day .day-sub{
+  line-height:1.35;
+}
+.bucket-today-message{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  line-height:1.45;
+}
+@media(max-width:1180px){
+  .bucket-week-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  .bucket-week-head .rotation-actions{width:100%;justify-content:flex-start}
+  .bucket-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .bucket-week-grid{grid-template-columns:minmax(0,1fr)}
+  .bucket-week-head .rotation-actions{display:grid;grid-template-columns:1fr;width:100%}
+  .bucket-week-head .rotation-actions .btn{width:100%}
+}
+
 /* ===== Cores dos Baldes ===== */
 .bucket-color-panel{
   margin:18px 0 16px;
@@ -2629,6 +2690,102 @@ body:not(.admin-mode) .admin-only-action{display:none!important}
 body.admin-mode .admin-only-action{display:block}
 body.admin-mode button.admin-only-action{display:inline-flex}
 
+
+/* ===== Administração: rodízio de banheiros e cozinha ===== */
+.care-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.care-admin-box{background:#fff;border:1px solid #e4e8ef;border-radius:16px;padding:15px;min-width:0}
+.care-admin-title{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.care-admin-title>span{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#f4f6f8;font-size:18px;font-weight:900}
+.care-admin-title b{display:block;font-size:14px;color:#1f2937}
+.care-admin-title small{display:block;margin-top:2px;color:#7a8492;font-size:10px}
+.care-current-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#667085;margin-bottom:12px}
+.care-current-label select{width:100%;margin-top:6px;padding:10px 11px;border:1px solid #d8dee7;border-radius:10px;background:#fff;color:#1f2937;font-weight:800}
+.care-sequence-list{display:flex;flex-direction:column;gap:7px}
+.care-sequence-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px;border:1px solid #e6eaf0;background:#f8fafc;border-radius:10px}
+.care-sequence-num{width:26px;height:26px;border-radius:7px;background:#fff;border:1px solid #e0e5ec;display:grid;place-items:center;font-size:10px;font-weight:900;color:#697386}
+.care-sequence-name{font-size:12px;font-weight:800;color:#273142;overflow-wrap:anywhere}
+.care-sequence-actions{display:flex;gap:4px}
+.care-sequence-actions button{width:27px;height:27px;border:1px solid #d9dfe7;background:#fff;border-radius:7px;font-weight:900;color:#4b5563;cursor:pointer}
+.care-sequence-actions button:disabled{opacity:.3;cursor:default}
+.care-admin-hint{margin-top:12px;padding:10px 12px;background:#fff8ed;border:1px solid #f4d7a6;border-radius:10px;color:#7a5520;font-size:11px}
+@media(max-width:850px){.care-admin-grid{grid-template-columns:1fr}}
+
+
+/* ===== Correção de alinhamento: Cores dos Baldes ===== */
+.bucket-grid{
+  align-items:stretch;
+}
+.bucket-card{
+  display:grid;
+  grid-template-rows:1fr auto;
+  min-width:0;
+  height:100%;
+  overflow:hidden;
+}
+.bucket-card>div{
+  min-width:0;
+}
+.bucket-card-top{
+  grid-template-columns:70px minmax(0,1fr);
+  gap:10px;
+  min-width:0;
+  height:100%;
+}
+.bucket-card-top>div:last-child{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+.bucket-name{
+  width:100%;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+.bucket-qty{
+  width:100%;
+  display:flex;
+  align-items:flex-end;
+  gap:5px;
+  flex-wrap:wrap;
+  line-height:1;
+  margin-top:3px;
+}
+.bucket-qty span{
+  line-height:1.25;
+  margin-bottom:2px;
+}
+.bucket-status{
+  white-space:normal;
+  width:auto;
+  max-width:100%;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.bucket-note{
+  width:100%;
+  min-height:52px;
+  margin-top:8px;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.bucket-edit{
+  align-self:end;
+  margin-top:12px;
+}
+
+/* Em larguras menores, mantém os cards legíveis sem espremer textos */
+@media(max-width:1100px){
+  .bucket-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .bucket-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:500px){
+  .bucket-grid{grid-template-columns:1fr}
+}
+
 </style>
 
 <style id="mimar-pattern-refresh">
@@ -2975,7 +3132,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 
   <div class="rotation-section-title care-section-head">
     <div><span class="rotation-mini-eyebrow">COMBINADO DA EQUIPE</span><h2>Cuidados com o ambiente</h2><p>Organização combinada para ajudar a manter cozinha e banheiros limpos e agradáveis para todos.</p></div>
-    <button class="btn btn-orange admin-only" id="care-team-edit" type="button">✎ Alterar responsáveis</button>
+    <button class="btn btn-orange admin-only" id="care-sequence-open" type="button">⚙ Alterar rodízio</button>
   </div>
 
   <div class="care-grid">
@@ -2985,7 +3142,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
         <span class="care-label">Banheiro feminino</span>
         <h3 id="care-female-current">—</h3>
         <p>Responsável desta semana</p>
-        <div class="care-next">Próxima semana: <b id="care-female-next">—</b></div>
+        <div class="care-next">Rodízio semanal</div>
       </div>
     </article>
 
@@ -2995,17 +3152,17 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
         <span class="care-label">Banheiro masculino</span>
         <h3 id="care-male-current">—</h3>
         <p>Responsável desta semana</p>
-        <div class="care-next">Próxima semana: <b id="care-male-next">—</b></div>
+        <div class="care-next">Rodízio semanal</div>
       </div>
     </article>
 
     <article class="care-card care-kitchen">
       <div class="care-icon">☕</div>
       <div class="care-content">
-        <span class="care-label">Cozinha · sexta-feira</span>
+        <span class="care-label">Cozinha</span>
         <h3 id="care-kitchen-current">—</h3>
-        <p>Combinado desta sexta</p>
-        <div class="care-next">Próxima sexta: <b id="care-kitchen-next">—</b></div>
+        <p>Responsável desta semana</p>
+        <div class="care-next">Rodízio semanal</div>
       </div>
     </article>
   </div>
@@ -3576,6 +3733,51 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
     <div class="rotation-modal-actions">
       <button class="btn btn-dark" id="bucket-saturday-cancel" type="button">Cancelar</button>
       <button class="btn btn-orange" id="bucket-saturday-save" type="button">Salvar sequência e iniciar rodízio</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="pickup-overlay" id="care-sequence-overlay" aria-hidden="true">
+  <div class="pickup-modal rotation-team-modal care-sequence-modal" style="width:min(980px,100%)">
+    <div class="pickup-modal-head">
+      <div>
+        <h3>Rodízio de banheiros e cozinha</h3>
+        <p>Altere a sequência de cada área e escolha quem é o responsável desta semana. Depois, o rodízio avança automaticamente a cada semana.</p>
+      </div>
+      <button class="pickup-close" id="care-sequence-close" type="button">×</button>
+    </div>
+
+    <div class="care-admin-grid">
+      <section class="care-admin-box">
+        <div class="care-admin-title"><span>♀</span><div><b>Banheiro feminino</b><small>Sequência semanal</small></div></div>
+        <label class="care-current-label">Responsável desta semana
+          <select id="care-current-female"></select>
+        </label>
+        <div class="care-sequence-list" id="care-sequence-female"></div>
+      </section>
+
+      <section class="care-admin-box">
+        <div class="care-admin-title"><span>♂</span><div><b>Banheiro masculino</b><small>Sequência semanal</small></div></div>
+        <label class="care-current-label">Responsável desta semana
+          <select id="care-current-male"></select>
+        </label>
+        <div class="care-sequence-list" id="care-sequence-male"></div>
+      </section>
+
+      <section class="care-admin-box">
+        <div class="care-admin-title"><span>☕</span><div><b>Cozinha</b><small>Sequência semanal</small></div></div>
+        <label class="care-current-label">Responsável desta semana
+          <select id="care-current-kitchen"></select>
+        </label>
+        <div class="care-sequence-list" id="care-sequence-kitchen"></div>
+      </section>
+    </div>
+
+    <div class="care-admin-hint">Use ↑ e ↓ para mudar a ordem. O nome selecionado em “Responsável desta semana” será o ponto de partida do rodízio.</div>
+    <div class="rotation-modal-actions">
+      <button class="btn btn-dark" id="care-sequence-cancel" type="button">Cancelar</button>
+      <button class="btn btn-orange" id="care-sequence-save" type="button">Salvar rodízio</button>
     </div>
   </div>
 </div>
@@ -4169,6 +4371,7 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
   const TEAM_KEY='mimar_rotation_team_v1';
   const BUCKET_KEY='mimar_bucket_week_v1';
   const SATURDAY_SEQUENCE_KEY='mimar_bucket_saturday_sequence_v2';
+  const CARE_SEQUENCE_KEY='mimar_care_sequences_v2';
   const CARE_ANCHOR='2026-09-07';
 
   const defaultTeam=[
@@ -4205,6 +4408,21 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     };
   }
   let saturdaySequence=Array.isArray(saturdayConfig.sequence)?saturdayConfig.sequence:[];
+
+  const defaultCareConfig={
+    female:{sequence:['Beatriz','Elisabete'],current:'Elisabete'},
+    male:{sequence:['Arthur','Bryan','Rafael','Fagner','Leonardo','Thiago'],current:'Arthur'},
+    kitchen:{sequence:['Bryan','Rafael','Elisabete','Fagner','Beatriz','Arthur','Leonardo','Thiago'],current:'Arthur'},
+    anchorWeek:Math.floor(mondayOf(new Date()).getTime()/604800000)
+  };
+  let careConfig=loadJSON(CARE_SEQUENCE_KEY,defaultCareConfig);
+  ['female','male','kitchen'].forEach(k=>{
+    if(!careConfig[k]||!Array.isArray(careConfig[k].sequence)||!careConfig[k].sequence.length){
+      careConfig[k]=JSON.parse(JSON.stringify(defaultCareConfig[k]));
+    }
+    if(!careConfig[k].sequence.includes(careConfig[k].current)) careConfig[k].current=careConfig[k].sequence[0];
+  });
+  if(!Number.isFinite(Number(careConfig.anchorWeek))) careConfig.anchorWeek=defaultCareConfig.anchorWeek;
 
   function loadJSON(k,fallback){
     try{
@@ -4288,14 +4506,40 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     }
   }
 
+  function careWeekNow(){return Math.floor(mondayOf(new Date()).getTime()/604800000)}
+  function carePerson(key,offset=0){
+    const cfg=careConfig[key];
+    if(!cfg||!cfg.sequence?.length)return '—';
+    const start=Math.max(0,cfg.sequence.indexOf(cfg.current));
+    const diff=careWeekNow()-Number(careConfig.anchorWeek||careWeekNow())+offset;
+    const i=((start+diff)%cfg.sequence.length+cfg.sequence.length)%cfg.sequence.length;
+    return cfg.sequence[i];
+  }
+  function saveCareConfig(){localStorage.setItem(CARE_SEQUENCE_KEY,JSON.stringify(careConfig))}
   function renderCare(){
-    const [fc,fn]=cycle(femalePeople());
-    const [mc,mn]=cycle(malePeople());
-    const [kc,kn]=cycle(kitchenPeople());
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-    set('care-female-current',fc); set('care-female-next',fn);
-    set('care-male-current',mc); set('care-male-next',mn);
-    set('care-kitchen-current',kc); set('care-kitchen-next',kn);
+    set('care-female-current',carePerson('female'));
+    set('care-male-current',carePerson('male'));
+    set('care-kitchen-current',carePerson('kitchen'));
+  }
+  function renderCareSequenceEditor(){
+    ['female','male','kitchen'].forEach(key=>{
+      const list=document.getElementById('care-sequence-'+key);
+      const select=document.getElementById('care-current-'+key);
+      if(!list||!select)return;
+      const seq=careConfig[key].sequence;
+      const current=carePerson(key);
+      list.innerHTML=seq.map((name,i)=>`
+        <div class="care-sequence-row">
+          <div class="care-sequence-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="care-sequence-name">${esc(name)}</div>
+          <div class="care-sequence-actions">
+            <button type="button" data-care-up="${key}:${i}" ${i===0?'disabled':''}>↑</button>
+            <button type="button" data-care-down="${key}:${i}" ${i===seq.length-1?'disabled':''}>↓</button>
+          </div>
+        </div>`).join('');
+      select.innerHTML=seq.map(n=>`<option value="${esc(n)}" ${n===current?'selected':''}>${esc(n)}</option>`).join('');
+    });
   }
 
   function renderBucketEditor(){
@@ -4383,7 +4627,19 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     if(e.target.closest('#bucket-week-edit')){renderBucketEditor();openOverlay('bucket-week-overlay')}
     if(e.target.closest('#bucket-saturday-sequence-open')){renderSaturdayEditor();openOverlay('bucket-saturday-overlay')}
     if(e.target.closest('#bucket-saturday-close')||e.target.closest('#bucket-saturday-cancel'))closeOverlay('bucket-saturday-overlay');
-    if(e.target.closest('#care-team-edit')){renderTeam();openOverlay('team-manage-overlay')}
+    if(e.target.closest('#care-sequence-open')){renderCareSequenceEditor();openOverlay('care-sequence-overlay')}
+    if(e.target.closest('#care-sequence-close')||e.target.closest('#care-sequence-cancel'))closeOverlay('care-sequence-overlay');
+
+    const careUp=e.target.closest('[data-care-up]');
+    if(careUp){
+      const [key,raw]=careUp.dataset.careUp.split(':'); const i=Number(raw);
+      if(i>0){[careConfig[key].sequence[i-1],careConfig[key].sequence[i]]=[careConfig[key].sequence[i],careConfig[key].sequence[i-1]];renderCareSequenceEditor()}
+    }
+    const careDown=e.target.closest('[data-care-down]');
+    if(careDown){
+      const [key,raw]=careDown.dataset.careDown.split(':'); const i=Number(raw);
+      if(i<careConfig[key].sequence.length-1){[careConfig[key].sequence[i+1],careConfig[key].sequence[i]]=[careConfig[key].sequence[i],careConfig[key].sequence[i+1]];renderCareSequenceEditor()}
+    }
     if(e.target.closest('#bucket-week-close')||e.target.closest('#bucket-week-cancel'))closeOverlay('bucket-week-overlay');
     if(e.target.closest('#team-manage-open')){renderTeam();openOverlay('team-manage-overlay')}
     if(e.target.closest('#team-manage-close')||e.target.closest('#team-manage-done'))closeOverlay('team-manage-overlay');
@@ -4501,6 +4757,18 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     renderBuckets();
     renderBucketEditor();
     closeOverlay('bucket-saturday-overlay');
+  });
+
+
+  document.getElementById('care-sequence-save')?.addEventListener('click',()=>{
+    ['female','male','kitchen'].forEach(key=>{
+      const sel=document.getElementById('care-current-'+key);
+      if(sel?.value)careConfig[key].current=sel.value;
+    });
+    careConfig.anchorWeek=careWeekNow();
+    saveCareConfig();
+    renderCare();
+    closeOverlay('care-sequence-overlay');
   });
 
   document.getElementById('team-add-save')?.addEventListener('click',()=>{
