@@ -2844,6 +2844,59 @@ body.admin-mode button.admin-only-action{display:inline-flex}
   .bucket-grid{grid-template-columns:1fr !important}
 }
 
+
+/* === Correção: responsável da contagem na aba Estoque === */
+.stock-counter-owner{
+  display:grid !important;
+  grid-template-columns:minmax(420px,500px) minmax(280px,1fr) !important;
+  align-items:center !important;
+  column-gap:28px !important;
+  row-gap:12px !important;
+}
+.stock-counter-owner > div:first-child{
+  min-width:0 !important;
+  width:100% !important;
+}
+.stock-owner-select-row{
+  display:grid !important;
+  grid-template-columns:minmax(220px,1fr) auto !important;
+  gap:10px !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+.stock-counter-owner select{
+  min-width:0 !important;
+  width:100% !important;
+}
+.owner-add-btn{
+  position:relative !important;
+  z-index:1 !important;
+  white-space:nowrap !important;
+}
+.owner-hint{
+  min-width:0 !important;
+  max-width:100% !important;
+  padding:0 !important;
+  margin:0 !important;
+  line-height:1.45 !important;
+  overflow-wrap:anywhere !important;
+  align-self:center !important;
+}
+.owner-add-panel{
+  grid-column:1 / -1;
+}
+@media(max-width:900px){
+  .stock-counter-owner{
+    grid-template-columns:1fr !important;
+  }
+  .stock-owner-select-row{
+    grid-template-columns:1fr !important;
+  }
+  .owner-add-btn{
+    width:100% !important;
+  }
+}
+
 </style>
 
 <style id="mimar-pattern-refresh">
