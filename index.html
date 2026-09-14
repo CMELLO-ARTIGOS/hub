@@ -4746,6 +4746,33 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     return cfg.sequence[i];
   }
   function saveCareConfig(){localStorage.setItem(CARE_SEQUENCE_KEY,JSON.stringify(careConfig))}
+
+  // Mantém os rodízios de banheiro/cozinha sincronizados com "Gerenciar equipe".
+  // Preserva a ordem já definida no rodízio e adiciona novos participantes ao final.
+  function syncCareSequencesFromTeam(){
+    const keys=['female','male','kitchen'];
+    const currentThisWeek={};
+    keys.forEach(key=>currentThisWeek[key]=carePerson(key));
+
+    keys.forEach(key=>{
+      const allowed=team.filter(p=>!!p[key]).map(p=>p.name);
+      const same=(a,b)=>String(a||'').trim().toLocaleLowerCase('pt-BR')===String(b||'').trim().toLocaleLowerCase('pt-BR');
+      const oldSeq=Array.isArray(careConfig[key]?.sequence)?careConfig[key].sequence:[];
+      const kept=oldSeq.filter(name=>allowed.some(a=>same(a,name)));
+      const added=allowed.filter(name=>!kept.some(k=>same(k,name)));
+      const sequence=[...kept,...added];
+
+      careConfig[key]=careConfig[key]||{};
+      careConfig[key].sequence=sequence;
+      careConfig[key].current=sequence.find(n=>same(n,currentThisWeek[key])) || sequence[0] || '';
+    });
+
+    // Reinicia o ponto de referência nesta semana para não trocar o responsável atual
+    // apenas porque alguém foi incluído ou retirado da equipe.
+    careConfig.anchorWeek=careWeekNow();
+    saveCareConfig();
+  }
+
   function renderCare(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
     set('care-female-current',carePerson('female'));
@@ -4901,10 +4928,12 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
           p[role]=cb.checked;
         });
         saveTeam();
+        syncCareSequencesFromTeam();
         saturdaySequence=saturdaySequence.filter(n=>bucketPeople().includes(n));
         saveSaturdaySequence();
         renderTeam();
         renderCare();
+        renderCareSequenceEditor();
         renderBuckets();
         renderBucketEditor();
         alert(`Rodízios de ${p.name} atualizados.`);
@@ -4917,8 +4946,9 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
       const name=team[i]?.name;
       if(name && confirm(`Retirar ${name} dos rodízios?`)){
         team.splice(i,1); saveTeam();
+        syncCareSequencesFromTeam();
         saturdaySequence=saturdaySequence.filter(n=>n!==name); saveSaturdaySequence();
-        renderTeam(); renderCare(); renderBuckets();
+        renderTeam(); renderCare(); renderCareSequenceEditor(); renderBuckets();
       }
     }
   });
@@ -5013,7 +5043,13 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
       male:!!document.getElementById('team-in-male')?.checked,
       kitchen:!!document.getElementById('team-in-kitchen')?.checked
     });
-    saveTeam(); inp.value=''; renderTeam();renderCare();renderBucketEditor();
+    saveTeam();
+    syncCareSequencesFromTeam();
+    inp.value='';
+    renderTeam();
+    renderCare();
+    renderCareSequenceEditor();
+    renderBucketEditor();
   });
 
   document.addEventListener('DOMContentLoaded',()=>{
