@@ -4156,41 +4156,6 @@ Storage.prototype.removeItem=function(key){
 };
 
 const MIMAR_ROTATION_FIX_KEY='mimar_rotation_fix_2026_09_15_v1';
-const MIMAR_FULL_MIGRATION_KEY='mimar_full_migration_2026_09_15_v2';
-const MIMAR_CLOUD_LOCAL_ONLY_KEYS=new Set([
-  EXP_HISTORY_KEY, // reconstruído pela tabela expedicao
-  PROD_HISTORY_KEY // reconstruído pela tabela producao
-]);
-
-/* Migração única: este navegador foi confirmado pela gestão como a fonte correta.
-   Antes de baixar qualquer app_state antigo, envia para o Supabase todas as
-   configurações compartilhadas mimar_* existentes neste navegador. */
-async function mimarMigrateCurrentBrowserToCloud(remote,session){
-  if(remote.has(MIMAR_FULL_MIGRATION_KEY))return remote;
-  const rows=[];
-  const now=new Date().toISOString();
-  for(let i=0;i<window.localStorage.length;i++){
-    const key=window.localStorage.key(i);
-    if(!mimarIsCloudKey(key)||MIMAR_CLOUD_LOCAL_ONLY_KEYS.has(key)||key===MIMAR_FULL_MIGRATION_KEY)continue;
-    const raw=_mimarNativeGetItem.call(window.localStorage,key);
-    if(raw===null)continue;
-    rows.push({key,value:mimarParseStored(raw),updated_at:now,updated_by:session.user.id});
-  }
-  rows.push({
-    key:MIMAR_FULL_MIGRATION_KEY,
-    value:{applied:true,source:'navegador_principal_confirmado',at:now},
-    updated_at:now,
-    updated_by:session.user.id
-  });
-  const {error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(rows,{onConflict:'key'});
-  if(error){
-    console.warn('Mimar Cloud: não foi possível migrar o navegador principal.',error.message);
-    return remote;
-  }
-  rows.forEach(r=>remote.set(r.key,r));
-  console.info(`Mimar Cloud: migração inicial concluída (${rows.length-1} configurações).`);
-  return remote;
-}
 async function mimarApplyOfficialRotationFix(remote,session){
   if(remote.has(MIMAR_ROTATION_FIX_KEY))return remote;
   const now=new Date().toISOString();
@@ -4237,9 +4202,6 @@ async function mimarInitialCloudSync(){
     const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
     if(error){console.warn('Mimar Cloud: tabela app_state indisponível.',error.message);return}
     let remote=new Map((data||[]).map(r=>[r.key,r]));
-    // IMPORTANTE: na primeira abertura desta versão, o navegador principal
-    // ganha prioridade para preservar tudo o que já foi configurado nele.
-    remote=await mimarMigrateCurrentBrowserToCloud(remote,session);
     remote=await mimarApplyOfficialRotationFix(remote,session);
     let changed=false;
     _mimarCloudApplying=true;
@@ -4254,7 +4216,7 @@ async function mimarInitialCloudSync(){
       const toSeed=[];
       for(let i=0;i<window.localStorage.length;i++){
         const key=window.localStorage.key(i);
-        if(!mimarIsCloudKey(key)||MIMAR_CLOUD_LOCAL_ONLY_KEYS.has(key)||remote.has(key))continue;
+        if(!mimarIsCloudKey(key)||remote.has(key))continue;
         toSeed.push({key,value:mimarParseStored(_mimarNativeGetItem.call(window.localStorage,key)),updated_at:new Date().toISOString(),updated_by:session.user.id});
       }
       if(toSeed.length){
@@ -4288,7 +4250,45 @@ function mimarStartRealtimeSync(){
       }finally{_mimarCloudApplying=false}
     }).subscribe();
 }
-window.addEventListener('load',()=>{setTimeout(()=>void mimarInitialCloudSync(),150)});
+// Sincronização reforçada: Realtime + conferência periódica/foco.
+// Isso evita que uma guia fique desatualizada mesmo se o WebSocket cair ou
+// se o Realtime ainda estiver reconectando.
+let _mimarCloudPulling=false;
+async function mimarPullCloudState({reload=true}={}){
+  if(_mimarCloudPulling)return false;
+  _mimarCloudPulling=true;
+  try{
+    const {data:{session}}=await cloud.auth.getSession();
+    if(!session?.user)return false;
+    const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
+    if(error){console.warn('Mimar Cloud: falha ao conferir atualizações.',error.message);return false}
+    let changed=false;
+    _mimarCloudApplying=true;
+    try{
+      for(const row of data||[]){
+        const next=mimarStableString(row.value),cur=_mimarNativeGetItem.call(window.localStorage,row.key);
+        if(cur!==next){_mimarNativeSetItem.call(window.localStorage,row.key,next);changed=true}
+      }
+    }finally{_mimarCloudApplying=false}
+    if(changed&&reload){location.reload();return true}
+    return changed;
+  }catch(err){console.warn('Mimar Cloud: conferência falhou.',err);return false}
+  finally{_mimarCloudPulling=false}
+}
+function mimarStartOperationalRealtime(){
+  if(window._mimarOperationalChannel)return;
+  window._mimarOperationalChannel=cloud.channel('mimar-operational-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'estoque_controle'},()=>{if(typeof loadStock==='function')void loadStock()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'producao'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'expedicao'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'importacoes'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
+    .subscribe();
+}
+window.addEventListener('load',()=>{setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime()},150)});
+window.addEventListener('focus',()=>void mimarPullCloudState());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void mimarPullCloudState()});
+setInterval(()=>{if(!document.hidden)void mimarPullCloudState()},5000);
+cloud.auth.onAuthStateChange((event,session)=>{if(session?.user)setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime();void mimarPullCloudState()},250)});
 let currentUser=null,isAdmin=false,cloudProductionRecords=[],cloudExpeditionRecords=[],stockRecords=[],stockEditMode=false;
 const EMBED_NAMES=["Bryan","Thiago","Fagner","Leonardo","Elisabete","Rafael","Novo Colaborador"];
 const EMBED_ROWS=[
