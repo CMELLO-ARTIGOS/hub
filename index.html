@@ -4155,13 +4155,54 @@ Storage.prototype.removeItem=function(key){
   if(this===window.localStorage&&mimarIsCloudKey(key))void mimarCloudDelete(key);
 };
 
+const MIMAR_ROTATION_FIX_KEY='mimar_rotation_fix_2026_09_15_v1';
+async function mimarApplyOfficialRotationFix(remote,session){
+  if(remote.has(MIMAR_ROTATION_FIX_KEY))return remote;
+  const now=new Date().toISOString();
+  const by=session.user.id;
+  const clone=v=>JSON.parse(JSON.stringify(v));
+  const getValue=(key,fallback)=>remote.has(key)?clone(remote.get(key).value):clone(fallback);
+
+  // Configuração confirmada pela gestão em 15/09/2026.
+  const week={mon:'Bryan',tue:'Fabiola',wed:'Fagner',thu:'Thiago',fri:'Leonardo',sat:'Thiago'};
+
+  // Preserva a equipe existente e garante Fabiola como participante dos baldes.
+  let teamValue=getValue('mimar_rotation_team_v1',[]);
+  if(!Array.isArray(teamValue))teamValue=[];
+  let fab=teamValue.find(p=>String(p?.name||'').trim().toLocaleLowerCase('pt-BR')==='fabiola');
+  if(fab)fab.buckets=true;
+  else teamValue.push({name:'Fabiola',buckets:true,female:false,male:false,kitchen:false});
+
+  // Preserva todos os nomes da sequência de sábado, mas fixa Thiago nesta semana
+  // e Leonardo como próximo, exatamente como na configuração confirmada.
+  let sat=getValue('mimar_bucket_saturday_sequence_v2',{sequence:['Thiago','Leonardo','Bryan','Fagner'],anchorWeek:2958,startIndex:0});
+  if(Array.isArray(sat))sat={sequence:sat,anchorWeek:2958,startIndex:0};
+  let seq=Array.isArray(sat?.sequence)?sat.sequence.filter(Boolean):[];
+  const same=(a,b)=>String(a||'').trim().toLocaleLowerCase('pt-BR')===String(b||'').trim().toLocaleLowerCase('pt-BR');
+  const rest=seq.filter(n=>!same(n,'Thiago')&&!same(n,'Leonardo'));
+  seq=['Thiago','Leonardo',...rest];
+  sat={sequence:seq,anchorWeek:2958,startIndex:0};
+
+  const rows=[
+    {key:'mimar_bucket_week_v1',value:week,updated_at:now,updated_by:by},
+    {key:'mimar_rotation_team_v1',value:teamValue,updated_at:now,updated_by:by},
+    {key:'mimar_bucket_saturday_sequence_v2',value:sat,updated_at:now,updated_by:by},
+    {key:MIMAR_ROTATION_FIX_KEY,value:{applied:true,source:'configuracao_confirmada_2026-09-15'},updated_at:now,updated_by:by}
+  ];
+  const {error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(rows,{onConflict:'key'});
+  if(error){console.warn('Mimar Cloud: não foi possível aplicar a configuração oficial do rodízio.',error.message);return remote}
+  rows.forEach(r=>remote.set(r.key,r));
+  return remote;
+}
+
 async function mimarInitialCloudSync(){
   try{
     const {data:{session}}=await cloud.auth.getSession();
     if(!session?.user)return;
     const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
     if(error){console.warn('Mimar Cloud: tabela app_state indisponível.',error.message);return}
-    const remote=new Map((data||[]).map(r=>[r.key,r]));
+    let remote=new Map((data||[]).map(r=>[r.key,r]));
+    remote=await mimarApplyOfficialRotationFix(remote,session);
     let changed=false;
     _mimarCloudApplying=true;
     try{
@@ -4738,7 +4779,7 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
 
   let team=loadJSON(TEAM_KEY,defaultTeam);
   let bucketWeek=loadJSON(BUCKET_KEY,{
-    mon:'Thiago',tue:'Bryan',wed:'Fagner',thu:'Leonardo',fri:'Thiago',sat:'Bryan'
+    mon:'Bryan',tue:'Fabiola',wed:'Fagner',thu:'Thiago',fri:'Leonardo',sat:'Thiago'
   });
   let saturdayConfig=loadJSON(SATURDAY_SEQUENCE_KEY,null);
   if(!saturdayConfig || Array.isArray(saturdayConfig)){
