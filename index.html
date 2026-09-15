@@ -4098,6 +4098,118 @@ const PROD_HISTORY_KEY='mimar_prod_history_v1';
 const SUPABASE_URL='https://sivruxuiwtqnuqdjutjb.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_znBYFnqIKJH6-f-0luGdWw_zrrdwWBt';
 const cloud=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+/* =========================================================
+   MIMAR CLOUD STATE · Supabase como fonte central
+   ---------------------------------------------------------
+   Mantém as configurações antigas do painel compatíveis com o
+   código existente, mas replica todo estado "mimar_*" no Supabase.
+   Assim equipe, rodízios, baldes, avisos, estoque, FULL, medidas,
+   coletas e demais configurações ficam iguais em qualquer navegador.
+   ========================================================= */
+const MIMAR_CLOUD_STATE_TABLE='app_state';
+const MIMAR_CLOUD_PREFIX='mimar_';
+const _mimarNativeGetItem=Storage.prototype.getItem;
+const _mimarNativeSetItem=Storage.prototype.setItem;
+const _mimarNativeRemoveItem=Storage.prototype.removeItem;
+let _mimarCloudApplying=false;
+let _mimarCloudReady=false;
+let _mimarCloudChannel=null;
+
+function mimarIsCloudKey(key){return String(key||'').startsWith(MIMAR_CLOUD_PREFIX)}
+function mimarParseStored(raw){
+  if(raw===null||raw===undefined)return null;
+  try{return JSON.parse(raw)}catch(e){return raw}
+}
+function mimarStableString(value){
+  try{return JSON.stringify(value)}catch(e){return String(value??'')}
+}
+async function mimarCloudUpsert(key,rawValue){
+  if(!mimarIsCloudKey(key)||_mimarCloudApplying)return;
+  try{
+    const {data:{session}}=await cloud.auth.getSession();
+    if(!session?.user)return;
+    const payload={key:String(key),value:mimarParseStored(rawValue),updated_at:new Date().toISOString(),updated_by:session.user.id};
+    const {error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(payload,{onConflict:'key'});
+    if(error)console.warn('Mimar Cloud: não foi possível sincronizar',key,error.message);
+  }catch(err){console.warn('Mimar Cloud:',err)}
+}
+async function mimarCloudDelete(key){
+  if(!mimarIsCloudKey(key)||_mimarCloudApplying)return;
+  try{
+    const {data:{session}}=await cloud.auth.getSession();
+    if(!session?.user)return;
+    const {error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).delete().eq('key',String(key));
+    if(error)console.warn('Mimar Cloud: não foi possível excluir',key,error.message);
+  }catch(err){console.warn('Mimar Cloud:',err)}
+}
+
+/* Intercepta apenas chaves do sistema Mimar. As chaves internas de autenticação
+   do Supabase continuam usando o localStorage normalmente. */
+Storage.prototype.setItem=function(key,value){
+  _mimarNativeSetItem.call(this,key,value);
+  if(this===window.localStorage&&mimarIsCloudKey(key))void mimarCloudUpsert(key,value);
+};
+Storage.prototype.removeItem=function(key){
+  _mimarNativeRemoveItem.call(this,key);
+  if(this===window.localStorage&&mimarIsCloudKey(key))void mimarCloudDelete(key);
+};
+
+async function mimarInitialCloudSync(){
+  try{
+    const {data:{session}}=await cloud.auth.getSession();
+    if(!session?.user)return;
+    const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
+    if(error){console.warn('Mimar Cloud: tabela app_state indisponível.',error.message);return}
+    const remote=new Map((data||[]).map(r=>[r.key,r]));
+    let changed=false;
+    _mimarCloudApplying=true;
+    try{
+      /* Banco ganha prioridade. Quando a chave ainda não existe no banco,
+         o valor deste navegador é usado somente para a primeira migração. */
+      for(const [key,row] of remote){
+        const next=mimarStableString(row.value);
+        const cur=_mimarNativeGetItem.call(window.localStorage,key);
+        if(cur!==next){_mimarNativeSetItem.call(window.localStorage,key,next);changed=true}
+      }
+      const toSeed=[];
+      for(let i=0;i<window.localStorage.length;i++){
+        const key=window.localStorage.key(i);
+        if(!mimarIsCloudKey(key)||remote.has(key))continue;
+        toSeed.push({key,value:mimarParseStored(_mimarNativeGetItem.call(window.localStorage,key)),updated_at:new Date().toISOString(),updated_by:session.user.id});
+      }
+      if(toSeed.length){
+        const {error:seedError}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(toSeed,{onConflict:'key'});
+        if(seedError)console.warn('Mimar Cloud: falha na migração inicial.',seedError.message);
+      }
+    }finally{_mimarCloudApplying=false}
+    _mimarCloudReady=true;
+    if(changed&&!sessionStorage.getItem('mimar_cloud_boot_reload')){
+      sessionStorage.setItem('mimar_cloud_boot_reload','1');
+      location.reload();
+      return;
+    }
+    sessionStorage.removeItem('mimar_cloud_boot_reload');
+    mimarStartRealtimeSync();
+  }catch(err){console.warn('Mimar Cloud: sincronização inicial falhou.',err)}
+}
+function mimarStartRealtimeSync(){
+  if(_mimarCloudChannel)return;
+  _mimarCloudChannel=cloud.channel('mimar-app-state-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:MIMAR_CLOUD_STATE_TABLE},payload=>{
+      const row=payload.new||payload.old;if(!row||!mimarIsCloudKey(row.key))return;
+      _mimarCloudApplying=true;
+      try{
+        if(payload.eventType==='DELETE'){
+          if(_mimarNativeGetItem.call(window.localStorage,row.key)!==null){_mimarNativeRemoveItem.call(window.localStorage,row.key);location.reload()}
+        }else{
+          const next=mimarStableString(row.value),cur=_mimarNativeGetItem.call(window.localStorage,row.key);
+          if(cur!==next){_mimarNativeSetItem.call(window.localStorage,row.key,next);location.reload()}
+        }
+      }finally{_mimarCloudApplying=false}
+    }).subscribe();
+}
+window.addEventListener('load',()=>{setTimeout(()=>void mimarInitialCloudSync(),150)});
 let currentUser=null,isAdmin=false,cloudProductionRecords=[],cloudExpeditionRecords=[],stockRecords=[],stockEditMode=false;
 const EMBED_NAMES=["Bryan","Thiago","Fagner","Leonardo","Elisabete","Rafael","Novo Colaborador"];
 const EMBED_ROWS=[
