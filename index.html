@@ -2939,6 +2939,43 @@ body.admin-mode button.admin-only-action{display:inline-flex}
   .stock-print-num{display:inline-block;width:13px;text-align:right!important;margin-right:2px;color:#555}
   .stock-print-footer{margin-top:4px;font-size:6.8px;color:#666;display:flex;justify-content:space-between}
 }
+
+/* MIMAR · Minha Rotina em formato checklist · 16/09/2026 */
+#minha-rotina .routine-hero{padding:16px 18px;border-radius:14px;margin-bottom:12px}
+#minha-rotina .routine-hero h1{font-size:22px;margin-bottom:2px}
+#minha-rotina .routine-hero p{font-size:13px}
+#minha-rotina .routine-grid{display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid #e9e5e1;border-radius:14px;padding:0 18px;overflow:hidden}
+#minha-rotina .routine-step,#minha-rotina .routine-step.full{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:start;background:transparent!important;border:0!important;border-radius:0!important;padding:18px 0!important;min-height:0;position:relative}
+#minha-rotina .routine-step:not(:last-child){border-bottom:1px solid #eeeae6!important}
+#minha-rotina .routine-check-marker{width:30px;height:30px;border:1.5px solid #d9d5d1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#777;background:#faf9f8;margin-top:1px}
+#minha-rotina .routine-step.done .routine-check-marker{font-size:0;background:#eef8e7;border-color:#9bce61;color:#4d8d20}
+#minha-rotina .routine-step.done .routine-check-marker:after{content:'✓';font-size:16px;font-weight:900}
+#minha-rotina .routine-step.active .routine-check-marker{border-color:#ef9a6e;background:#fff4ee;color:#d75e27}
+#minha-rotina .routine-step-content{min-width:0}
+#minha-rotina .routine-step-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:3px}
+#minha-rotina .routine-step h3{font-size:17px;margin:0;color:#183246}
+#minha-rotina .routine-step p{font-size:12.5px;margin:0 0 10px;color:#7a7d80}
+#minha-rotina .routine-status{margin:0;padding:4px 8px;font-size:10px;white-space:nowrap}
+#minha-rotina .routine-clean-time{display:none}
+#minha-rotina .routine-account-line{max-width:440px}
+#minha-rotina .routine-select{min-height:40px;font-size:14px}
+#minha-rotina .routine-actions{margin-top:8px;gap:7px}
+#minha-rotina .routine-actions .btn{min-height:36px;padding:8px 13px;font-size:12px;border-radius:9px}
+#minha-rotina .task-list{margin-top:7px}
+#minha-rotina .task-list:empty:after{content:'Nenhuma tarefa atribuída no momento.';display:block;padding:10px 12px;background:#faf9f8;border:1px dashed #ded9d4;border-radius:9px;color:#8a8783;font-size:12px}
+#minha-rotina .routine-timeline{margin-top:12px;border-radius:14px;padding:14px 18px}
+#minha-rotina .routine-timeline-head{margin-bottom:9px}
+#minha-rotina .routine-timeline-head h3{font-size:16px}
+#minha-rotina .routine-timeline-head p{font-size:12px}
+@media(max-width:700px){#minha-rotina .routine-grid{padding:0 14px}#minha-rotina .routine-step,#minha-rotina .routine-step.full{grid-template-columns:34px minmax(0,1fr);gap:9px;padding:15px 0!important}#minha-rotina .routine-check-marker{width:27px;height:27px}#minha-rotina .routine-step-head{align-items:flex-start;flex-direction:column;gap:5px}}
+
+
+/* MIMAR · Cronômetros operacionais · 16/09/2026 */
+.routine-timer{display:inline-flex;align-items:center;gap:7px;margin-top:9px;padding:6px 10px;border:1px solid #eadfd7;border-radius:9px;background:#fffaf7;color:#5f6670;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.routine-timer.running{color:#b94f36;border-color:#f0c8bd;background:#fff7f3}
+.routine-timer.done{color:#347047;border-color:#cfe6d5;background:#f4fbf6}
+.routine-timer-dot{width:7px;height:7px;border-radius:50%;background:#aab0b6}.routine-timer.running .routine-timer-dot{background:#e36f55}.routine-timer.done .routine-timer-dot{background:#7fbd4c}
+.routine-actions .btn[disabled]{opacity:.42;cursor:not-allowed;filter:grayscale(.15)}
 </style>
 
 <style id="mimar-pattern-refresh">
@@ -3246,9 +3283,56 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 .routine-actions{display:flex;gap:8px;flex-wrap:wrap}.routine-select,.routine-input{width:100%;padding:10px 11px;border:1px solid #dfe1e3;border-radius:10px;margin-bottom:10px;font:inherit;background:#fff}.routine-clock{font-weight:900;color:#ef6c21}.routine-clean-time{font-size:28px;font-weight:950;color:#183246;margin:3px 0 8px}.routine-clean-note{font-size:14px!important;color:#4f5960!important}
 .task-list{display:grid;gap:9px}.task-item{border:1px solid #ece8e4;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.task-item.done{background:#fbfffc}.task-title{font-weight:850;color:#273d4d}.task-meta{font-size:11px;color:#85898d;margin-top:3px}.task-empty{padding:18px;border:1px dashed #ddd5cf;border-radius:12px;color:#777;text-align:center}
 .leader-panel{display:none}.admin-mode #minha-rotina .leader-panel{display:block}.leader-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.leader-head h2{margin:0}.leader-form{display:grid;grid-template-columns:220px 1fr auto;gap:9px}.leader-form select,.leader-form input{padding:10px;border:1px solid #dfe1e3;border-radius:10px;font:inherit}.team-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.team-status-card{border:1px solid #ece8e4;border-radius:12px;padding:10px}.team-status-card b{display:block;color:#243b4c}.team-status-card span{font-size:12px;color:#777}.routine-account-line{display:flex;gap:8px}.routine-account-line select{margin:0;flex:1}.routine-complete{padding:14px;border-radius:12px;background:#eaf8ee;color:#27683a;font-weight:850;text-align:center;display:none}.routine-complete.show{display:block}
+.routine-timeline{background:#fff;border:1px solid #ece8e4;border-radius:16px;padding:18px;margin-top:14px}.routine-timeline-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.routine-timeline-head h3{margin:0;color:#243b4c}.routine-timeline-head p{margin:3px 0 0;color:#777;font-size:13px}.timeline-list{position:relative;padding-left:26px;display:grid;gap:0}.timeline-list:before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:#ece8e4}.timeline-event{position:relative;padding:0 0 16px 14px;display:grid;grid-template-columns:62px 1fr;gap:8px}.timeline-event:last-child{padding-bottom:0}.timeline-event:before{content:"";position:absolute;left:-23px;top:5px;width:10px;height:10px;border-radius:50%;background:#ef6c21;border:3px solid #fff;box-shadow:0 0 0 1px #ef6c21}.timeline-event.done:before{background:#43a65d;box-shadow:0 0 0 1px #43a65d}.timeline-event.wait:before{background:#c7c2bd;box-shadow:0 0 0 1px #c7c2bd}.timeline-time{font-weight:900;color:#243b4c;font-size:13px}.timeline-text b{display:block;color:#243b4c}.timeline-text span{display:block;color:#777;font-size:12px;margin-top:2px}.timeline-empty{padding:14px;border-radius:12px;background:#faf8f6;color:#777;text-align:center}.leader-timeline-panel{margin-top:14px;border-top:1px solid #eee7e1;padding-top:14px}.leader-timeline-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.leader-timeline-controls select,.leader-timeline-controls input{padding:9px 10px;border:1px solid #dfe1e3;border-radius:10px;font:inherit;background:#fff}.team-status-card{cursor:pointer}.team-status-card:hover{border-color:#efb58f;background:#fffaf7}
 @media(max-width:800px){.routine-grid{grid-template-columns:1fr}.routine-step.full{grid-column:auto}.leader-form{grid-template-columns:1fr}.team-status-grid{grid-template-columns:1fr 1fr}.routine-hero{align-items:flex-start;flex-direction:column}}
 </style>
 <!-- MIMAR 16/09/2026 · LOGIN ÚNICO: colaborador/líder/admin usam a mesma sessão Supabase -->
+
+<style id="mimar-internal-clean-v1">
+/* MIMAR · refinamento de sistema interno: hierarquia + densidade + baldes minimalistas */
+:root{--mimar-ink:#172635;--mimar-muted:#6f7781;--mimar-line:#e8e4e1;--mimar-soft:#faf9f8;--mimar-accent:#e56e5b}
+.page-heading{margin-bottom:18px!important;align-items:flex-start!important}
+.page-heading .eyebrow{font-size:10px!important;letter-spacing:.13em!important;font-weight:900!important;color:#c75a48!important}
+.page-heading h1{font-size:30px!important;line-height:1.08!important;letter-spacing:-.025em!important;color:var(--mimar-ink)!important;margin:5px 0 5px!important}
+.page-heading p{font-size:13px!important;line-height:1.45!important;color:var(--mimar-muted)!important;max-width:720px!important;margin:0!important}
+.card h2,.card h3,.section-title h2,.section-title h3{color:var(--mimar-ink)}
+.card p,.muted,.helper,.hint{color:var(--mimar-muted)}
+
+/* Baldes: informação operacional, não um painel decorativo */
+.bucket-color-panel{margin:12px 0 18px!important;border:1px solid var(--mimar-line)!important;border-radius:14px!important;box-shadow:none!important;background:#fff!important;overflow:visible!important}
+.bucket-color-head{padding:13px 15px 9px!important;gap:10px!important;border-bottom:1px solid #f1eeec!important}
+.bucket-color-title{gap:8px!important}
+.bucket-color-icon{display:none!important}
+.bucket-color-title h3{font-size:15px!important;line-height:1.2!important;font-weight:900!important;color:var(--mimar-ink)!important}
+.bucket-color-title p{font-size:11px!important;margin-top:2px!important;color:#7b8188!important}
+.bucket-help{font-size:11px!important;padding:5px 8px!important;background:#fff!important;border-color:#e7dfdb!important;color:#7a5a50!important;font-weight:700!important}
+.bucket-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;padding:10px!important;align-items:stretch!important}
+.bucket-card{min-height:0!important;height:auto!important;padding:10px!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important;border:1px solid #e8e8e8!important;display:flex!important;flex-direction:column!important;gap:7px!important;overflow:visible!important}
+.bucket-card-top{display:block!important;height:auto!important}
+.bucket-visual{width:100%!important;height:5px!important;border:0!important;border-radius:99px!important;background:var(--bucket-color)!important;margin-bottom:8px!important;overflow:hidden!important}
+.bucket-shape{display:none!important}
+.bucket-name{font-size:13px!important;line-height:1.2!important;font-weight:850!important;color:var(--mimar-ink)!important;margin:0!important}
+.bucket-qty{font-size:21px!important;line-height:1.05!important;font-weight:900!important;color:#17212b!important;margin-top:4px!important;gap:4px!important;white-space:nowrap!important}
+.bucket-qty span{font-size:10px!important;font-weight:700!important;color:#818891!important;margin:0 0 2px!important}
+.bucket-status{font-size:10px!important;line-height:1.15!important;padding:4px 7px!important;margin-top:7px!important;border-radius:7px!important;font-weight:850!important;white-space:nowrap!important}
+.bucket-note{font-size:10px!important;line-height:1.3!important;color:#6e7680!important;margin-top:6px!important;min-height:26px!important;max-height:28px!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+.bucket-edit{margin-top:auto!important;padding:6px 8px!important;border-radius:7px!important;background:#fff!important;border:1px solid #e5e2df!important;color:#5e6670!important;font-size:10px!important;font-weight:800!important;box-shadow:none!important}
+.bucket-edit:hover{background:#faf8f7!important;color:#c95543!important;border-color:#e7c6bf!important}
+
+/* Cards e blocos operacionais mais compactos */
+.stock-last-card,.stock-counter-owner,.rotation-summary-card,.bucket-week-card,.care-note{box-shadow:none!important}
+.stock-last-card h3{font-size:14px!important}
+.stock-last-card>p{font-size:11px!important}
+
+/* Evita títulos competindo com o conteúdo */
+.production-section-head h2,.stock-section-head h2{font-size:18px!important;letter-spacing:-.01em!important}
+.production-section-head p,.stock-section-head p{font-size:12px!important;line-height:1.4!important}
+
+@media(max-width:1180px){.bucket-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:760px){.bucket-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.page-heading h1{font-size:26px!important}}
+@media(max-width:480px){.bucket-grid{grid-template-columns:1fr!important}.bucket-note{max-height:none!important;-webkit-line-clamp:3!important}}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -3517,13 +3601,14 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
     <div class="routine-login-card" id="routine-login-card"><h2>Conta não conectada</h2><p>Use o botão <b>Entrar no sistema</b> no topo da página. A Minha Rotina será identificada automaticamente pelo mesmo acesso.</p></div>
     <div id="routine-content" style="display:none">
       <div class="routine-grid">
-        <div class="routine-step" id="routine-exp-step"><span class="routine-status" id="routine-exp-status">Pendente</span><h3>1. Expedição</h3><p>Selecione a conta/atividade em que está trabalhando.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div></div>
-        <div class="routine-step" id="routine-clean-step"><span class="routine-status" id="routine-clean-status">Programado</span><h3>3. Organização e Limpeza</h3><div class="routine-clean-time">16:00</div><p class="routine-clean-note">Antes de bater o ponto e ir embora, organize sua bancada e realize a limpeza do seu setor.</p><div class="routine-actions"><button class="btn btn-green" id="routine-clean-done" type="button">✓ Organização concluída</button></div><div class="task-meta" id="routine-clean-time-done"></div></div>
-        <div class="routine-step full" id="routine-tasks-step"><span class="routine-status">Após a expedição</span><h3>2. Tarefas definidas pelo Líder</h3><p>As atividades abaixo são distribuídas pelo líder. Ao terminar, marque como concluída.</p><div class="task-list" id="routine-task-list"></div></div>
+        <div class="routine-step" id="routine-exp-step"><div class="routine-check-marker" aria-hidden="true">1</div><div class="routine-step-content"><div class="routine-step-head"><h3>Expedição</h3><span class="routine-status" id="routine-exp-status">Pendente</span></div><p>Selecione a conta ou atividade atual.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div><div class="routine-timer" id="routine-exp-timer"><span class="routine-timer-dot"></span><span>00:00:00</span></div></div></div>
+        <div class="routine-step full" id="routine-tasks-step"><div class="routine-check-marker" aria-hidden="true">2</div><div class="routine-step-content"><div class="routine-step-head"><h3>Tarefas do Líder</h3><span class="routine-status">Após expedição</span></div><p>Próximos afazeres direcionados pelo líder.</p><div class="task-list" id="routine-task-list"></div></div></div>
+        <div class="routine-step" id="routine-clean-step"><div class="routine-check-marker" aria-hidden="true">3</div><div class="routine-step-content"><div class="routine-step-head"><h3>Organização e Limpeza</h3><span class="routine-status" id="routine-clean-status">16:00</span></div><p class="routine-clean-note">Organize sua bancada e realize a limpeza do setor antes de encerrar o dia.</p><div class="routine-actions"><button class="btn btn-green" id="routine-clean-done" type="button">✓ Concluir organização</button></div><div class="task-meta" id="routine-clean-time-done"></div></div></div>
       </div>
       <div class="routine-complete" id="routine-complete">✓ Rotina do dia concluída.</div>
+      <div class="routine-timeline" id="routine-timeline-card"><div class="routine-timeline-head"><div><h3>Minha timeline de hoje</h3><p>Registro automático das atividades realizadas no sistema.</p></div></div><div class="timeline-list" id="routine-timeline-list"></div></div>
     </div>
-    <div class="leader-panel" id="routine-leader-panel"><div class="leader-head"><div><h2>Painel do Líder</h2><p style="margin:4px 0 0;color:#777">Distribua tarefas e acompanhe a situação da equipe.</p></div></div><div class="leader-form"><select id="leader-collab"><option value="">Selecione o colaborador</option></select><input id="leader-task" type="text" maxlength="180" placeholder="Ex.: Produzir Full 18/09 — 300 unidades"><button class="btn btn-orange" id="leader-task-add" type="button">＋ Atribuir tarefa</button></div><div class="team-status-grid" id="routine-team-status"></div></div>
+    <div class="leader-panel" id="routine-leader-panel"><div class="leader-head"><div><h2>Painel do Líder</h2><p style="margin:4px 0 0;color:#777">Distribua tarefas e acompanhe a situação da equipe.</p></div></div><div class="leader-form"><select id="leader-collab"><option value="">Selecione o colaborador</option></select><input id="leader-task" type="text" maxlength="180" placeholder="Ex.: Produzir Full 18/09 — 300 unidades"><button class="btn btn-orange" id="leader-task-add" type="button">＋ Atribuir tarefa</button></div><div class="team-status-grid" id="routine-team-status"></div><div class="leader-timeline-panel"><div class="routine-timeline-head"><div><h3>Timeline do colaborador</h3><p>Clique em um colaborador acima ou selecione abaixo para consultar o dia.</p></div></div><div class="leader-timeline-controls"><select id="leader-timeline-collab"><option value="">Selecione o colaborador</option></select><input id="leader-timeline-date" type="date"><button class="btn btn-orange" id="leader-timeline-view" type="button">Ver timeline</button></div><div class="timeline-list" id="leader-timeline-list"><div class="timeline-empty">Selecione um colaborador para visualizar a timeline.</div></div></div></div>
   </div>
 </section>
 
@@ -6555,7 +6640,36 @@ document.addEventListener('click',function(e){
     });
   }
   function val(v,suffix=''){return clean(v)?`<span class="measure-value">${esc(v)}${suffix}</span>`:'<span class="measure-missing">Preencher</span>';}
-  function render(){
+  function timelineEvents(day,tasks){
+  const ev=[];
+  const push=(time,title,detail='',kind='')=>{if(time)ev.push({time,title,detail,kind})};
+  if(day?.expedicao_inicio)push(day.expedicao_inicio,'Iniciou Expedição',day.expedicao_conta||'','');
+  if(day?.expedicao_fim)push(day.expedicao_fim,'Expedição concluída',day.expedicao_conta||'','done');
+  for(const t of (tasks||[])){
+    if(t.created_at)push(t.created_at,'Tarefa atribuída pelo Líder',t.descricao||'','');
+    if(t.iniciado_em)push(t.iniciado_em,'Iniciou tarefa',t.descricao||'','');
+    if(t.concluido_em)push(t.concluido_em,'Tarefa concluída',t.descricao||'','done');
+  }
+  if(day?.limpeza_fim)push(day.limpeza_fim,'Organização e limpeza concluída','Bancada organizada e limpeza do setor realizada.','done');
+  return ev.sort((a,b)=>new Date(a.time)-new Date(b.time));
+}
+function timelineHtml(day,tasks,showWaiting=true){
+  const ev=timelineEvents(day,tasks);
+  if(showWaiting && day?.expedicao_status==='concluido' && !(tasks||[]).some(t=>t.status==='andamento'||t.status==='pendente') && day?.limpeza_status!=='concluido'){
+    ev.push({time:new Date().toISOString(),title:'Aguardando direcionamento',detail:'Disponível para a próxima tarefa do Líder.',kind:'wait'});
+  }
+  if(!ev.length)return '<div class="timeline-empty">Nenhuma atividade registrada ainda.</div>';
+  return ev.map(e=>`<div class="timeline-event ${e.kind||''}"><div class="timeline-time">${fmtTime(e.time)}</div><div class="timeline-text"><b>${escapeHtml(e.title)}</b>${e.detail?`<span>${escapeHtml(e.detail)}</span>`:''}</div></div>`).join('');
+}
+async function showLeaderTimeline(cid,date){
+  const box=$('leader-timeline-list');if(!box)return;
+  if(!cid){box.innerHTML='<div class="timeline-empty">Selecione um colaborador para visualizar a timeline.</div>';return}
+  box.innerHTML='<div class="timeline-empty">Carregando timeline...</div>';
+  const [dq,tq]=await Promise.all([cloud.from('rotina_diaria').select('*').eq('colaborador_id',cid).eq('data',date).maybeSingle(),cloud.from('tarefas_lider').select('*').eq('colaborador_id',cid).eq('data',date).order('created_at')]);
+  if(dq.error||tq.error){box.innerHTML='<div class="timeline-empty">Não foi possível carregar a timeline.</div>';return}
+  box.innerHTML=timelineHtml(dq.data||{},tq.data||[],date===today());
+}
+function render(){
     const body=$('measure-body'); if(!body)return;
     const rows=visibleRows();
     const pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE)); if(page>pages)page=pages;
@@ -6601,6 +6715,12 @@ document.addEventListener('click',function(e){
 const R={profile:null,day:null,tasks:[],profiles:[]};
 const $=id=>document.getElementById(id), today=()=>new Date().toISOString().slice(0,10), now=()=>new Date().toISOString();
 function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
+function elapsed(start,end){if(!start)return 0;const a=new Date(start).getTime(),b=end?new Date(end).getTime():Date.now();return Math.max(0,b-a)}
+function clock(ms){const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor((t%3600)/60),sec=t%60;return [h,m,sec].map(x=>String(x).padStart(2,'0')).join(':')}
+function setTimer(id,start,end,status){const el=$(id);if(!el)return;const span=el.querySelector('span:last-child');if(span)span.textContent=start?clock(elapsed(start,end)):'00:00:00';el.classList.toggle('running',status==='andamento');el.classList.toggle('done',status==='concluido');}
+function refreshTimers(){if(!R.day)return;const d=R.day;setTimer('routine-exp-timer',d.expedicao_inicio,d.expedicao_fim,d.expedicao_status);document.querySelectorAll('[data-task-timer]').forEach(el=>{const id=Number(el.dataset.taskTimer),t=R.tasks.find(x=>Number(x.id)===id);if(t)setTimerElement(el,t.iniciado_em,t.concluido_em,t.status)});}
+function setTimerElement(el,start,end,status){if(!el)return;const span=el.querySelector('span:last-child');if(span)span.textContent=start?clock(elapsed(start,end)):'00:00:00';el.classList.toggle('running',status==='andamento');el.classList.toggle('done',status==='concluido')}
+
 async function getProfile(){
   const {data:{session}}=await cloud.auth.getSession();
   if(!session?.user)return null;
@@ -6635,14 +6755,30 @@ function render(){
   $('routine-exp-status').className='routine-status '+(d.expedicao_status==='concluido'?'done':d.expedicao_status==='andamento'?'active':'');
   if(d.expedicao_conta)$('routine-exp-account').value=d.expedicao_conta;
   $('routine-exp-time').textContent=d.expedicao_inicio?`Início ${fmtTime(d.expedicao_inicio)}${d.expedicao_fim?' · conclusão '+fmtTime(d.expedicao_fim):''}`:'';
-  state($('routine-clean-step'),d.limpeza_status);
-  $('routine-clean-status').textContent=d.limpeza_status==='concluido'?'✓ Concluído':'16:00';
-  $('routine-clean-status').className='routine-status '+(d.limpeza_status==='concluido'?'done':'');
-  $('routine-clean-time-done').textContent=d.limpeza_fim?'Concluído às '+fmtTime(d.limpeza_fim):'';
+  setTimer('routine-exp-timer',d.expedicao_inicio,d.expedicao_fim,d.expedicao_status);
+  const expStart=$('routine-exp-start'),expDone=$('routine-exp-done'),expSelect=$('routine-exp-account');
+  if(expStart){expStart.style.display=d.expedicao_status==='pendente'||!d.expedicao_status?'':'none';expStart.disabled=d.expedicao_status==='concluido'}
+  if(expDone){expDone.style.display=d.expedicao_status==='andamento'?'':'none'}
+  if(expSelect)expSelect.disabled=d.expedicao_status==='concluido';
+
+  // Organização e Limpeza é um check simples das 16:00: sem iniciar e sem cronômetro.
+  // Conclusões antigas feitas antes das 16:00 não contam para o checklist do fechamento.
+  const cleanFinish=d.limpeza_fim?new Date(d.limpeza_fim):null;
+  const cleanValid=d.limpeza_status==='concluido' && cleanFinish && cleanFinish.getHours()>=16;
+  state($('routine-clean-step'),cleanValid?'concluido':'pendente');
+  $('routine-clean-status').textContent=cleanValid?'✓ Concluído':'16:00';
+  $('routine-clean-status').className='routine-status '+(cleanValid?'done':'');
+  $('routine-clean-time-done').textContent=cleanValid?'Concluído às '+fmtTime(d.limpeza_fim):'';
+  const cleanDone=$('routine-clean-done');
+  if(cleanDone){cleanDone.style.display=cleanValid?'none':'';cleanDone.textContent='✓ Marcar como concluído';}
+
   const list=$('routine-task-list');
-  list.innerHTML=R.tasks.length?R.tasks.map(t=>`<div class="task-item ${t.status==='concluido'?'done':''}"><div><div class="task-title">${escapeHtml(t.descricao)}</div><div class="task-meta">${t.status==='concluido'?'Concluída às '+fmtTime(t.concluido_em):t.status==='andamento'?'Em andamento':'Aguardando'}</div></div><div class="routine-actions">${t.status==='pendente'?`<button class="btn btn-orange rt-start" data-id="${t.id}">Iniciar</button>`:''}${t.status!=='concluido'?`<button class="btn btn-green rt-done" data-id="${t.id}">✓ Concluir</button>`:'<span style="font-weight:900;color:#2d7a42">✓</span>'}</div></div>`).join(''):'<div class="task-empty">Nenhuma tarefa atribuída pelo líder no momento.</div>';
+  // O checklist mostra somente o que ainda exige ação. Tarefas concluídas ficam no histórico/timeline.
+  const activeTasks=R.tasks.filter(t=>t.status!=='concluido');
+  list.innerHTML=activeTasks.length?activeTasks.map(t=>`<div class="task-item"><div><div class="task-title">${escapeHtml(t.descricao)}</div><div class="task-meta">${t.status==='andamento'?'Em andamento':'Nova tarefa do líder'}</div><div class="routine-timer ${t.status==='andamento'?'running':''}" data-task-timer="${t.id}"><span class="routine-timer-dot"></span><span>${t.iniciado_em?clock(elapsed(t.iniciado_em,t.concluido_em)):'00:00:00'}</span></div></div><div class="routine-actions">${t.status==='pendente'?`<button class="btn btn-orange rt-start" data-id="${t.id}" type="button">Iniciar</button>`:`<button class="btn btn-green rt-done" data-id="${t.id}" type="button">✓ Concluir</button>`}</div></div>`).join(''):'<div class="task-empty">Nenhuma tarefa no momento. Quando a liderança atribuir uma atividade, ela aparecerá aqui.</div>';
+  const tl=$('routine-timeline-list');if(tl)tl.innerHTML=timelineHtml(d,R.tasks,true);
   const allTasks=R.tasks.every(x=>x.status==='concluido');
-  $('routine-complete').classList.toggle('show',d.expedicao_status==='concluido'&&d.limpeza_status==='concluido'&&allTasks);
+  $('routine-complete').classList.toggle('show',d.expedicao_status==='concluido'&&cleanValid&&allTasks);
 }
 function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function updateDay(patch){
@@ -6665,15 +6801,37 @@ async function boot(){
     try{await renderLeader()}catch(e){console.warn('Painel do líder:',e)}
   }catch(e){console.error('Rotina:',e);render()}
 }
-$('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:null})});
-$('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:now()})});
-$('routine-clean-done')?.addEventListener('click',async()=>{await updateDay({limpeza_status:'concluido',limpeza_fim:now()})});
+$('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:null})});
+$('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:now()})});
+$('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
 $('routine-task-list')?.addEventListener('click',async e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=Number(b.dataset.id),patch=b.classList.contains('rt-done')?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};const q=await cloud.from('tarefas_lider').update({...patch,updated_at:now()}).eq('id',id);if(q.error)return alert(q.error.message);await loadTasks();render();void renderLeader()});
-async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
+async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls)tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
+$('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
+$('routine-team-status')?.addEventListener('click',e=>{const c=e.target.closest('[data-timeline-collab]');if(!c)return;const sel=$('leader-timeline-collab'),dt=$('leader-timeline-date');if(sel)sel.value=c.dataset.timelineCollab;if(dt&&!dt.value)dt.value=today();showLeaderTimeline(c.dataset.timelineCollab,dt?.value||today());});
 $('leader-task-add')?.addEventListener('click',async()=>{if(!isAdmin)return alert('Somente o líder/administrador pode atribuir tarefas.');const cid=$('leader-collab').value,desc=$('leader-task').value.trim();if(!cid||!desc)return alert('Selecione o colaborador e descreva a tarefa.');const q=await cloud.from('tarefas_lider').insert({colaborador_id:cid,data:today(),descricao:desc,status:'pendente'});if(q.error)return alert(q.error.message);$('leader-task').value='';await renderLeader();if(R.profile?.id===cid){await loadTasks();render()}});
+// Atualiza a rotina imediatamente quando a liderança enviar/alterar uma tarefa.
+try{
+  cloud.channel('mimar-rotina-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'tarefas_lider'},payload=>{
+      if(!R.profile)return;
+      const row=payload.new||payload.old||{};
+      if(row.colaborador_id===R.profile.id && (!row.data || row.data===today())){
+        loadTasks().then(render).catch(console.warn);
+      }
+      if(isAdmin)renderLeader().catch(()=>{});
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'rotina_diaria'},payload=>{
+      if(!R.profile)return;
+      const row=payload.new||payload.old||{};
+      if(row.colaborador_id===R.profile.id && (!row.data || row.data===today())){
+        ensureDay().then(render).catch(console.warn);
+      }
+    })
+    .subscribe();
+}catch(e){console.warn('Realtime da rotina:',e)}
 window.addEventListener('mimar:system-login',()=>setTimeout(boot,100));
 window.addEventListener('mimar:system-logout',()=>{R.profile=null;R.day=null;R.tasks=[];setTimeout(boot,100)});
-cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));setTimeout(boot,700);setInterval(()=>{if(!document.hidden&&R.profile){loadTasks().then(render).catch(()=>{});if(isAdmin)renderLeader().catch(()=>{})}},30000);
+cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));setTimeout(boot,700);setInterval(refreshTimers,1000);setInterval(()=>{if(!document.hidden&&R.profile){loadTasks().then(render).catch(()=>{});if(isAdmin)renderLeader().catch(()=>{})}},30000);
 })();
 </script>
 </body>
