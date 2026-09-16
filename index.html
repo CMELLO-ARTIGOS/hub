@@ -6680,11 +6680,28 @@ async function showLeaderTimeline(cid,date){
   const box=$('leader-timeline-list'),check=$('leader-checklist-view');if(!box)return;
   if(!cid){if(check)check.innerHTML='<div class="timeline-empty">Selecione um colaborador para visualizar o checklist.</div>';box.innerHTML='<div class="timeline-empty">Selecione um colaborador para visualizar a timeline.</div>';return}
   if(check)check.innerHTML='<div class="timeline-empty">Carregando checklist...</div>';
-  box.innerHTML='<div class="timeline-empty">Carregando timeline...</div>';
-  const [dq,tq]=await Promise.all([cloud.from('rotina_diaria').select('*').eq('colaborador_id',cid).eq('data',date).maybeSingle(),cloud.from('tarefas_lider').select('*').eq('colaborador_id',cid).eq('data',date).order('created_at')]);
-  if(dq.error||tq.error){if(check)check.innerHTML='<div class="timeline-empty">Não foi possível carregar o checklist.</div>';box.innerHTML='<div class="timeline-empty">Não foi possível carregar a timeline.</div>';return}
+  box.innerHTML='<div class="timeline-empty">Carregando atividades...</div>';
+  const prof=R.profiles.find(x=>String(x.id)===String(cid));
+  const nome=prof?.nome||'';
+  const [dq,tq,pq]=await Promise.all([
+    cloud.from('rotina_diaria').select('*').eq('colaborador_id',cid).eq('data',date).maybeSingle(),
+    cloud.from('tarefas_lider').select('*').eq('colaborador_id',cid).eq('data',date).order('created_at'),
+    nome?cloud.from('producao').select('id,data,funcionario,produto,quantidade,tipo,categoria,status,created_at').eq('data',date).ilike('funcionario',nome):Promise.resolve({data:[],error:null})
+  ]);
+  if(dq.error||tq.error||pq.error){console.warn('Falha ao carregar rotina do líder:',dq.error||tq.error||pq.error);if(check)check.innerHTML='<div class="timeline-empty">Não foi possível carregar o checklist.</div>';box.innerHTML='<div class="timeline-empty">Não foi possível carregar as atividades.</div>';return}
+  const prods=[]; const seen=new Set();
+  for(const r of (pq.data||[])){
+    const key=[String(r.produto||'').trim().toLowerCase(),Number(r.quantidade)||0,String(r.tipo||'').trim().toLowerCase(),String(r.created_at||'')].join('|');
+    if(seen.has(key))continue; seen.add(key); prods.push(r);
+  }
   if(check)check.innerHTML=leaderChecklistHtml(dq.data||{},tq.data||[]);
-  box.innerHTML=timelineHtml(dq.data||{},tq.data||[],date===today());
+  let html=timelineHtml(dq.data||{},tq.data||[],date===today());
+  if(prods.length){
+    const rows=prods.map(r=>`<div class="timeline-event done"><div class="timeline-time">${r.created_at?fmtTime(r.created_at):'—'}</div><div class="timeline-text"><b>${escapeHtml((String(r.tipo||'').toLowerCase()==='full'?'Produção FULL':'Produção de Estoque'))}</b><span>${escapeHtml(r.produto||'Produto')} · ${Number(r.quantidade)||0} unidade(s)</span></div></div>`).join('');
+    if(html.includes('Nenhuma atividade registrada ainda.')) html='';
+    html+=rows;
+  }
+  box.innerHTML=html||'<div class="timeline-empty">Nenhuma atividade registrada neste dia.</div>';
 }
 function render(){
     const body=$('measure-body'); if(!body)return;
@@ -6860,9 +6877,9 @@ $('routine-task-list')?.addEventListener('click',async e=>{
   const stamp=now();if(idx>=0){R.tasks[idx]={...R.tasks[idx],...patch,updated_at:stamp};saveRoutineCache();render()}
   const q=await cloud.from('tarefas_lider').update({...patch,updated_at:stamp}).eq('id',id).select().single();
   if(q.error){if(idx>=0&&previous)R.tasks[idx]=previous;routineTaskSaving.delete(id);saveRoutineCache();render();return alert('Não foi possível salvar a tarefa: '+q.error.message)}
-  if(idx>=0)R.tasks[idx]=q.data;routineTaskSaving.delete(id);saveRoutineCache();render();void renderLeader();
+  if(idx>=0)R.tasks[idx]=q.data;routineTaskSaving.delete(id);saveRoutineCache();render();await loadTasks();render();void renderLeader();
 });
-async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls)tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
+async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('leader-timeline-collab')?.addEventListener('change',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('leader-timeline-date')?.addEventListener('change',()=>{const cid=$('leader-timeline-collab')?.value;if(cid)showLeaderTimeline(cid,$('leader-timeline-date')?.value||today())});
@@ -6895,10 +6912,10 @@ window.addEventListener('mimar:system-logout',()=>{R.profile=null;R.day=null;R.t
 cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));
 setTimeout(boot,700);
 setInterval(refreshTimers,1000);
-setInterval(()=>{if(!document.hidden&&R.profile){refreshRoutineFromCloud();if(isAdmin)renderLeader().catch(()=>{})}},10000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshRoutineFromCloud();refreshTimers();}});
-window.addEventListener('focus',()=>{refreshRoutineFromCloud();refreshTimers();});
-window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();refreshTimers();});
+setInterval(()=>{if(!document.hidden&&R.profile){refreshRoutineFromCloud();if(isAdmin)renderLeader().catch(()=>{})}},2500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshRoutineFromCloud();if(R.profile)loadTasks().then(()=>{saveRoutineCache();render();}).catch(console.warn);refreshTimers();}});
+window.addEventListener('focus',()=>{refreshRoutineFromCloud();if(R.profile)loadTasks().then(()=>{saveRoutineCache();render();}).catch(console.warn);refreshTimers();});
+window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();if(R.profile)loadTasks().then(()=>{saveRoutineCache();render();}).catch(console.warn);refreshTimers();});
 })();
 </script>
 </body>
