@@ -3236,13 +3236,51 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 @media(max-width:900px){#report-card .employee-card{min-height:340px!important}}
 @media(max-width:600px){#report-card .employee-card{min-height:0!important}}
 </style>
+<style id="rotina-contas-v13-style">
+#minha-rotina .routine-shell{max-width:1180px;margin:0 auto;display:grid;gap:16px}
+.routine-hero{background:#fff;border:1px solid #ece8e4;border-radius:18px;padding:20px;display:flex;justify-content:space-between;gap:18px;align-items:center}
+.routine-hero h1{margin:0 0 5px;font-size:23px;color:#183246}.routine-hero p{margin:0;color:#6f7478}.routine-user{font-weight:900;color:#ef6c21}
+.routine-login-card,.routine-step,.leader-panel{background:#fff;border:1px solid #ece8e4;border-radius:16px;padding:18px}
+.routine-login-card{max-width:520px;margin:28px auto;text-align:center}.routine-login-card h2{margin-top:0}.routine-login-form{display:grid;gap:10px;margin-top:16px;text-align:left}.routine-login-form input{width:100%;padding:11px 12px;border:1px solid #dfe1e3;border-radius:10px;font:inherit}
+.routine-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.routine-step{position:relative}.routine-step.full{grid-column:1/-1}.routine-step h3{margin:0 0 6px;color:#243b4c}.routine-step p{margin:0 0 12px;color:#73787c;font-size:13px}.routine-step.done{border-color:#bfe3c9;background:#fbfffc}.routine-step.active{border-color:#f3bd93;background:#fffaf6}.routine-status{font-size:12px;font-weight:900;padding:5px 9px;border-radius:999px;background:#f3f1ef;color:#6a6f73;display:inline-flex;margin-bottom:10px}.routine-status.active{background:#fff0e4;color:#c85b15}.routine-status.done{background:#e8f7ec;color:#28743c}
+.routine-actions{display:flex;gap:8px;flex-wrap:wrap}.routine-select,.routine-input{width:100%;padding:10px 11px;border:1px solid #dfe1e3;border-radius:10px;margin-bottom:10px;font:inherit;background:#fff}.routine-clock{font-weight:900;color:#ef6c21}.routine-clean-time{font-size:28px;font-weight:950;color:#183246;margin:3px 0 8px}.routine-clean-note{font-size:14px!important;color:#4f5960!important}
+.task-list{display:grid;gap:9px}.task-item{border:1px solid #ece8e4;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.task-item.done{background:#fbfffc}.task-title{font-weight:850;color:#273d4d}.task-meta{font-size:11px;color:#85898d;margin-top:3px}.task-empty{padding:18px;border:1px dashed #ddd5cf;border-radius:12px;color:#777;text-align:center}
+.leader-panel{display:none}.admin-mode #minha-rotina .leader-panel{display:block}.leader-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.leader-head h2{margin:0}.leader-form{display:grid;grid-template-columns:220px 1fr auto;gap:9px}.leader-form select,.leader-form input{padding:10px;border:1px solid #dfe1e3;border-radius:10px;font:inherit}.team-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.team-status-card{border:1px solid #ece8e4;border-radius:12px;padding:10px}.team-status-card b{display:block;color:#243b4c}.team-status-card span{font-size:12px;color:#777}.routine-account-line{display:flex;gap:8px}.routine-account-line select{margin:0;flex:1}.routine-complete{padding:14px;border-radius:12px;background:#eaf8ee;color:#27683a;font-weight:850;text-align:center;display:none}.routine-complete.show{display:block}
+@media(max-width:800px){.routine-grid{grid-template-columns:1fr}.routine-step.full{grid-column:auto}.leader-form{grid-template-columns:1fr}.team-status-grid{grid-template-columns:1fr 1fr}.routine-hero{align-items:flex-start;flex-direction:column}}
+</style>
+<!-- MIMAR 16/09/2026 · LOGIN ÚNICO: colaborador/líder/admin usam a mesma sessão Supabase -->
+
+<style id="mimar-blue-theme-20260916">
+/* Tema azul para apresentação · mantém estados verde/amarelo/vermelho funcionais */
+:root{--blue-brand:#2563eb;--blue-brand-2:#1d4ed8;--blue-soft:#eff6ff;--blue-soft-2:#dbeafe;--blue-line:#bfdbfe}
+body{background:radial-gradient(circle at 12% -8%,rgba(37,99,235,.08),transparent 34%),radial-gradient(circle at 96% 0,rgba(96,165,250,.08),transparent 40%),#f7faff!important}
+.tab.active{background:linear-gradient(135deg,var(--blue-brand),var(--blue-brand-2))!important;box-shadow:0 8px 18px rgba(37,99,235,.20)!important}
+.btn-orange{background:linear-gradient(135deg,var(--blue-brand),var(--blue-brand-2))!important;color:#fff!important}
+.hero,#estoque-controle .mgmt-toolbar,#card-page .exp-card-head{background:linear-gradient(120deg,#2563eb,#1d4ed8 72%,#60a5fa)!important;box-shadow:0 14px 35px rgba(37,99,235,.14)!important}
+.orange b,.mgmt-kpi .value.orange,#card-page .rc-head .eye,#card-page .rc-big .n,#card-page .exp-kpi .value.orange,#card-page .employee-total,.prod-mini .stock b{color:#2563eb!important}
+.view-toggle button.active{background:#eaf2ff!important;color:#1d4ed8!important}
+.bar-stock{background:#3b82f6!important}.notice{background:#eff6ff!important;border-color:#bfdbfe!important;color:#315a91!important}
+#estoque-controle .stock-view-actions .btn-orange{background:#fff!important;color:#1d4ed8!important}
+.stock-table th{background:#f4f8ff!important}.stock-toolbar input,.stock-toolbar select,.stock-form input,.stock-form select{border-color:#dbe7f7!important}
+.owner-add-btn,.rotation-edit-btn{color:#1d4ed8!important}.owner-add-btn:hover,.rotation-edit-btn:hover{background:#eff6ff!important}
+.owner-add-panel input:focus{border-color:#60a5fa!important;box-shadow:0 0 0 3px rgba(37,99,235,.12)!important}
+.rotation-item.active,.rotation-item.featured{border-color:#93c5fd!important;background:#f4f8ff!important}.rotation-item .rotation-person-main,.rotation-week-focus span{color:#2563eb!important}.rotation-day .today{background:#2563eb!important}.rotation-week-focus{border-color:#dbeafe!important;background:#f4f8ff!important}
+.pickup-save{background:#2563eb!important}.pickup-add{border-color:#bfdbfe!important;background:#f8fbff!important;color:#315a91!important}.pickup-remove{background:#eff6ff!important;color:#1d4ed8!important}
+.full-product-actions .launch{background:#2563eb!important;border-color:#2563eb!important}.create-cycle-form input,.create-cycle-form textarea,.create-cycle-form select{background:#f8fbff!important;border-color:#dbeafe!important}
+#minha-rotina .routine-hero{background:linear-gradient(120deg,#2563eb,#1d4ed8)!important;border-color:#2563eb!important;color:#fff!important}
+#minha-rotina .routine-hero h2,#minha-rotina .routine-hero p,#minha-rotina .routine-hero span{color:inherit}
+#minha-rotina .routine-step.active{border-color:#93c5fd!important;background:#f5f9ff!important}.routine-status.active{background:#dbeafe!important;color:#1d4ed8!important}
+#minha-rotina .routine-step h3{color:#1e3a5f!important}.leader-panel{border-color:#dbeafe!important}.leader-panel h3{color:#1e3a5f!important}
+.auth-box button[type="submit"],.auth-submit{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;color:#fff!important}
+</style>
+
 </head>
 <body>
 <div class="wrap">
 <header>
     <div class="header-actions">
     <span class="cloud-state" id="cloud-state"><i class="cloud-dot"></i><span id="cloud-state-text">Conectando...</span></span>
-    <button class="btn btn-dark" id="admin-login-btn">🔐 Acesso administrativo</button>
+    <button class="btn btn-dark" id="admin-login-btn">🔐 Entrar no sistema</button>
   </div>
 </header>
 <nav class="tabs">
@@ -3254,6 +3292,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
   <button class="tab" data-page="estoque-controle"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg></span><span>Estoque</span></button>
   <button class="tab" data-page="medidas"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17 17 4l3 3L7 20H4z"/><path d="m13 8 3 3M10 11l3 3M7 14l3 3"/></svg></span><span>Medidas</span></button>
   <button class="tab" data-page="rodizios"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M20 5H9a5 5 0 0 0-5 5"/><path d="M7 22l-3-3 3-3"/><path d="M4 19h11a5 5 0 0 0 5-5"/></svg></span><span>Rodízios</span></button>
+  <button class="tab" data-page="minha-rotina" id="rotina-tab"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><path d="M9 17l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="3"/></svg></span><span>Minha Rotina</span></button>
   <button class="tab admin-only" data-page="gestao" id="gestao-tab" hidden style="display:none!important"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h3"/><path d="M11 12h9"/><circle cx="9" cy="12" r="2"/><path d="M4 18h8"/><path d="M16 18h4"/><circle cx="14" cy="18" r="2"/></svg></span><span>Gestão <span style="font-size:10px;opacity:.7">🔒</span></span></button>
   <div class="month-highlight" id="month-highlight">
     <div class="mh-eyebrow"><span class="mh-trophy">🏆</span><span>Destaque do mês</span></div>
@@ -3494,6 +3533,22 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       </div>
     </div>
     <button class="care-note-edit admin-only" id="care-note-edit" type="button">✎ Editar texto</button>
+  </div>
+</section>
+
+<section class="page" id="minha-rotina">
+  <div class="routine-shell">
+    <div class="routine-hero"><div><h1>Minha Rotina</h1><p id="routine-welcome">Sua rotina é carregada automaticamente pelo login do sistema.</p></div><div><span class="routine-user" id="routine-user-name">Não conectado</span></div></div>
+    <div class="routine-login-card" id="routine-login-card"><h2>Conta não conectada</h2><p>Use o botão <b>Entrar no sistema</b> no topo da página. A Minha Rotina será identificada automaticamente pelo mesmo acesso.</p></div>
+    <div id="routine-content" style="display:none">
+      <div class="routine-grid">
+        <div class="routine-step" id="routine-exp-step"><span class="routine-status" id="routine-exp-status">Pendente</span><h3>1. Expedição</h3><p>Selecione a conta/atividade em que está trabalhando.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div></div>
+        <div class="routine-step" id="routine-clean-step"><span class="routine-status" id="routine-clean-status">Programado</span><h3>3. Organização e Limpeza</h3><div class="routine-clean-time">16:00</div><p class="routine-clean-note">Antes de bater o ponto e ir embora, organize sua bancada e realize a limpeza do seu setor.</p><div class="routine-actions"><button class="btn btn-green" id="routine-clean-done" type="button">✓ Organização concluída</button></div><div class="task-meta" id="routine-clean-time-done"></div></div>
+        <div class="routine-step full" id="routine-tasks-step"><span class="routine-status">Após a expedição</span><h3>2. Tarefas definidas pelo Líder</h3><p>As atividades abaixo são distribuídas pelo líder. Ao terminar, marque como concluída.</p><div class="task-list" id="routine-task-list"></div></div>
+      </div>
+      <div class="routine-complete" id="routine-complete">✓ Rotina do dia concluída.</div>
+    </div>
+    <div class="leader-panel" id="routine-leader-panel"><div class="leader-head"><div><h2>Painel do Líder</h2><p style="margin:4px 0 0;color:#777">Distribua tarefas e acompanhe a situação da equipe.</p></div></div><div class="leader-form"><select id="leader-collab"><option value="">Selecione o colaborador</option></select><input id="leader-task" type="text" maxlength="180" placeholder="Ex.: Produzir Full 18/09 — 300 unidades"><button class="btn btn-orange" id="leader-task-add" type="button">＋ Atribuir tarefa</button></div><div class="team-status-grid" id="routine-team-status"></div></div>
   </div>
 </section>
 
@@ -4157,8 +4212,8 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 
 <div class="auth-overlay" id="auth-overlay" aria-hidden="true">
   <div class="auth-box">
-    <h3>Acesso administrativo</h3>
-    <p>Entre com o usuário administrador do Supabase para liberar importações e a área de Gestão.</p>
+    <h3>Entrar no Mimar Expedição</h3>
+    <p>Use sua conta individual. O sistema identifica automaticamente seu perfil e libera somente as áreas permitidas.</p>
     <form id="auth-form">
       <div class="auth-field"><label for="auth-email">E-mail</label><input id="auth-email" type="email" autocomplete="username" required></div>
       <div class="auth-field"><label for="auth-password">Senha</label><input id="auth-password" type="password" autocomplete="current-password" required></div>
@@ -4457,7 +4512,41 @@ async function fetchAll(table,columns){const all=[],page=1000;for(let from=0;;fr
 async function loadCloudData(){setCloudState('Sincronizando...');let e,p,i;try{[e,p,i]=await Promise.all([fetchAll('expedicao','data,funcionario,marketplace,quantidade,arquivo_origem'),fetchAll('producao','id,data,funcionario,produto,quantidade,tipo,categoria,status'),fetchAll('importacoes','data,tipo,arquivo,atualizado_em')])}catch(err){setCloudState('Erro de conexão','err');throw err}cloudExpeditionRecords=e||[];cloudProductionRecords=p||[];expHistory=rebuildExpHistoryFromCloud(cloudExpeditionRecords,i||[]);prodHistory=rebuildProdHistoryFromCloud(cloudProductionRecords);agg=aggregateCloudProduction(cloudProductionRecords);saveStore(EXP_HISTORY_KEY,expHistory);saveStore(PROD_HISTORY_KEY,prodHistory);document.getElementById('prod-source').textContent='Banco online · Supabase';document.getElementById('prod-time').textContent=new Date().toLocaleString('pt-BR');const dates=allHistoryDates();selectedDate=(selectedDate&&dates.includes(selectedDate))?selectedDate:(dates[0]||'');if(selectedDate){const h=expHistory[selectedDate];expData={headers:h?.headers||[],rows:[],employeeTotals:h?.employeeTotals||{},employeeAccounts:h?.employeeAccounts||{},accountTotals:h?.accountTotals||{},total:Number(h?.total)||0,date:labelDate(selectedDate),dateISO:selectedDate,source:h?.source||'Supabase'}}else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};renderAll();window.dispatchEvent(new CustomEvent('mimar:cloud-production-loaded'));setCloudState(`Online · ${dates.length} dia(s)`,'ok')}
 function openAuth(){document.getElementById('auth-overlay').classList.add('open');document.getElementById('auth-overlay').setAttribute('aria-hidden','false');document.getElementById('auth-email').focus()}
 function closeAuth(){document.getElementById('auth-overlay').classList.remove('open');document.getElementById('auth-overlay').setAttribute('aria-hidden','true');document.getElementById('auth-error').textContent=''}
-async function refreshAuthUI(){const {data:{session}}=await cloud.auth.getSession();currentUser=session?.user||null;isAdmin=false;if(currentUser){const {data,error}=await cloud.rpc('is_admin');isAdmin=!error&&data===true}document.body.classList.toggle('admin-mode',isAdmin);const gtab=document.getElementById('gestao-tab')||document.querySelector('.tab[data-page="gestao"]');const gpage=document.getElementById('gestao');if(gtab){gtab.hidden=!isAdmin;gtab.style.setProperty('display',isAdmin?'flex':'none','important')}if(gpage){gpage.hidden=!isAdmin;if(!isAdmin){gpage.classList.remove('active');gpage.style.setProperty('display','none','important')}else{gpage.style.removeProperty('display')}}const btn=document.getElementById('admin-login-btn');btn.textContent=isAdmin?'✓ Administrador · Sair':'🔐 Acesso administrativo';btn.classList.toggle('btn-green',isAdmin);btn.classList.toggle('btn-dark',!isAdmin);if(!isAdmin){const activeGestao=gtab?.classList.contains('active')||location.hash==='#gestao';if(activeGestao){gtab?.classList.remove('active');document.querySelector('.tab[data-page="dashboard"]')?.click()}}try{refreshProductionAdminButtons()}catch(e){}setTimeout(()=>loadStock().catch(console.error),0)}
+async function refreshAuthUI(){
+  const {data:{session}}=await cloud.auth.getSession();
+  currentUser=session?.user||null;
+  isAdmin=false;
+  let profileName='';
+  if(currentUser){
+    const [{data:adminData,error:adminError},{data:profileData}]=await Promise.all([
+      cloud.rpc('is_admin'),
+      cloud.from('colaboradores').select('nome,ativo').eq('id',currentUser.id).maybeSingle()
+    ]);
+    isAdmin=!adminError&&adminData===true;
+    if(profileData?.ativo!==false) profileName=profileData?.nome||'';
+  }
+  window.mimarSignedProfileName=profileName;
+  document.body.classList.toggle('admin-mode',isAdmin);
+  document.body.classList.toggle('user-logged-in',!!currentUser);
+  const gtab=document.getElementById('gestao-tab')||document.querySelector('.tab[data-page="gestao"]');
+  const gpage=document.getElementById('gestao');
+  if(gtab){gtab.hidden=!isAdmin;gtab.style.setProperty('display',isAdmin?'flex':'none','important')}
+  if(gpage){gpage.hidden=!isAdmin;if(!isAdmin){gpage.classList.remove('active');gpage.style.setProperty('display','none','important')}else{gpage.style.removeProperty('display')}}
+  const btn=document.getElementById('admin-login-btn');
+  if(btn){
+    if(currentUser){
+      const who=isAdmin?'Administrador':(profileName||'Conta conectada');
+      btn.textContent=`✓ ${who} · Sair`;
+      btn.classList.add('btn-green');btn.classList.remove('btn-dark');
+    }else{
+      btn.textContent='🔐 Entrar no sistema';
+      btn.classList.remove('btn-green');btn.classList.add('btn-dark');
+    }
+  }
+  if(!isAdmin){const activeGestao=gtab?.classList.contains('active')||location.hash==='#gestao';if(activeGestao){gtab?.classList.remove('active');document.querySelector('.tab[data-page="dashboard"]')?.click()}}
+  try{refreshProductionAdminButtons()}catch(e){}
+  setTimeout(()=>loadStock().catch(console.error),0)
+}
 
 function refreshProductionAdminButtons(){
   const admin=PRODUCTION_TEST_MODE || !!isAdmin;
@@ -4469,7 +4558,7 @@ function refreshProductionAdminButtons(){
     el.style.display=admin?'':'none';
   });
 }
-async function signInAdmin(email,password){const {error}=await cloud.auth.signInWithPassword({email,password});if(error)throw error;await refreshAuthUI();if(!isAdmin){await cloud.auth.signOut();await refreshAuthUI();throw new Error('Este usuário não possui permissão de administrador.')}closeAuth()}
+async function signInSystem(email,password){const {error}=await cloud.auth.signInWithPassword({email,password});if(error)throw error;await refreshAuthUI();closeAuth();window.dispatchEvent(new CustomEvent('mimar:system-login'))}
 async function deleteDateRows(table,date){const {error}=await cloud.from(table).delete().eq('data',date);if(error)throw error}
 async function insertChunks(table,rows,size=500){for(let i=0;i<rows.length;i+=size){const {error}=await cloud.from(table).insert(rows.slice(i,i+size));if(error)throw error}}
 async function upsertImportDates(dates,tipo,arquivo){if(!dates.length)return;const rows=dates.map(data=>({data,tipo,arquivo,atualizado_em:new Date().toISOString()}));const {error}=await cloud.from('importacoes').upsert(rows,{onConflict:'data,tipo'});if(error)throw error}
@@ -4910,10 +4999,10 @@ function mimarPrintStockCount(){
 }
 document.getElementById('stock-print-count')?.addEventListener('click',mimarPrintStockCount);
 
-document.getElementById('admin-login-btn').addEventListener('click',async()=>{if(isAdmin){if(confirm('Deseja sair do modo administrador?')){await cloud.auth.signOut();await refreshAuthUI()}return}openAuth()});
+document.getElementById('admin-login-btn').addEventListener('click',async()=>{if(currentUser){if(confirm('Deseja sair da sua conta?')){await cloud.auth.signOut();await refreshAuthUI();window.dispatchEvent(new CustomEvent('mimar:system-logout'))}return}openAuth()});
 document.getElementById('auth-cancel').addEventListener('click',closeAuth);
 document.getElementById('auth-overlay').addEventListener('click',e=>{if(e.target.id==='auth-overlay')closeAuth()});
-document.getElementById('auth-form').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('auth-submit'),err=document.getElementById('auth-error');btn.disabled=true;btn.textContent='Entrando...';err.textContent='';try{await signInAdmin(document.getElementById('auth-email').value.trim(),document.getElementById('auth-password').value)}catch(ex){err.textContent=ex.message||'Não foi possível entrar.'}finally{btn.disabled=false;btn.textContent='Entrar'}});
+document.getElementById('auth-form').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('auth-submit'),err=document.getElementById('auth-error');btn.disabled=true;btn.textContent='Entrando...';err.textContent='';try{await signInSystem(document.getElementById('auth-email').value.trim(),document.getElementById('auth-password').value)}catch(ex){err.textContent=ex.message||'Não foi possível entrar.'}finally{btn.disabled=false;btn.textContent='Entrar'}});
 
 
 // ===== Destaque do mês · edição somente administrativa =====
@@ -6530,6 +6619,54 @@ document.addEventListener('click',function(e){
 })();
 </script>
 
+<script id="rotina-contas-v13-script">
+(()=>{
+const R={profile:null,day:null,tasks:[],profiles:[]};
+const $=id=>document.getElementById(id), today=()=>new Date().toISOString().slice(0,10), now=()=>new Date().toISOString();
+function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
+async function getProfile(){const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return null;const {data,error}=await cloud.from('colaboradores').select('id,nome,ativo').eq('id',session.user.id).maybeSingle();if(error){console.warn('Perfil do colaborador:',error);return null}return data&&data.ativo!==false?data:null}
+async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data}
+async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('ordem').order('created_at');if(q.error)throw q.error;R.tasks=q.data||[]}
+function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
+function render(){
+  const connected=!!currentUser;
+  const hasRoutine=!!R.profile;
+  const loginCard=$('routine-login-card');
+  if(loginCard) loginCard.style.display=connected?'none':'block';
+  $('routine-content').style.display=hasRoutine?'block':'none';
+  const displayName=R.profile?.nome||(isAdmin?'Administrador':(window.mimarSignedProfileName||''));
+  $('routine-user-name').textContent=connected?(displayName||'Conta conectada'):'Não conectado';
+  $('routine-welcome').textContent=hasRoutine?`Olá, ${R.profile.nome}. Esta é sua rotina de hoje.`:(connected&&isAdmin?'Olá, Administrador. Utilize o Painel do Líder para acompanhar e direcionar a equipe.':connected?'Sua conta está conectada. O perfil de colaborador ainda não foi localizado.':'Entre no sistema pelo botão no topo para carregar automaticamente sua rotina.');
+  if(!hasRoutine)return;
+  const d=R.day||{};
+  state($('routine-exp-step'),d.expedicao_status);
+  $('routine-exp-status').textContent=d.expedicao_status==='concluido'?'✓ Concluído':d.expedicao_status==='andamento'?'Em andamento':'Pendente';
+  $('routine-exp-status').className='routine-status '+(d.expedicao_status==='concluido'?'done':d.expedicao_status==='andamento'?'active':'');
+  if(d.expedicao_conta)$('routine-exp-account').value=d.expedicao_conta;
+  $('routine-exp-time').textContent=d.expedicao_inicio?`Início ${fmtTime(d.expedicao_inicio)}${d.expedicao_fim?' · conclusão '+fmtTime(d.expedicao_fim):''}`:'';
+  state($('routine-clean-step'),d.limpeza_status);
+  $('routine-clean-status').textContent=d.limpeza_status==='concluido'?'✓ Concluído':'16:00';
+  $('routine-clean-status').className='routine-status '+(d.limpeza_status==='concluido'?'done':'');
+  $('routine-clean-time-done').textContent=d.limpeza_fim?'Concluído às '+fmtTime(d.limpeza_fim):'';
+  const list=$('routine-task-list');
+  list.innerHTML=R.tasks.length?R.tasks.map(t=>`<div class="task-item ${t.status==='concluido'?'done':''}"><div><div class="task-title">${escapeHtml(t.descricao)}</div><div class="task-meta">${t.status==='concluido'?'Concluída às '+fmtTime(t.concluido_em):t.status==='andamento'?'Em andamento':'Aguardando'}</div></div><div class="routine-actions">${t.status==='pendente'?`<button class="btn btn-orange rt-start" data-id="${t.id}">Iniciar</button>`:''}${t.status!=='concluido'?`<button class="btn btn-green rt-done" data-id="${t.id}">✓ Concluir</button>`:'<span style="font-weight:900;color:#2d7a42">✓</span>'}</div></div>`).join(''):'<div class="task-empty">Nenhuma tarefa atribuída pelo líder no momento.</div>';
+  const allTasks=R.tasks.every(x=>x.status==='concluido');
+  $('routine-complete').classList.toggle('show',d.expedicao_status==='concluido'&&d.limpeza_status==='concluido'&&allTasks);
+}
+function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function updateDay(patch){const q=await cloud.from('rotina_diaria').update({...patch,updated_at:now()}).eq('id',R.day.id).select().single();if(q.error)throw q.error;R.day=q.data;render();void renderLeader()}
+async function boot(){try{await refreshAuthUI();R.profile=await getProfile();R.day=null;R.tasks=[];if(R.profile){await ensureDay();await loadTasks()}render();await renderLeader()}catch(e){console.error('Rotina:',e);render()}}
+$('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:null})});
+$('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:now()})});
+$('routine-clean-done')?.addEventListener('click',async()=>{await updateDay({limpeza_status:'concluido',limpeza_fim:now()})});
+$('routine-task-list')?.addEventListener('click',async e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=Number(b.dataset.id),patch=b.classList.contains('rt-done')?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};const q=await cloud.from('tarefas_lider').update({...patch,updated_at:now()}).eq('id',id);if(q.error)return alert(q.error.message);await loadTasks();render();void renderLeader()});
+async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
+$('leader-task-add')?.addEventListener('click',async()=>{if(!isAdmin)return alert('Somente o líder/administrador pode atribuir tarefas.');const cid=$('leader-collab').value,desc=$('leader-task').value.trim();if(!cid||!desc)return alert('Selecione o colaborador e descreva a tarefa.');const q=await cloud.from('tarefas_lider').insert({colaborador_id:cid,data:today(),descricao:desc,status:'pendente'});if(q.error)return alert(q.error.message);$('leader-task').value='';await renderLeader();if(R.profile?.id===cid){await loadTasks();render()}});
+window.addEventListener('mimar:system-login',()=>setTimeout(boot,100));
+window.addEventListener('mimar:system-logout',()=>{R.profile=null;R.day=null;R.tasks=[];setTimeout(boot,100)});
+cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));setTimeout(boot,700);setInterval(()=>{if(!document.hidden&&R.profile){loadTasks().then(render).catch(()=>{});if(isAdmin)renderLeader().catch(()=>{})}},30000);
+})();
+</script>
 </body>
 </html>
 
