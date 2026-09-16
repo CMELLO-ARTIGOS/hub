@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<!-- VERSÃO FINAL: RODÍZIO BANHEIROS/COZINHA + BALDES ALINHADOS -->
+<!-- VERSÃO 16/09/2026: SINCRONIZAÇÃO SUPABASE REFORÇADA (LEITURA MULTINAVEGADOR) -->
 <title>Mimar · Painel Operacional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4198,11 +4198,10 @@ async function mimarApplyOfficialRotationFix(remote,session){
 async function mimarInitialCloudSync(){
   try{
     const {data:{session}}=await cloud.auth.getSession();
-    if(!session?.user)return;
     const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
     if(error){console.warn('Mimar Cloud: tabela app_state indisponível.',error.message);return}
     let remote=new Map((data||[]).map(r=>[r.key,r]));
-    remote=await mimarApplyOfficialRotationFix(remote,session);
+    if(session?.user)remote=await mimarApplyOfficialRotationFix(remote,session);
     let changed=false;
     _mimarCloudApplying=true;
     try{
@@ -4213,15 +4212,17 @@ async function mimarInitialCloudSync(){
         const cur=_mimarNativeGetItem.call(window.localStorage,key);
         if(cur!==next){_mimarNativeSetItem.call(window.localStorage,key,next);changed=true}
       }
-      const toSeed=[];
-      for(let i=0;i<window.localStorage.length;i++){
-        const key=window.localStorage.key(i);
-        if(!mimarIsCloudKey(key)||remote.has(key))continue;
-        toSeed.push({key,value:mimarParseStored(_mimarNativeGetItem.call(window.localStorage,key)),updated_at:new Date().toISOString(),updated_by:session.user.id});
-      }
-      if(toSeed.length){
-        const {error:seedError}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(toSeed,{onConflict:'key'});
-        if(seedError)console.warn('Mimar Cloud: falha na migração inicial.',seedError.message);
+      if(session?.user){
+        const toSeed=[];
+        for(let i=0;i<window.localStorage.length;i++){
+          const key=window.localStorage.key(i);
+          if(!mimarIsCloudKey(key)||remote.has(key))continue;
+          toSeed.push({key,value:mimarParseStored(_mimarNativeGetItem.call(window.localStorage,key)),updated_at:new Date().toISOString(),updated_by:session.user.id});
+        }
+        if(toSeed.length){
+          const {error:seedError}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).upsert(toSeed,{onConflict:'key'});
+          if(seedError)console.warn('Mimar Cloud: falha na migração inicial.',seedError.message);
+        }
       }
     }finally{_mimarCloudApplying=false}
     _mimarCloudReady=true;
@@ -4258,8 +4259,6 @@ async function mimarPullCloudState({reload=true}={}){
   if(_mimarCloudPulling)return false;
   _mimarCloudPulling=true;
   try{
-    const {data:{session}}=await cloud.auth.getSession();
-    if(!session?.user)return false;
     const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
     if(error){console.warn('Mimar Cloud: falha ao conferir atualizações.',error.message);return false}
     let changed=false;
