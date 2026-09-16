@@ -6807,18 +6807,24 @@ async function showLeaderTimeline(cid,date){
   const [dq,tq,pq]=await Promise.all([
     cloud.from('rotina_diaria').select('*').eq('colaborador_id',cid).eq('data',date).maybeSingle(),
     cloud.from('tarefas_lider').select('*').eq('colaborador_id',cid).eq('data',date).order('created_at'),
-    nome?cloud.from('producao').select('id,data,funcionario,produto,quantidade,tipo,categoria,status,created_at').eq('data',date).ilike('funcionario',nome):Promise.resolve({data:[],error:null})
+    nome?cloud.from('producao').select('id,data,funcionario,produto,quantidade,tipo,categoria,status').eq('data',date).ilike('funcionario',nome):Promise.resolve({data:[],error:null})
   ]);
-  if(dq.error||tq.error||pq.error){console.warn('Falha ao carregar rotina do líder:',dq.error||tq.error||pq.error);if(check)check.innerHTML='<div class="timeline-empty">Não foi possível carregar o checklist.</div>';box.innerHTML='<div class="timeline-empty">Não foi possível carregar as atividades.</div>';return}
+  // Cada fonte é tratada separadamente: uma falha em produção não apaga o checklist.
+  if(dq.error||tq.error){
+    console.warn('Falha ao carregar checklist do líder:',dq.error||tq.error);
+    if(check)check.innerHTML='<div class="timeline-empty">Não foi possível carregar o checklist.</div>';
+  }else if(check){
+    check.innerHTML=leaderChecklistHtml(dq.data||{},tq.data||[]);
+  }
+  if(pq.error)console.warn('Falha ao carregar produção do colaborador:',pq.error);
   const prods=[]; const seen=new Set();
   for(const r of (pq.data||[])){
-    const key=[String(r.produto||'').trim().toLowerCase(),Number(r.quantidade)||0,String(r.tipo||'').trim().toLowerCase(),String(r.created_at||'')].join('|');
+    const key=[String(r.produto||'').trim().toLowerCase(),Number(r.quantidade)||0,String(r.tipo||'').trim().toLowerCase(),String(r.id||'')].join('|');
     if(seen.has(key))continue; seen.add(key); prods.push(r);
   }
-  if(check)check.innerHTML=leaderChecklistHtml(dq.data||{},tq.data||[]);
-  let html=timelineHtml(dq.data||{},tq.data||[],date===today());
+  let html=(dq.error||tq.error)?'<div class="timeline-empty">Não foi possível carregar as atividades da rotina.</div>':timelineHtml(dq.data||{},tq.data||[],date===today());
   if(prods.length){
-    const rows=prods.map(r=>`<div class="timeline-event done"><div class="timeline-time">${r.created_at?fmtTime(r.created_at):'—'}</div><div class="timeline-text"><b>${escapeHtml((String(r.tipo||'').toLowerCase()==='full'?'Produção FULL':'Produção de Estoque'))}</b><span>${escapeHtml(r.produto||'Produto')} · ${Number(r.quantidade)||0} unidade(s)</span></div></div>`).join('');
+    const rows=prods.map(r=>`<div class="timeline-event done"><div class="timeline-time">—</div><div class="timeline-text"><b>${escapeHtml((String(r.tipo||'').toLowerCase()==='full'?'Produção FULL':'Produção de Estoque'))}</b><span>${escapeHtml(r.produto||'Produto')} · ${Number(r.quantidade)||0} unidade(s)</span></div></div>`).join('');
     if(html.includes('Nenhuma atividade registrada ainda.')) html='';
     html+=rows;
   }
