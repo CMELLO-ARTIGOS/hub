@@ -5432,8 +5432,8 @@ const PRODUCTION_TEST_MODE=false;
   // Produção lançada por colaboradores é reconstruída da tabela `producao`.
   // Assim FULL e Produção de Estoque não dependem do localStorage do navegador.
   function syncOperationalProductionFromCloud(){
-    if(!Array.isArray(window.cloudProductionRecords))return;
-    const records=window.cloudProductionRecords;
+    if(!Array.isArray(cloudProductionRecords))return;
+    const records=cloudProductionRecords;
 
     // FULL: mantém metas/produtos definidos pela Gestão e refaz somente os lançamentos.
     fullData.forEach(p=>{p.logs=[]});
@@ -5751,9 +5751,9 @@ const PRODUCTION_TEST_MODE=false;
         categoria:selectedCampaign()?.id||null,
         status:'produto:'+p.id
       });
-      p.logs=p.logs||[];
-      p.logs.push({person,qty,date,time,note:''});
-      save();renderFull();renderFullQueue();syncCurrentFull();
+      // loadCloudData() já recarregou os lançamentos do Supabase e disparou a sincronização visual.
+      // Não duplicar o lançamento localmente: o banco é a fonte oficial para colaboradores.
+      renderFull();renderFullQueue();syncCurrentFull();
       e.target.reset();closeModal('full-launch-modal');
     }catch(err){
       alert('Não foi possível registrar a produção no banco. '+(err?.message||err));
@@ -5784,7 +5784,8 @@ const PRODUCTION_TEST_MODE=false;
         categoria:'producao_estoque',
         status:'lancamento_colaborador'
       });
-      stockData.push(item);
+      // O histórico é reconstruído do Supabase por loadCloudData().
+      // Mantém apenas o saldo visual local; o lançamento em si vem sempre do banco.
       stockBalance[item.product]=num(stockBalance[item.product])+num(item.qty);
       save();renderStockProd();e.target.reset();closeModal('stockprod-modal');
     }catch(err){
