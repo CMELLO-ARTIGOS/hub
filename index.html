@@ -4319,6 +4319,8 @@ let _mimarCloudReady=false;
 let _mimarCloudChannel=null;
 
 const MIMAR_LOCAL_ONLY_KEYS=new Set(['mimar_stock_current_owner_v1']);
+const MIMAR_PICKUP_CLOUD_KEYS=new Set(['mimar_pickup_schedule_demo_v1','mimar_pickup_schedule_date_v1']);
+function mimarIsPickupCloudKey(key){return MIMAR_PICKUP_CLOUD_KEYS.has(String(key||''))}
 
 /* FIX 16/09/2026 · não interromper edição do estoque com reload automático */
 let _mimarDeferredCloudReload=false;
@@ -4483,6 +4485,7 @@ function mimarStartRealtimeSync(){
           if(_mimarNativeGetItem.call(window.localStorage,row.key)!==null){
             _mimarNativeRemoveItem.call(window.localStorage,row.key);
             if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
+            else if(mimarIsPickupCloudKey(row.key)){ if(typeof pickupReloadFromStorage==='function')pickupReloadFromStorage(); }
             else if(row.key!==STOCK_OWNER_KEY) mimarSafeReload();
           }
         }else{
@@ -4491,6 +4494,7 @@ function mimarStartRealtimeSync(){
             _mimarNativeSetItem.call(window.localStorage,row.key,next);
             if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
             else if(row.key===STOCK_OWNER_KEY){ if(typeof renderStockPeople==='function')renderStockPeople(); }
+            else if(mimarIsPickupCloudKey(row.key)){ if(typeof pickupReloadFromStorage==='function')pickupReloadFromStorage(); }
             else mimarSafeReload();
           }
         }
@@ -4507,16 +4511,21 @@ async function mimarPullCloudState({reload=true}={}){
   try{
     const {data,error}=await cloud.from(MIMAR_CLOUD_STATE_TABLE).select('key,value,updated_at').like('key',MIMAR_CLOUD_PREFIX+'%');
     if(error){console.warn('Mimar Cloud: falha ao conferir atualizações.',error.message);return false}
-    let changed=false;
+    let changed=false,nonPickupChanged=false,pickupChanged=false;
     _mimarCloudApplying=true;
     try{
       for(const row of data||[]){
         if(!mimarIsCloudKey(row.key))continue;
         const next=mimarStableString(row.value),cur=_mimarNativeGetItem.call(window.localStorage,row.key);
-        if(cur!==next){_mimarNativeSetItem.call(window.localStorage,row.key,next);changed=true}
+        if(cur!==next){
+          _mimarNativeSetItem.call(window.localStorage,row.key,next);
+          changed=true;
+          if(mimarIsPickupCloudKey(row.key))pickupChanged=true;else nonPickupChanged=true;
+        }
       }
     }finally{_mimarCloudApplying=false}
-    if(changed&&reload){mimarSafeReload();return true}
+    if(pickupChanged&&typeof pickupReloadFromStorage==='function')pickupReloadFromStorage();
+    if(nonPickupChanged&&reload){mimarSafeReload();return true}
     return changed;
   }catch(err){console.warn('Mimar Cloud: conferência falhou.',err);return false}
   finally{_mimarCloudPulling=false}
@@ -5108,6 +5117,15 @@ let pickupSchedule=(()=>{
   }catch(e){return PICKUP_DEFAULT.map(a=>({...a,collected:false,collectedAt:null}))}
 })();
 function pickupSaveLocal(){localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());localStorage.setItem(PICKUP_KEY,JSON.stringify(pickupSchedule))}
+function pickupReloadFromStorage(){
+  try{
+    const savedDate=_mimarNativeGetItem.call(window.localStorage,PICKUP_DATE_KEY);
+    const raw=_mimarNativeGetItem.call(window.localStorage,PICKUP_KEY);
+    const parsed=JSON.parse(raw||'null');
+    if(savedDate===pickupTodayKey()&&Array.isArray(parsed))pickupSchedule=parsed;
+    if(typeof renderPickups==='function')renderPickups();
+  }catch(e){console.warn('Coletas: falha ao atualizar sem recarregar a página.',e)}
+}
 function pickupSecs(t){const [h,m]=String(t||'00:00').split(':').map(Number);return h*3600+m*60}
 function pickupFmt(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':')}
 function pickupStatus(a,now){if(!a.start||!a.end)return{cls:'waiting',state:'Aguardando horário',count:'—',note:'adicione o horário do dia'};const cur=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(),start=pickupSecs(a.start),end=pickupSecs(a.end);if(a.collected)return{cls:'collected',state:'✓ Coletado',count:a.collectedAt||'Concluído',note:a.collectedAt?'coletado às '+a.collectedAt:'coleta concluída'};if(cur<start)return{cls:'',state:'Próxima',count:pickupFmt(start-cur),note:'para iniciar'};if(cur<=end)return{cls:'active',state:'Em andamento',count:pickupFmt(end-cur),note:'restantes'};return{cls:'late',state:'Encerrada',count:'00:00:00',note:'aguardando confirmação'}}
