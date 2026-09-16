@@ -6724,6 +6724,9 @@ function clock(ms){const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor
 function setTimer(id,start,end,status){const el=$(id);if(!el)return;const span=el.querySelector('span:last-child');if(span)span.textContent=start?clock(elapsed(start,end)):'00:00:00';el.classList.toggle('running',status==='andamento');el.classList.toggle('done',status==='concluido');}
 function refreshTimers(){if(!R.day)return;const d=R.day;setTimer('routine-exp-timer',d.expedicao_inicio,d.expedicao_fim,d.expedicao_status);document.querySelectorAll('[data-task-timer]').forEach(el=>{const id=Number(el.dataset.taskTimer),t=R.tasks.find(x=>Number(x.id)===id);if(t)setTimerElement(el,t.iniciado_em,t.concluido_em,t.status)});}
 function setTimerElement(el,start,end,status){if(!el)return;const span=el.querySelector('span:last-child');if(span)span.textContent=start?clock(elapsed(start,end)):'00:00:00';el.classList.toggle('running',status==='andamento');el.classList.toggle('done',status==='concluido')}
+// V6: protege conclusões contra respostas/realtime antigos que faziam o cronômetro voltar a contar.
+let routineDaySaving=false; const routineTaskSaving=new Set();
+function newerOrEqual(remote,local){const r=new Date(remote?.updated_at||0).getTime(),l=new Date(local?.updated_at||0).getTime();return r>=l;}
 
 async function getProfile(){
   const {data:{session}}=await cloud.auth.getSession();
@@ -6786,8 +6789,10 @@ function render(){
 }
 function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function updateDay(patch){
+  if(routineDaySaving)return;
+  routineDaySaving=true;
   if(!R.day){
-    try{await ensureDay()}catch(e){console.error(e);return alert('A conta foi reconhecida, mas a tabela da rotina ainda não está disponível no Data API do Supabase.');}
+    try{await ensureDay()}catch(e){console.error(e);routineDaySaving=false;return alert('A conta foi reconhecida, mas a tabela da rotina ainda não está disponível no Data API do Supabase.');}
   }
   // Atualização otimista: o cronômetro muda na hora e nunca volta a 00:00:00
   // enquanto aguardamos a resposta do Supabase.
@@ -6798,15 +6803,15 @@ async function updateDay(patch){
   const q=await cloud.from('rotina_diaria').update({...patch,updated_at:R.day.updated_at}).eq('id',R.day.id).select().single();
   if(q.error){
     console.error(q.error);R.day=previous;saveRoutineCache();render();
-    return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)
+    routineDaySaving=false;return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)
   }
-  R.day=q.data;saveRoutineCache();render();void renderLeader();
+  R.day=q.data;saveRoutineCache();render();routineDaySaving=false;void renderLeader();
 }
 async function refreshRoutineFromCloud(){
   if(!R.profile)return;
   try{
     const d=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();
-    if(!d.error && d.data){R.day=d.data;saveRoutineCache();}
+    if(!d.error && d.data && !routineDaySaving && (!R.day || newerOrEqual(d.data,R.day))){R.day=d.data;saveRoutineCache();}
     await loadTasks();
     render();
   }catch(e){console.warn('Atualização da rotina:',e)}
@@ -6829,7 +6834,17 @@ async function boot(){
 $('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:null})});
 $('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:now()})});
 $('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
-$('routine-task-list')?.addEventListener('click',async e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=Number(b.dataset.id),patch=b.classList.contains('rt-done')?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};const idx=R.tasks.findIndex(x=>Number(x.id)===id),previous=idx>=0?{...R.tasks[idx]}:null;if(idx>=0){R.tasks[idx]={...R.tasks[idx],...patch,updated_at:now()};saveRoutineCache();render()}const q=await cloud.from('tarefas_lider').update({...patch,updated_at:now()}).eq('id',id);if(q.error){if(idx>=0&&previous)R.tasks[idx]=previous;saveRoutineCache();render();return alert(q.error.message)}await loadTasks();render();void renderLeader()});
+$('routine-task-list')?.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-id]');if(!b)return;
+  const id=Number(b.dataset.id);if(routineTaskSaving.has(id))return;routineTaskSaving.add(id);
+  const done=b.classList.contains('rt-done');
+  const patch=done?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};
+  const idx=R.tasks.findIndex(x=>Number(x.id)===id),previous=idx>=0?{...R.tasks[idx]}:null;
+  const stamp=now();if(idx>=0){R.tasks[idx]={...R.tasks[idx],...patch,updated_at:stamp};saveRoutineCache();render()}
+  const q=await cloud.from('tarefas_lider').update({...patch,updated_at:stamp}).eq('id',id).select().single();
+  if(q.error){if(idx>=0&&previous)R.tasks[idx]=previous;routineTaskSaving.delete(id);saveRoutineCache();render();return alert('Não foi possível salvar a tarefa: '+q.error.message)}
+  if(idx>=0)R.tasks[idx]=q.data;routineTaskSaving.delete(id);saveRoutineCache();render();void renderLeader();
+});
 async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls)tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('routine-team-status')?.addEventListener('click',e=>{const c=e.target.closest('[data-timeline-collab]');if(!c)return;const sel=$('leader-timeline-collab'),dt=$('leader-timeline-date');if(sel)sel.value=c.dataset.timelineCollab;if(dt&&!dt.value)dt.value=today();showLeaderTimeline(c.dataset.timelineCollab,dt?.value||today());});
@@ -6840,8 +6855,9 @@ try{
     .on('postgres_changes',{event:'*',schema:'public',table:'tarefas_lider'},payload=>{
       if(!R.profile)return;
       const row=payload.new||payload.old||{};
-      if(row.colaborador_id===R.profile.id && (!row.data || row.data===today())){
-        loadTasks().then(render).catch(console.warn);
+      if(row.colaborador_id===R.profile.id && (!row.data || row.data===today()) && !routineTaskSaving.has(Number(row.id))){
+        const local=R.tasks.find(x=>Number(x.id)===Number(row.id));
+        if(!local || newerOrEqual(row,local)) loadTasks().then(render).catch(console.warn);
       }
       if(isAdmin)renderLeader().catch(()=>{});
     })
@@ -6849,7 +6865,7 @@ try{
       if(!R.profile)return;
       const row=payload.new||payload.old||{};
       if(row.colaborador_id===R.profile.id && (!row.data || row.data===today())){
-        if(payload.new && payload.new.id){R.day=payload.new;saveRoutineCache();render();}
+        if(payload.new && payload.new.id && !routineDaySaving && (!R.day || newerOrEqual(payload.new,R.day))){R.day=payload.new;saveRoutineCache();render();}
         else refreshRoutineFromCloud();
       }
     })
