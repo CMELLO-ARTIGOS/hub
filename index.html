@@ -2897,6 +2897,9 @@ body.admin-mode button.admin-only-action{display:inline-flex}
   }
 }
 
+
+.production-remove-btn{border:1px solid #d9dde3;background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto}
+.production-remove-btn:hover{background:#fff2f0;border-color:#e2a39a}
 </style>
 
 <style id="mimar-pattern-refresh">
@@ -3638,6 +3641,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
                 <th>Produto</th>
                 <th>Quantidade</th>
                 <th>Data</th>
+                <th class="admin-only-action">Ação</th>
               </tr>
             </thead>
             <tbody id="stockprod-body"></tbody>
@@ -4324,7 +4328,7 @@ function aggregateCloudProduction(records){const emps={},todayEmp={},stockCats={
 function rebuildProdHistoryFromCloud(records){const out={};for(const r of records){const iso=norm(r.data);if(!iso)return;const q=Number(r.quantidade)||0,tipo=strip(r.tipo),name=norm(r.funcionario)||'Sem colaborador';out[iso]??={employeeProduction:{},totals:{total:0,full:0,stock:0},source:'Supabase'};const e=out[iso].employeeProduction[name]??={total:0,full:0,stock:0};e.total+=q;out[iso].totals.total+=q;if(tipo==='full'){e.full+=q;out[iso].totals.full+=q}else if(tipo==='estoque'){e.stock+=q;out[iso].totals.stock+=q}}return out}
 function rebuildExpHistoryFromCloud(records,imports=[]){const out={},files={};for(const x of imports||[]){if(x.tipo==='expedicao')files[x.data]=x.arquivo||'Supabase'}for(const r of records){const iso=norm(r.data),name=norm(r.funcionario),market=norm(r.marketplace),q=Number(r.quantidade)||0;if(!iso||!name)continue;out[iso]??={headers:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,source:files[iso]||'Supabase',dateISO:iso};const s=out[iso];s.employeeTotals[name]=(s.employeeTotals[name]||0)+q;s.employeeAccounts[name]??={};if(market){s.employeeAccounts[name][market]=(s.employeeAccounts[name][market]||0)+q;s.accountTotals[market]=(s.accountTotals[market]||0)+q}s.total+=q}return out}
 async function fetchAll(table,columns){const all=[],page=1000;for(let from=0;;from+=page){const {data,error}=await cloud.from(table).select(columns).order('data',{ascending:true}).range(from,from+page-1);if(error)throw error;all.push(...(data||[]));if(!data||data.length<page)break}return all}
-async function loadCloudData(){setCloudState('Sincronizando...');let e,p,i;try{[e,p,i]=await Promise.all([fetchAll('expedicao','data,funcionario,marketplace,quantidade,arquivo_origem'),fetchAll('producao','data,funcionario,produto,quantidade,tipo,categoria,status'),fetchAll('importacoes','data,tipo,arquivo,atualizado_em')])}catch(err){setCloudState('Erro de conexão','err');throw err}cloudExpeditionRecords=e||[];cloudProductionRecords=p||[];expHistory=rebuildExpHistoryFromCloud(cloudExpeditionRecords,i||[]);prodHistory=rebuildProdHistoryFromCloud(cloudProductionRecords);agg=aggregateCloudProduction(cloudProductionRecords);saveStore(EXP_HISTORY_KEY,expHistory);saveStore(PROD_HISTORY_KEY,prodHistory);document.getElementById('prod-source').textContent='Banco online · Supabase';document.getElementById('prod-time').textContent=new Date().toLocaleString('pt-BR');const dates=allHistoryDates();selectedDate=(selectedDate&&dates.includes(selectedDate))?selectedDate:(dates[0]||'');if(selectedDate){const h=expHistory[selectedDate];expData={headers:h?.headers||[],rows:[],employeeTotals:h?.employeeTotals||{},employeeAccounts:h?.employeeAccounts||{},accountTotals:h?.accountTotals||{},total:Number(h?.total)||0,date:labelDate(selectedDate),dateISO:selectedDate,source:h?.source||'Supabase'}}else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};renderAll();window.dispatchEvent(new CustomEvent('mimar:cloud-production-loaded'));setCloudState(`Online · ${dates.length} dia(s)`,'ok')}
+async function loadCloudData(){setCloudState('Sincronizando...');let e,p,i;try{[e,p,i]=await Promise.all([fetchAll('expedicao','data,funcionario,marketplace,quantidade,arquivo_origem'),fetchAll('producao','id,data,funcionario,produto,quantidade,tipo,categoria,status'),fetchAll('importacoes','data,tipo,arquivo,atualizado_em')])}catch(err){setCloudState('Erro de conexão','err');throw err}cloudExpeditionRecords=e||[];cloudProductionRecords=p||[];expHistory=rebuildExpHistoryFromCloud(cloudExpeditionRecords,i||[]);prodHistory=rebuildProdHistoryFromCloud(cloudProductionRecords);agg=aggregateCloudProduction(cloudProductionRecords);saveStore(EXP_HISTORY_KEY,expHistory);saveStore(PROD_HISTORY_KEY,prodHistory);document.getElementById('prod-source').textContent='Banco online · Supabase';document.getElementById('prod-time').textContent=new Date().toLocaleString('pt-BR');const dates=allHistoryDates();selectedDate=(selectedDate&&dates.includes(selectedDate))?selectedDate:(dates[0]||'');if(selectedDate){const h=expHistory[selectedDate];expData={headers:h?.headers||[],rows:[],employeeTotals:h?.employeeTotals||{},employeeAccounts:h?.employeeAccounts||{},accountTotals:h?.accountTotals||{},total:Number(h?.total)||0,date:labelDate(selectedDate),dateISO:selectedDate,source:h?.source||'Supabase'}}else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};renderAll();window.dispatchEvent(new CustomEvent('mimar:cloud-production-loaded'));setCloudState(`Online · ${dates.length} dia(s)`,'ok')}
 function openAuth(){document.getElementById('auth-overlay').classList.add('open');document.getElementById('auth-overlay').setAttribute('aria-hidden','false');document.getElementById('auth-email').focus()}
 function closeAuth(){document.getElementById('auth-overlay').classList.remove('open');document.getElementById('auth-overlay').setAttribute('aria-hidden','true');document.getElementById('auth-error').textContent=''}
 async function refreshAuthUI(){const {data:{session}}=await cloud.auth.getSession();currentUser=session?.user||null;isAdmin=false;if(currentUser){const {data,error}=await cloud.rpc('is_admin');isAdmin=!error&&data===true}document.body.classList.toggle('admin-mode',isAdmin);const gtab=document.getElementById('gestao-tab')||document.querySelector('.tab[data-page="gestao"]');const gpage=document.getElementById('gestao');if(gtab){gtab.hidden=!isAdmin;gtab.style.setProperty('display',isAdmin?'flex':'none','important')}if(gpage){gpage.hidden=!isAdmin;if(!isAdmin){gpage.classList.remove('active');gpage.style.setProperty('display','none','important')}else{gpage.style.removeProperty('display')}}const btn=document.getElementById('admin-login-btn');btn.textContent=isAdmin?'✓ Administrador · Sair':'🔐 Acesso administrativo';btn.classList.toggle('btn-green',isAdmin);btn.classList.toggle('btn-dark',!isAdmin);if(!isAdmin){const activeGestao=gtab?.classList.contains('active')||location.hash==='#gestao';if(activeGestao){gtab?.classList.remove('active');document.querySelector('.tab[data-page="dashboard"]')?.click()}}try{refreshProductionAdminButtons()}catch(e){}setTimeout(()=>loadStock().catch(console.error),0)}
@@ -5429,6 +5433,20 @@ const PRODUCTION_TEST_MODE=false;
     if(typeof loadCloudData==='function')await loadCloudData();
   }
 
+  async function removeProductionCloud(id){
+    if(!isAdmin){alert('Somente administradores podem remover produção.');return}
+    if(!id)return;
+    if(!confirm('Remover este lançamento de produção? Essa ação atualizará os totais do FULL/Estoque.'))return;
+    try{
+      const {error}=await cloud.from('producao').delete().eq('id',id);
+      if(error)throw error;
+      await loadCloudData();
+    }catch(err){
+      console.error(err);
+      alert('Não foi possível remover a produção: '+(err?.message||err));
+    }
+  }
+
   // Produção lançada por colaboradores é reconstruída da tabela `producao`.
   // Assim FULL e Produção de Estoque não dependem do localStorage do navegador.
   function syncOperationalProductionFromCloud(){
@@ -5443,12 +5461,12 @@ const PRODUCTION_TEST_MODE=false;
       let p=productId?fullData.find(x=>String(x.id)===productId):null;
       if(!p)p=fullData.find(x=>String(x.name||'').trim().toLowerCase()===String(r.produto||'').trim().toLowerCase());
       if(!p)return;
-      p.logs.push({person:r.funcionario||'—',qty:num(r.quantidade),date:r.data||todayISO(),time:'',note:'Supabase'});
+      p.logs.push({cloudId:r.id,person:r.funcionario||'—',qty:num(r.quantidade),date:r.data||todayISO(),time:'',note:'Supabase'});
     });
 
     // Produção de estoque: histórico central vindo do Supabase.
     stockData=records.filter(r=>String(r.tipo||'').toLowerCase()==='estoque').map(r=>({
-      person:r.funcionario||'—',product:r.produto||'—',qty:num(r.quantidade),date:r.data||todayISO(),time:'',note:'Supabase'
+      cloudId:r.id,person:r.funcionario||'—',product:r.produto||'—',qty:num(r.quantidade),date:r.data||todayISO(),time:'',note:'Supabase'
     }));
     renderFull();renderFullQueue();renderStockProd();
   }
@@ -5490,10 +5508,8 @@ const PRODUCTION_TEST_MODE=false;
     el.innerHTML=list.map(p=>{
       const done=productDone(p),remaining=Math.max(0,num(p.target)-done),percentage=p.target?Math.min(100,Math.round(done/p.target*100)):0;
       const st=statusOf(p);
-      const people={};(p.logs||[]).forEach(x=>people[x.person]=(people[x.person]||0)+num(x.qty));
-      const workerRows=Object.entries(people)
-        .sort((a,b)=>b[1]-a[1])
-        .map(([n,v])=>`<div class="full-worker-row"><strong>${esc(n)}</strong><span>produziu</span><b>${fmt(v)}</b></div>`)
+      const workerRows=(p.logs||[]).slice().reverse()
+        .map(x=>`<div class="full-worker-row"><strong>${esc(x.person)}</strong><span>produziu</span><b>${fmt(x.qty)}</b>${x.cloudId?`<button class="admin-only-action production-remove-btn" data-production-remove="${esc(x.cloudId)}" type="button" title="Remover lançamento">Remover</button>`:''}</div>`)
         .join('');
       return `<div class="full-product ${st.key==='done'?'done':''}">
         <div class="full-product-top">
@@ -5614,7 +5630,8 @@ const PRODUCTION_TEST_MODE=false;
       <td>${esc(x.product||'—')}</td>
       <td><b>${fmt(x.qty||0)}</b></td>
       <td>${esc(x.date?dateBR(x.date):'—')}</td>
-    </tr>`).join(''):`<tr><td colspan="5" class="full-worker-empty">Nenhum lançamento registrado.</td></tr>`;
+      <td class="admin-only-action">${x.cloudId?`<button class="production-remove-btn" data-production-remove="${esc(x.cloudId)}" type="button">Remover</button>`:''}</td>
+    </tr>`).join(''):`<tr><td colspan="6" class="full-worker-empty">Nenhum lançamento registrado.</td></tr>`;
     renderStockBalance();
     renderStockActivity();
     renderStockInitialAdjustments();
@@ -5628,6 +5645,12 @@ const PRODUCTION_TEST_MODE=false;
   }
 
   document.addEventListener('click',e=>{
+    const removeProduction=e.target.closest('[data-production-remove]');
+    if(removeProduction){
+      e.preventDefault();
+      removeProductionCloud(removeProduction.dataset.productionRemove);
+      return;
+    }
     const sw=e.target.closest('[data-production-view]');
     if(sw){
       document.querySelectorAll('[data-production-view]').forEach(b=>b.classList.toggle('active',b===sw));
