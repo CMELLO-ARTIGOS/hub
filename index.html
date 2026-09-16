@@ -6749,8 +6749,8 @@ function render(){
 const R={profile:null,day:null,tasks:[],profiles:[],hydrating:false};
 const CACHE_PREFIX='mimar_rotina_cache_v5';
 function cacheKey(){return R.profile?.id?`${CACHE_PREFIX}:${R.profile.id}:${today()}`:null}
-function saveRoutineCache(){const k=cacheKey();if(!k)return;try{localStorage.setItem(k,JSON.stringify({day:R.day||null,tasks:R.tasks||[],savedAt:Date.now()}))}catch{}}
-function loadRoutineCache(){const k=cacheKey();if(!k)return false;try{const v=JSON.parse(localStorage.getItem(k)||'null');if(v&&v.day){R.day=v.day;R.tasks=Array.isArray(v.tasks)?v.tasks:[];return true}}catch{}return false}
+function saveRoutineCache(){const k=cacheKey();if(!k)return;try{localStorage.setItem(k,JSON.stringify({day:R.day||null,savedAt:Date.now()}))}catch{}}
+function loadRoutineCache(){const k=cacheKey();if(!k)return false;try{const v=JSON.parse(localStorage.getItem(k)||'null');if(v&&v.day){R.day=v.day;R.tasks=[];return true}}catch{}return false}
 const $=id=>document.getElementById(id), today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}, now=()=>new Date().toISOString();
 function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
 function elapsed(start,end){if(!start)return 0;const a=new Date(start).getTime(),b=end?new Date(end).getTime():Date.now();return Math.max(0,b-a)}
@@ -6870,14 +6870,50 @@ $('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine
 $('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
 $('routine-task-list')?.addEventListener('click',async e=>{
   const b=e.target.closest('[data-id]');if(!b)return;
-  const id=Number(b.dataset.id);if(routineTaskSaving.has(id))return;routineTaskSaving.add(id);
-  const done=b.classList.contains('rt-done');
-  const patch=done?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};
-  const idx=R.tasks.findIndex(x=>Number(x.id)===id),previous=idx>=0?{...R.tasks[idx]}:null;
-  const stamp=now();if(idx>=0){R.tasks[idx]={...R.tasks[idx],...patch,updated_at:stamp};saveRoutineCache();render()}
-  const q=await cloud.from('tarefas_lider').update({...patch,updated_at:stamp}).eq('id',id).select().single();
-  if(q.error){if(idx>=0&&previous)R.tasks[idx]=previous;routineTaskSaving.delete(id);saveRoutineCache();render();return alert('Não foi possível salvar a tarefa: '+q.error.message)}
-  if(idx>=0)R.tasks[idx]=q.data;routineTaskSaving.delete(id);saveRoutineCache();render();await loadTasks();render();void renderLeader();
+  const id=Number(b.dataset.id);
+  if(routineTaskSaving.has(id)||!R.profile)return;
+  const current=R.tasks.find(x=>Number(x.id)===id);
+  if(!current)return;
+  const concluding=b.classList.contains('rt-done');
+  const expected=concluding?'andamento':'pendente';
+  // Supabase é a única fonte de verdade: não alteramos o status local antes da confirmação.
+  routineTaskSaving.add(id);
+  const oldText=b.textContent;b.disabled=true;b.textContent=concluding?'Salvando conclusão...':'Iniciando...';
+  try{
+    const stamp=now();
+    const patch=concluding
+      ?{status:'concluido',concluido_em:stamp,updated_at:stamp}
+      :{status:'andamento',iniciado_em:current.iniciado_em||stamp,concluido_em:null,updated_at:stamp};
+    const q=await cloud.from('tarefas_lider')
+      .update(patch)
+      .eq('id',id)
+      .eq('colaborador_id',R.profile.id)
+      .eq('status',expected)
+      .select('*')
+      .maybeSingle();
+    if(q.error)throw q.error;
+    if(!q.data){
+      await loadTasks();render();
+      const fresh=R.tasks.find(x=>Number(x.id)===id);
+      if(concluding&&fresh?.status==='concluido')return;
+      throw new Error('O registro não foi alterado no Supabase. O estado da tarefa mudou em outra sessão ou sua permissão de atualização foi bloqueada.');
+    }
+    if(concluding && (q.data.status!=='concluido'||!q.data.concluido_em))
+      throw new Error('O Supabase não confirmou a conclusão da tarefa.');
+    if(!concluding && (q.data.status!=='andamento'||!q.data.iniciado_em))
+      throw new Error('O Supabase não confirmou o início da tarefa.');
+    // Só agora substituímos a tela pelo registro confirmado pelo banco.
+    await loadTasks();
+    saveRoutineCache();render();
+    void renderLeader();
+  }catch(err){
+    console.error('Falha ao atualizar tarefa:',err);
+    try{await loadTasks();render()}catch{}
+    alert('Não foi possível '+(concluding?'concluir':'iniciar')+' a tarefa no Supabase: '+(err?.message||err));
+  }finally{
+    routineTaskSaving.delete(id);
+    if(document.body.contains(b)){b.disabled=false;b.textContent=oldText}
+  }
 });
 async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
