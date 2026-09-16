@@ -4176,6 +4176,40 @@ let _mimarCloudReady=false;
 let _mimarCloudChannel=null;
 
 const MIMAR_LOCAL_ONLY_KEYS=new Set(['mimar_stock_current_owner_v1']);
+
+/* FIX 16/09/2026 · não interromper edição do estoque com reload automático */
+let _mimarDeferredCloudReload=false;
+function mimarStockIsBeingEdited(){
+  const stockPage=document.getElementById('estoque-controle');
+  const activeStock=!!stockPage?.classList.contains('active');
+  const focused=document.activeElement;
+  const editingField=!!focused?.closest?.('#estoque-controle input, #estoque-controle select, #estoque-controle textarea');
+  return activeStock && (stockEditMode || editingField);
+}
+function mimarSafeReload(){
+  if(mimarStockIsBeingEdited()){
+    _mimarDeferredCloudReload=true;
+    return false;
+  }
+  const activePage=document.querySelector('.page.active')?.id||'dashboard';
+  sessionStorage.setItem('mimar_restore_page',activePage);
+  sessionStorage.setItem('mimar_restore_scroll',String(window.scrollY||0));
+  location.reload();
+  return true;
+}
+window.addEventListener('load',()=>{
+  const page=sessionStorage.getItem('mimar_restore_page');
+  const y=Number(sessionStorage.getItem('mimar_restore_scroll')||0);
+  if(page){
+    setTimeout(()=>{
+      const tab=document.querySelector(`.tab[data-page="${page}"]`);
+      if(tab)tab.click();
+      window.scrollTo(0,Number.isFinite(y)?y:0);
+      sessionStorage.removeItem('mimar_restore_page');
+      sessionStorage.removeItem('mimar_restore_scroll');
+    },350);
+  }
+});
 function mimarIsCloudKey(key){key=String(key||'');return key.startsWith(MIMAR_CLOUD_PREFIX)&&!MIMAR_LOCAL_ONLY_KEYS.has(key)}
 function mimarParseStored(raw){
   if(raw===null||raw===undefined)return null;
@@ -4288,7 +4322,7 @@ async function mimarInitialCloudSync(){
     _mimarCloudReady=true;
     if(changed&&!sessionStorage.getItem('mimar_cloud_boot_reload')){
       sessionStorage.setItem('mimar_cloud_boot_reload','1');
-      location.reload();
+      mimarSafeReload();
       return;
     }
     sessionStorage.removeItem('mimar_cloud_boot_reload');
@@ -4306,7 +4340,7 @@ function mimarStartRealtimeSync(){
           if(_mimarNativeGetItem.call(window.localStorage,row.key)!==null){
             _mimarNativeRemoveItem.call(window.localStorage,row.key);
             if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
-            else if(row.key!==STOCK_OWNER_KEY) location.reload();
+            else if(row.key!==STOCK_OWNER_KEY) mimarSafeReload();
           }
         }else{
           const next=mimarStableString(row.value),cur=_mimarNativeGetItem.call(window.localStorage,row.key);
@@ -4314,7 +4348,7 @@ function mimarStartRealtimeSync(){
             _mimarNativeSetItem.call(window.localStorage,row.key,next);
             if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
             else if(row.key===STOCK_OWNER_KEY){ if(typeof renderStockPeople==='function')renderStockPeople(); }
-            else location.reload();
+            else mimarSafeReload();
           }
         }
       }finally{_mimarCloudApplying=false}
@@ -4339,7 +4373,7 @@ async function mimarPullCloudState({reload=true}={}){
         if(cur!==next){_mimarNativeSetItem.call(window.localStorage,row.key,next);changed=true}
       }
     }finally{_mimarCloudApplying=false}
-    if(changed&&reload){location.reload();return true}
+    if(changed&&reload){mimarSafeReload();return true}
     return changed;
   }catch(err){console.warn('Mimar Cloud: conferência falhou.',err);return false}
   finally{_mimarCloudPulling=false}
