@@ -6712,7 +6712,11 @@ function render(){
 
 <script id="rotina-contas-v13-script">
 (()=>{
-const R={profile:null,day:null,tasks:[],profiles:[]};
+const R={profile:null,day:null,tasks:[],profiles:[],hydrating:false};
+const CACHE_PREFIX='mimar_rotina_cache_v5';
+function cacheKey(){return R.profile?.id?`${CACHE_PREFIX}:${R.profile.id}:${today()}`:null}
+function saveRoutineCache(){const k=cacheKey();if(!k)return;try{localStorage.setItem(k,JSON.stringify({day:R.day||null,tasks:R.tasks||[],savedAt:Date.now()}))}catch{}}
+function loadRoutineCache(){const k=cacheKey();if(!k)return false;try{const v=JSON.parse(localStorage.getItem(k)||'null');if(v&&v.day){R.day=v.day;R.tasks=Array.isArray(v.tasks)?v.tasks:[];return true}}catch{}return false}
 const $=id=>document.getElementById(id), today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}, now=()=>new Date().toISOString();
 function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
 function elapsed(start,end){if(!start)return 0;const a=new Date(start).getTime(),b=end?new Date(end).getTime():Date.now();return Math.max(0,b-a)}
@@ -6736,8 +6740,8 @@ async function getProfile(){
   if(error)console.warn('Perfil do colaborador:',error);
   return null;
 }
-async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data}
-async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('created_at',{ascending:true});if(q.error){console.error('Falha ao carregar tarefas do líder:',q.error);throw q.error}R.tasks=q.data||[]}
+async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data;saveRoutineCache()}
+async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('created_at',{ascending:true});if(q.error){console.error('Falha ao carregar tarefas do líder:',q.error);throw q.error}R.tasks=q.data||[];saveRoutineCache()}
 function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
 function render(){
   const connected=!!currentUser;
@@ -6785,15 +6789,24 @@ async function updateDay(patch){
   if(!R.day){
     try{await ensureDay()}catch(e){console.error(e);return alert('A conta foi reconhecida, mas a tabela da rotina ainda não está disponível no Data API do Supabase.');}
   }
-  const q=await cloud.from('rotina_diaria').update({...patch,updated_at:now()}).eq('id',R.day.id).select().single();
-  if(q.error){console.error(q.error);return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)}
-  R.day=q.data;render();void renderLeader();
+  // Atualização otimista: o cronômetro muda na hora e nunca volta a 00:00:00
+  // enquanto aguardamos a resposta do Supabase.
+  const previous={...R.day};
+  R.day={...R.day,...patch,updated_at:now()};
+  saveRoutineCache();
+  render();
+  const q=await cloud.from('rotina_diaria').update({...patch,updated_at:R.day.updated_at}).eq('id',R.day.id).select().single();
+  if(q.error){
+    console.error(q.error);R.day=previous;saveRoutineCache();render();
+    return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)
+  }
+  R.day=q.data;saveRoutineCache();render();void renderLeader();
 }
 async function refreshRoutineFromCloud(){
   if(!R.profile)return;
   try{
     const d=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();
-    if(!d.error && d.data)R.day=d.data;
+    if(!d.error && d.data){R.day=d.data;saveRoutineCache();}
     await loadTasks();
     render();
   }catch(e){console.warn('Atualização da rotina:',e)}
@@ -6802,18 +6815,21 @@ async function boot(){
   try{
     await refreshAuthUI();
     R.profile=await getProfile();R.day=null;R.tasks=[];
+    if(R.profile)loadRoutineCache();
+    // Renderiza imediatamente o último estado conhecido. A busca no Supabase acontece
+    // em seguida sem zerar visualmente os contadores.
     render();
     if(R.profile){
       try{await ensureDay();await loadTasks()}catch(e){console.error('Dados da rotina:',e)}
     }
-    render();
+    saveRoutineCache();render();
     try{await renderLeader()}catch(e){console.warn('Painel do líder:',e)}
   }catch(e){console.error('Rotina:',e);render()}
 }
 $('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:null})});
 $('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:now()})});
 $('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
-$('routine-task-list')?.addEventListener('click',async e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=Number(b.dataset.id),patch=b.classList.contains('rt-done')?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};const q=await cloud.from('tarefas_lider').update({...patch,updated_at:now()}).eq('id',id);if(q.error)return alert(q.error.message);await loadTasks();render();void renderLeader()});
+$('routine-task-list')?.addEventListener('click',async e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=Number(b.dataset.id),patch=b.classList.contains('rt-done')?{status:'concluido',concluido_em:now()}:{status:'andamento',iniciado_em:now(),concluido_em:null};const idx=R.tasks.findIndex(x=>Number(x.id)===id),previous=idx>=0?{...R.tasks[idx]}:null;if(idx>=0){R.tasks[idx]={...R.tasks[idx],...patch,updated_at:now()};saveRoutineCache();render()}const q=await cloud.from('tarefas_lider').update({...patch,updated_at:now()}).eq('id',id);if(q.error){if(idx>=0&&previous)R.tasks[idx]=previous;saveRoutineCache();render();return alert(q.error.message)}await loadTasks();render();void renderLeader()});
 async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls)tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>'}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('routine-team-status')?.addEventListener('click',e=>{const c=e.target.closest('[data-timeline-collab]');if(!c)return;const sel=$('leader-timeline-collab'),dt=$('leader-timeline-date');if(sel)sel.value=c.dataset.timelineCollab;if(dt&&!dt.value)dt.value=today();showLeaderTimeline(c.dataset.timelineCollab,dt?.value||today());});
@@ -6833,7 +6849,8 @@ try{
       if(!R.profile)return;
       const row=payload.new||payload.old||{};
       if(row.colaborador_id===R.profile.id && (!row.data || row.data===today())){
-        ensureDay().then(render).catch(console.warn);
+        if(payload.new && payload.new.id){R.day=payload.new;saveRoutineCache();render();}
+        else refreshRoutineFromCloud();
       }
     })
     .subscribe();
