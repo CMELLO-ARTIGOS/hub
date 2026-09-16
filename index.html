@@ -4247,10 +4247,19 @@ function mimarStartRealtimeSync(){
       _mimarCloudApplying=true;
       try{
         if(payload.eventType==='DELETE'){
-          if(_mimarNativeGetItem.call(window.localStorage,row.key)!==null){_mimarNativeRemoveItem.call(window.localStorage,row.key);location.reload()}
+          if(_mimarNativeGetItem.call(window.localStorage,row.key)!==null){
+            _mimarNativeRemoveItem.call(window.localStorage,row.key);
+            if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
+            else if(row.key!==STOCK_OWNER_KEY) location.reload();
+          }
         }else{
           const next=mimarStableString(row.value),cur=_mimarNativeGetItem.call(window.localStorage,row.key);
-          if(cur!==next){_mimarNativeSetItem.call(window.localStorage,row.key,next);location.reload()}
+          if(cur!==next){
+            _mimarNativeSetItem.call(window.localStorage,row.key,next);
+            if(row.key===STOCK_AUDIT_KEY){ if(typeof renderStockAudit==='function')renderStockAudit(); if(typeof renderStock==='function')renderStock(); }
+            else if(row.key===STOCK_OWNER_KEY){ if(typeof renderStockPeople==='function')renderStockPeople(); }
+            else location.reload();
+          }
         }
       }finally{_mimarCloudApplying=false}
     }).subscribe();
@@ -4358,7 +4367,7 @@ const DEFAULT_STOCK_PEOPLE=['Thiago','Leonardo','Rafael','Fagner'];
 function getStockPeople(){try{const saved=JSON.parse(localStorage.getItem(STOCK_PEOPLE_KEY)||'[]');return [...new Set([...DEFAULT_STOCK_PEOPLE,...(Array.isArray(saved)?saved:[])].map(x=>String(x||'').trim()).filter(Boolean))]}catch{return [...DEFAULT_STOCK_PEOPLE]}}
 function saveStockPeople(list){localStorage.setItem(STOCK_PEOPLE_KEY,JSON.stringify([...new Set(list.map(x=>String(x||'').trim()).filter(Boolean))]))}
 function renderStockPeople(preferred=''){const sel=document.getElementById('stock-current-owner');if(!sel)return;const people=getStockPeople(),wanted=(preferred||sel.value||localStorage.getItem(STOCK_OWNER_KEY)||'').trim();sel.innerHTML='<option value="">Selecione seu nome</option>'+people.map(n=>`<option value="${stockSafe(n)}">${stockSafe(n)}</option>`).join('');if(people.includes(wanted))sel.value=wanted}
-function addStockPerson(name){name=String(name||'').trim().replace(/\s+/g,' ');if(!name)throw new Error('Digite o nome do colaborador.');if(name.length<2)throw new Error('Digite um nome válido.');const people=getStockPeople();const existing=people.find(p=>strip(p)===strip(name));const finalName=existing||name;if(!existing){people.push(name);saveStockPeople(people)}renderStockPeople(finalName);localStorage.setItem(STOCK_OWNER_KEY,finalName);return finalName}
+function addStockPerson(name){name=String(name||'').trim().replace(/\s+/g,' ');if(!name)throw new Error('Digite o nome do colaborador.');if(name.length<2)throw new Error('Digite um nome válido.');const people=getStockPeople();const existing=people.find(p=>strip(p)===strip(name));const finalName=existing||name;if(!existing){people.push(name);saveStockPeople(people)}renderStockPeople(finalName);_mimarNativeSetItem.call(window.localStorage,STOCK_OWNER_KEY,finalName);return finalName}
 function getStockAudit(){try{return JSON.parse(localStorage.getItem(STOCK_AUDIT_KEY)||'{"items":{},"last":null}')}catch{return {items:{},last:null}}}
 function saveStockAudit(a){localStorage.setItem(STOCK_AUDIT_KEY,JSON.stringify(a))}
 function currentStockOwner(){return (document.getElementById('stock-current-owner')?.value||localStorage.getItem(STOCK_OWNER_KEY)||'').trim()}
@@ -4702,6 +4711,34 @@ document.getElementById('stock-edit-toggle').addEventListener('click',()=>{stock
 document.getElementById('stock-add-form').addEventListener('submit',async e=>{e.preventDefault();const btn=e.submitter;try{btn.disabled=true;btn.textContent='Salvando...';await addStockProduct(document.getElementById('stock-new-product').value,document.getElementById('stock-new-qty').value,document.getElementById('stock-new-volume').value,document.getElementById('stock-new-urgency').value);document.getElementById('stock-new-product').value='';document.getElementById('stock-new-qty').value='0';document.getElementById('stock-new-volume').value='unidade';document.getElementById('stock-new-urgency').value='normal'}catch(err){alert('Não consegui adicionar o produto.\n\n'+err.message)}finally{btn.disabled=false;btn.textContent='＋ Adicionar produto'}});
 document.getElementById('stock-table-body').addEventListener('click',async e=>{const btn=e.target.closest('button[data-action]');if(!btn)return;const tr=btn.closest('tr[data-stock-id]'),id=tr?.dataset.stockId;if(!id)return;try{btn.disabled=true;if(btn.dataset.action==='save'){await saveStockRow(id,tr.querySelector('[data-role="qty"]').value,tr.querySelector('[data-role="volume"]').value,tr.querySelector('[data-role="urgency"]').value)}else if(btn.dataset.action==='delete'){if(!confirm('Excluir este produto do controle de estoque?'))return;await deleteStockRow(id)}}catch(err){alert('Não consegui atualizar o estoque.\n\n'+err.message)}finally{btn.disabled=false}});
 
+// V5: qualquer alteração nos campos do estoque é salva automaticamente no Supabase.
+// Assim, ao sair da aba e voltar, o valor não retorna ao estado anterior.
+let _mimarStockAutoSaving=new Map();
+async function mimarAutoSaveStockRow(tr){
+  if(!tr||!stockEditMode)return;
+  const id=tr.dataset.stockId;if(!id)return;
+  const sig=[tr.querySelector('[data-role="qty"]')?.value,tr.querySelector('[data-role="volume"]')?.value,tr.querySelector('[data-role="urgency"]')?.value].join('|');
+  if(_mimarStockAutoSaving.get(id)===sig)return;
+  _mimarStockAutoSaving.set(id,sig);
+  const saveBtn=tr.querySelector('button[data-action="save"]');
+  const oldText=saveBtn?.textContent;
+  try{
+    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Salvando…'}
+    await saveStockRow(id,tr.querySelector('[data-role="qty"]').value,tr.querySelector('[data-role="volume"]').value,tr.querySelector('[data-role="urgency"]').value);
+  }catch(err){
+    _mimarStockAutoSaving.delete(id);
+    alert('Não consegui salvar automaticamente o estoque.\n\n'+err.message);
+  }finally{
+    if(saveBtn&&document.body.contains(saveBtn)){saveBtn.disabled=false;saveBtn.textContent=oldText||'Salvar'}
+  }
+}
+document.getElementById('stock-table-body').addEventListener('change',e=>{
+  const field=e.target.closest('[data-role="qty"],[data-role="volume"],[data-role="urgency"]');
+  if(!field)return;
+  const tr=field.closest('tr[data-stock-id]');
+  void mimarAutoSaveStockRow(tr);
+});
+
 document.getElementById('admin-login-btn').addEventListener('click',async()=>{if(isAdmin){if(confirm('Deseja sair do modo administrador?')){await cloud.auth.signOut();await refreshAuthUI()}return}openAuth()});
 document.getElementById('auth-cancel').addEventListener('click',closeAuth);
 document.getElementById('auth-overlay').addEventListener('click',e=>{if(e.target.id==='auth-overlay')closeAuth()});
@@ -4773,7 +4810,7 @@ cloud.auth.onAuthStateChange(()=>setTimeout(refreshAuthUI,0));
   catch(e){console.error(e);setCloudState('Offline · cache local','err');expHistory=loadStore(EXP_HISTORY_KEY);prodHistory=loadStore(PROD_HISTORY_KEY);const dates=allHistoryDates();selectedDate=dates[0]||'';if(selectedDate)loadHistoryDate(selectedDate);else renderAll();document.getElementById('prod-source').textContent='Cache local (sem conexão com o Supabase)';document.getElementById('prod-time').textContent='—'}
 })();
 
-document.getElementById('stock-current-owner')?.addEventListener('change',e=>{localStorage.setItem(STOCK_OWNER_KEY,e.target.value||'')});
+document.getElementById('stock-current-owner')?.addEventListener('change',e=>{_mimarNativeSetItem.call(window.localStorage,STOCK_OWNER_KEY,e.target.value||'')});
 document.getElementById('stock-owner-add-toggle')?.addEventListener('click',()=>{const p=document.getElementById('stock-owner-add-panel');p?.classList.toggle('open');if(p?.classList.contains('open'))document.getElementById('stock-owner-new-name')?.focus()});
 document.getElementById('stock-owner-add-cancel')?.addEventListener('click',()=>{document.getElementById('stock-owner-add-panel')?.classList.remove('open');const i=document.getElementById('stock-owner-new-name');if(i)i.value=''});
 function saveNewStockPerson(){const input=document.getElementById('stock-owner-new-name');try{const name=addStockPerson(input?.value||'');if(input)input.value='';document.getElementById('stock-owner-add-panel')?.classList.remove('open');document.getElementById('stock-owner-hint').textContent=`${name} foi selecionado para esta contagem. As próximas alterações ficarão registradas nesse nome.`}catch(err){alert(err.message)}}
