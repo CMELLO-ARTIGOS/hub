@@ -3249,31 +3249,6 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 @media(max-width:800px){.routine-grid{grid-template-columns:1fr}.routine-step.full{grid-column:auto}.leader-form{grid-template-columns:1fr}.team-status-grid{grid-template-columns:1fr 1fr}.routine-hero{align-items:flex-start;flex-direction:column}}
 </style>
 <!-- MIMAR 16/09/2026 · LOGIN ÚNICO: colaborador/líder/admin usam a mesma sessão Supabase -->
-
-<style id="mimar-blue-theme-20260916">
-/* Tema azul para apresentação · mantém estados verde/amarelo/vermelho funcionais */
-:root{--blue-brand:#2563eb;--blue-brand-2:#1d4ed8;--blue-soft:#eff6ff;--blue-soft-2:#dbeafe;--blue-line:#bfdbfe}
-body{background:radial-gradient(circle at 12% -8%,rgba(37,99,235,.08),transparent 34%),radial-gradient(circle at 96% 0,rgba(96,165,250,.08),transparent 40%),#f7faff!important}
-.tab.active{background:linear-gradient(135deg,var(--blue-brand),var(--blue-brand-2))!important;box-shadow:0 8px 18px rgba(37,99,235,.20)!important}
-.btn-orange{background:linear-gradient(135deg,var(--blue-brand),var(--blue-brand-2))!important;color:#fff!important}
-.hero,#estoque-controle .mgmt-toolbar,#card-page .exp-card-head{background:linear-gradient(120deg,#2563eb,#1d4ed8 72%,#60a5fa)!important;box-shadow:0 14px 35px rgba(37,99,235,.14)!important}
-.orange b,.mgmt-kpi .value.orange,#card-page .rc-head .eye,#card-page .rc-big .n,#card-page .exp-kpi .value.orange,#card-page .employee-total,.prod-mini .stock b{color:#2563eb!important}
-.view-toggle button.active{background:#eaf2ff!important;color:#1d4ed8!important}
-.bar-stock{background:#3b82f6!important}.notice{background:#eff6ff!important;border-color:#bfdbfe!important;color:#315a91!important}
-#estoque-controle .stock-view-actions .btn-orange{background:#fff!important;color:#1d4ed8!important}
-.stock-table th{background:#f4f8ff!important}.stock-toolbar input,.stock-toolbar select,.stock-form input,.stock-form select{border-color:#dbe7f7!important}
-.owner-add-btn,.rotation-edit-btn{color:#1d4ed8!important}.owner-add-btn:hover,.rotation-edit-btn:hover{background:#eff6ff!important}
-.owner-add-panel input:focus{border-color:#60a5fa!important;box-shadow:0 0 0 3px rgba(37,99,235,.12)!important}
-.rotation-item.active,.rotation-item.featured{border-color:#93c5fd!important;background:#f4f8ff!important}.rotation-item .rotation-person-main,.rotation-week-focus span{color:#2563eb!important}.rotation-day .today{background:#2563eb!important}.rotation-week-focus{border-color:#dbeafe!important;background:#f4f8ff!important}
-.pickup-save{background:#2563eb!important}.pickup-add{border-color:#bfdbfe!important;background:#f8fbff!important;color:#315a91!important}.pickup-remove{background:#eff6ff!important;color:#1d4ed8!important}
-.full-product-actions .launch{background:#2563eb!important;border-color:#2563eb!important}.create-cycle-form input,.create-cycle-form textarea,.create-cycle-form select{background:#f8fbff!important;border-color:#dbeafe!important}
-#minha-rotina .routine-hero{background:linear-gradient(120deg,#2563eb,#1d4ed8)!important;border-color:#2563eb!important;color:#fff!important}
-#minha-rotina .routine-hero h2,#minha-rotina .routine-hero p,#minha-rotina .routine-hero span{color:inherit}
-#minha-rotina .routine-step.active{border-color:#93c5fd!important;background:#f5f9ff!important}.routine-status.active{background:#dbeafe!important;color:#1d4ed8!important}
-#minha-rotina .routine-step h3{color:#1e3a5f!important}.leader-panel{border-color:#dbeafe!important}.leader-panel h3{color:#1e3a5f!important}
-.auth-box button[type="submit"],.auth-submit{background:linear-gradient(135deg,#2563eb,#1d4ed8)!important;color:#fff!important}
-</style>
-
 </head>
 <body>
 <div class="wrap">
@@ -5037,11 +5012,13 @@ let pickupSchedule=(()=>{
     const savedDate=localStorage.getItem(PICKUP_DATE_KEY);
     const x=JSON.parse(localStorage.getItem(PICKUP_KEY)||'null');
     if(savedDate===pickupTodayKey() && Array.isArray(x)) return x;
-    const fresh=PICKUP_DEFAULT.map(a=>({...a,start:'',end:'',collected:false,collectedAt:null}));
+    /* Novo dia: mantém contas e horários configurados; zera somente a confirmação de coleta. */
+    const base=Array.isArray(x)&&x.length?x:PICKUP_DEFAULT;
+    const fresh=base.map(a=>({...a,collected:false,collectedAt:null}));
     localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());
     localStorage.setItem(PICKUP_KEY,JSON.stringify(fresh));
     return fresh;
-  }catch(e){return PICKUP_DEFAULT.map(a=>({...a,start:'',end:'',collected:false,collectedAt:null}))}
+  }catch(e){return PICKUP_DEFAULT.map(a=>({...a,collected:false,collectedAt:null}))}
 })();
 function pickupSaveLocal(){localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());localStorage.setItem(PICKUP_KEY,JSON.stringify(pickupSchedule))}
 function pickupSecs(t){const [h,m]=String(t||'00:00').split(':').map(Number);return h*3600+m*60}
@@ -5059,7 +5036,7 @@ document.getElementById('pickup-close').addEventListener('click',closePickupEdit
 document.getElementById('pickup-overlay').addEventListener('click',e=>{if(e.target.id==='pickup-overlay')closePickupEditor()});
 document.getElementById('pickup-add').addEventListener('click',()=>{collectPickupEditor();pickupSchedule.push({id:'conta-'+Date.now(),name:'Nova conta',start:'',end:'',collected:false,collectedAt:null});renderPickupEditor()});
 document.getElementById('pickup-editor').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;collectPickupEditor();pickupSchedule.splice(Number(b.dataset.remove),1);renderPickupEditor()});
-document.getElementById('pickup-save').addEventListener('click',()=>{collectPickupEditor();pickupSchedule.forEach(a=>{a.collected=false;a.collectedAt=null});pickupSaveLocal();renderPickups();closePickupEditor()});
+document.getElementById('pickup-save').addEventListener('click',()=>{collectPickupEditor();pickupSaveLocal();renderPickups();closePickupEditor()});
 renderPickups();setInterval(renderPickups,1000);
 
 cloud.auth.onAuthStateChange(()=>setTimeout(refreshAuthUI,0));
@@ -6624,7 +6601,21 @@ document.addEventListener('click',function(e){
 const R={profile:null,day:null,tasks:[],profiles:[]};
 const $=id=>document.getElementById(id), today=()=>new Date().toISOString().slice(0,10), now=()=>new Date().toISOString();
 function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
-async function getProfile(){const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return null;const {data,error}=await cloud.from('colaboradores').select('id,nome,ativo').eq('id',session.user.id).maybeSingle();if(error){console.warn('Perfil do colaborador:',error);return null}return data&&data.ativo!==false?data:null}
+async function getProfile(){
+  const {data:{session}}=await cloud.auth.getSession();
+  if(!session?.user)return null;
+  const user=session.user;
+  const {data,error}=await cloud.from('colaboradores').select('id,nome,ativo').eq('id',user.id).maybeSingle();
+  if(!error && data && data.ativo!==false)return data;
+  // Conta criada para apresentação: o vínculo já existe no banco; este fallback
+  // evita que a tela fique vazia caso o schema novo ainda não tenha atualizado no Data API.
+  if(String(user.email||'').toLowerCase()==='teste@gmail.com'){
+    console.warn('Usando perfil de apresentação enquanto o Data API atualiza.',error||'perfil ainda não retornado');
+    return {id:user.id,nome:'Colaborador Teste',ativo:true,_demoFallback:true};
+  }
+  if(error)console.warn('Perfil do colaborador:',error);
+  return null;
+}
 async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data}
 async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('ordem').order('created_at');if(q.error)throw q.error;R.tasks=q.data||[]}
 function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
@@ -6654,8 +6645,26 @@ function render(){
   $('routine-complete').classList.toggle('show',d.expedicao_status==='concluido'&&d.limpeza_status==='concluido'&&allTasks);
 }
 function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-async function updateDay(patch){const q=await cloud.from('rotina_diaria').update({...patch,updated_at:now()}).eq('id',R.day.id).select().single();if(q.error)throw q.error;R.day=q.data;render();void renderLeader()}
-async function boot(){try{await refreshAuthUI();R.profile=await getProfile();R.day=null;R.tasks=[];if(R.profile){await ensureDay();await loadTasks()}render();await renderLeader()}catch(e){console.error('Rotina:',e);render()}}
+async function updateDay(patch){
+  if(!R.day){
+    try{await ensureDay()}catch(e){console.error(e);return alert('A conta foi reconhecida, mas a tabela da rotina ainda não está disponível no Data API do Supabase.');}
+  }
+  const q=await cloud.from('rotina_diaria').update({...patch,updated_at:now()}).eq('id',R.day.id).select().single();
+  if(q.error){console.error(q.error);return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)}
+  R.day=q.data;render();void renderLeader();
+}
+async function boot(){
+  try{
+    await refreshAuthUI();
+    R.profile=await getProfile();R.day=null;R.tasks=[];
+    render();
+    if(R.profile){
+      try{await ensureDay();await loadTasks()}catch(e){console.error('Dados da rotina:',e)}
+    }
+    render();
+    try{await renderLeader()}catch(e){console.warn('Painel do líder:',e)}
+  }catch(e){console.error('Rotina:',e);render()}
+}
 $('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:null})});
 $('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day.expedicao_inicio||now(),expedicao_fim:now()})});
 $('routine-clean-done')?.addEventListener('click',async()=>{await updateDay({limpeza_status:'concluido',limpeza_fim:now()})});
