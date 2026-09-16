@@ -6713,7 +6713,7 @@ function render(){
 <script id="rotina-contas-v13-script">
 (()=>{
 const R={profile:null,day:null,tasks:[],profiles:[]};
-const $=id=>document.getElementById(id), today=()=>new Date().toISOString().slice(0,10), now=()=>new Date().toISOString();
+const $=id=>document.getElementById(id), today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}, now=()=>new Date().toISOString();
 function fmtTime(v){if(!v)return '';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
 function elapsed(start,end){if(!start)return 0;const a=new Date(start).getTime(),b=end?new Date(end).getTime():Date.now();return Math.max(0,b-a)}
 function clock(ms){const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor((t%3600)/60),sec=t%60;return [h,m,sec].map(x=>String(x).padStart(2,'0')).join(':')}
@@ -6737,7 +6737,7 @@ async function getProfile(){
   return null;
 }
 async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data}
-async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('ordem').order('created_at');if(q.error)throw q.error;R.tasks=q.data||[]}
+async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('created_at',{ascending:true});if(q.error){console.error('Falha ao carregar tarefas do líder:',q.error);throw q.error}R.tasks=q.data||[]}
 function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
 function render(){
   const connected=!!currentUser;
@@ -6789,6 +6789,15 @@ async function updateDay(patch){
   if(q.error){console.error(q.error);return alert('Não foi possível salvar a rotina no Supabase: '+q.error.message)}
   R.day=q.data;render();void renderLeader();
 }
+async function refreshRoutineFromCloud(){
+  if(!R.profile)return;
+  try{
+    const d=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();
+    if(!d.error && d.data)R.day=d.data;
+    await loadTasks();
+    render();
+  }catch(e){console.warn('Atualização da rotina:',e)}
+}
 async function boot(){
   try{
     await refreshAuthUI();
@@ -6831,7 +6840,13 @@ try{
 }catch(e){console.warn('Realtime da rotina:',e)}
 window.addEventListener('mimar:system-login',()=>setTimeout(boot,100));
 window.addEventListener('mimar:system-logout',()=>{R.profile=null;R.day=null;R.tasks=[];setTimeout(boot,100)});
-cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));setTimeout(boot,700);setInterval(refreshTimers,1000);setInterval(()=>{if(!document.hidden&&R.profile){loadTasks().then(render).catch(()=>{});if(isAdmin)renderLeader().catch(()=>{})}},30000);
+cloud.auth.onAuthStateChange(()=>setTimeout(boot,300));
+setTimeout(boot,700);
+setInterval(refreshTimers,1000);
+setInterval(()=>{if(!document.hidden&&R.profile){refreshRoutineFromCloud();if(isAdmin)renderLeader().catch(()=>{})}},10000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshRoutineFromCloud();refreshTimers();}});
+window.addEventListener('focus',()=>{refreshRoutineFromCloud();refreshTimers();});
+window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();refreshTimers();});
 })();
 </script>
 </body>
