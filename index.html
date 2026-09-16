@@ -2915,6 +2915,30 @@ body.admin-mode button.admin-only-action{display:inline-flex}
 
 .production-remove-btn{border:1px solid #d9dde3;background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto}
 .production-remove-btn:hover{background:#fff2f0;border-color:#e2a39a}
+
+/* ===== FOLHA DE CONTAGEM DE ESTOQUE · A4 VERTICAL / 2 COLUNAS ===== */
+.stock-print-sheet{display:none}
+@media print{
+  @page{size:A4 portrait;margin:5mm}
+  body *{visibility:hidden!important}
+  #stock-print-sheet,#stock-print-sheet *{visibility:visible!important}
+  #stock-print-sheet{display:block!important;position:absolute;left:0;top:0;width:100%;background:#fff;color:#111;font-family:Arial,sans-serif}
+  .stock-print-head{border-bottom:2px solid #222;padding-bottom:4px;margin-bottom:5px}
+  .stock-print-title{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+  .stock-print-head h1{font-size:14px;margin:0}.stock-print-head p{font-size:7.5px;margin:2px 0 0;color:#555}
+  .stock-print-meta{display:grid;grid-template-columns:1.25fr .75fr;gap:5px;margin:5px 0 6px;font-size:8px}
+  .stock-print-meta div{border:1px solid #666;padding:4px 6px;min-height:22px}
+  .stock-print-columns{display:grid;grid-template-columns:1fr 1fr;gap:3mm;align-items:start}
+  .stock-print-column{min-width:0}
+  .stock-print-table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .stock-print-table th,.stock-print-table td{border:1px solid #555;padding:1.5px 2.5px;font-size:6.7px;height:12.7px;line-height:1.02}
+  .stock-print-table th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;text-align:center;height:15px}
+  .stock-print-table th:first-child,.stock-print-table td:first-child{text-align:left;width:68%}
+  .stock-print-table th:nth-child(2),.stock-print-table td:nth-child(2){width:14%;text-align:center}
+  .stock-print-table th:nth-child(3),.stock-print-table td:nth-child(3){width:18%;text-align:center}
+  .stock-print-num{display:inline-block;width:13px;text-align:right!important;margin-right:2px;color:#555}
+  .stock-print-footer{margin-top:4px;font-size:6.8px;color:#666;display:flex;justify-content:space-between}
+}
 </style>
 
 <style id="mimar-pattern-refresh">
@@ -3931,12 +3955,14 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <span>Use o modo de alteração para atualizar produtos e quantidades.</span>
     </div>
     <button class="btn btn-orange stock-edit-compact" id="stock-edit-toggle" type="button">✎ Alterar estoque</button>
+    <button class="btn btn-dark stock-edit-compact" id="stock-print-count" type="button">▤ Imprimir contagem</button>
   </div>
   <div class="stock-toolbar">
     <div class="stock-search"><input id="stock-search" type="search" placeholder="Pesquisar produto..."></div>
     <select id="stock-filter" class="history-select"><option value="todos">Todos</option><option value="emergencia">Somente emergência</option><option value="atencao">Somente atenção</option><option value="normal">Somente normal</option></select>
   </div>
   <div class="stock-table-wrap stock-readonly-table"><table class="stock-table"><thead id="stock-table-head"><tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th></tr></thead><tbody id="stock-table-body"><tr><td colspan="5" class="stock-empty">Carregando estoque...</td></tr></tbody></table></div>
+  <div id="stock-print-sheet" class="stock-print-sheet" aria-hidden="true"></div>
 </section>
 
 <div class="bucket-modal-backdrop" id="bucketModalBackdrop" aria-hidden="true">
@@ -4850,6 +4876,39 @@ document.getElementById('stock-table-body').addEventListener('change',e=>{
   const tr=field.closest('tr[data-stock-id]');
   void mimarAutoSaveStockRow(tr);
 });
+
+// Impressão da contagem semanal: mantém exatamente a ordem atual recebida do estoque no site.
+function mimarPrintStockCount(){
+  const sheet=document.getElementById('stock-print-sheet');
+  if(!sheet)return;
+  if(!Array.isArray(stockRecords)||!stockRecords.length){alert('O estoque ainda não foi carregado. Aguarde a sincronização e tente novamente.');return}
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const now=new Date();
+  const date=now.toLocaleDateString('pt-BR');
+  const time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const qty=r=>Number(r.quantidade??r.qty??0).toLocaleString('pt-BR');
+  // Divide sequencialmente em duas metades: esquerda primeiro, direita continua a ordem do site.
+  const half=Math.ceil(stockRecords.length/2);
+  const makeRows=(items,offset)=>items.map((r,i)=>`<tr><td><span class="stock-print-num">${offset+i+1}.</span> ${esc(r.produto)}</td><td>${qty(r)}</td><td></td></tr>`).join('');
+  const leftRows=makeRows(stockRecords.slice(0,half),0);
+  const rightRows=makeRows(stockRecords.slice(half),half);
+  const table=rows=>`<table class="stock-print-table"><thead><tr><th>PRODUTO</th><th>SIST.</th><th>CONTAGEM</th></tr></thead><tbody>${rows}</tbody></table>`;
+  sheet.innerHTML=`
+    <div class="stock-print-head">
+      <div class="stock-print-title"><div><h1>Mimar · Contagem de Estoque</h1><p>Conferência física do estoque — comparar com a quantidade atual do sistema.</p></div><div style="font-size:7.5px;text-align:right"><b>Impresso:</b> ${date} · ${time}</div></div>
+    </div>
+    <div class="stock-print-meta">
+      <div><b>COLABORADOR:</b> ____________________________________________________</div>
+      <div><b>DATA:</b> ____ / ____ / ______</div>
+    </div>
+    <div class="stock-print-columns">
+      <div class="stock-print-column">${table(leftRows)}</div>
+      <div class="stock-print-column">${table(rightRows)}</div>
+    </div>
+    <div class="stock-print-footer"><span>Total de produtos: ${stockRecords.length}</span><span>Qtd. Sistema = quantidade registrada no momento da impressão.</span></div>`;
+  window.print();
+}
+document.getElementById('stock-print-count')?.addEventListener('click',mimarPrintStockCount);
 
 document.getElementById('admin-login-btn').addEventListener('click',async()=>{if(isAdmin){if(confirm('Deseja sair do modo administrador?')){await cloud.auth.signOut();await refreshAuthUI()}return}openAuth()});
 document.getElementById('auth-cancel').addEventListener('click',closeAuth);
