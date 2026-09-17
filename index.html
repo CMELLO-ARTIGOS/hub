@@ -3927,7 +3927,8 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <input type="hidden" id="full-launch-id">
       <label class="wide"><span>Colaborador</span><select id="full-launch-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
       <label class="wide"><span>Quantidade produzida</span><input id="full-launch-qty" required type="number" min="1" placeholder="Ex.: 120"></label>
-      <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
+      <label class="wide"><span>Data da produção</span><input id="full-launch-date" required type="date"></label>
+      <div class="employee-launch-hint wide">Escolha o dia em que a produção foi realmente feita. O horário do lançamento é registrado automaticamente.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="full-launch-modal" type="button">Cancelar</button><button class="btn btn-green" type="submit">Registrar produção</button></div>
     </form>
   </div>
@@ -3995,7 +3996,8 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <label><span>Colaborador</span><select id="stockprod-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
       <label><span>Quantidade</span><input id="stockprod-qty" required type="number" min="1" placeholder="Ex.: 100"></label>
       <label class="wide"><span>Produto</span><input id="stockprod-product" list="stockprod-products-list" required placeholder="Digite ou selecione o produto"><datalist id="stockprod-products-list"></datalist></label>
-      <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
+      <label class="wide"><span>Data da produção</span><input id="stockprod-date" required type="date"></label>
+      <div class="employee-launch-hint wide">Escolha o dia em que a produção foi realmente feita. O horário do lançamento é registrado automaticamente.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="stockprod-modal" type="button">Cancelar</button><button class="btn btn-orange" type="submit">Registrar produção</button></div>
     </form>
   </div>
@@ -4332,6 +4334,16 @@ function mimarStockIsBeingEdited(){
   return activeStock && (stockEditMode || editingField);
 }
 function mimarSafeReload(){
+  // A tela de Produção trabalha com atualização em memória/Supabase.
+  // Nunca faça location.reload() enquanto ela estiver ativa: isso evita
+  // o salto para a Visão Geral após registrar FULL ou Estoque.
+  const productionPage=document.getElementById('producao-controle');
+  const productionActive=!!productionPage?.classList.contains('active');
+  const productionModalOpen=!!document.querySelector('#full-launch-modal.show, #stockprod-modal.show');
+  if(window.mimarProductionSaving || productionModalOpen || productionActive){
+    _mimarDeferredCloudReload=true;
+    return false;
+  }
   if(mimarStockIsBeingEdited()){
     _mimarDeferredCloudReload=true;
     return false;
@@ -6072,6 +6084,7 @@ const PRODUCTION_TEST_MODE=false;
       document.getElementById('full-launch-product-label').textContent=`${p.name} · Meta ${fmt(p.target)}`;
       document.getElementById('full-launch-person').value='';
       document.getElementById('full-launch-qty').value='';
+      document.getElementById('full-launch-date').value=todayISO();
       openModal('full-launch-modal');
     }
     const editProduct=e.target.closest('[data-full-edit-product]');
@@ -6109,6 +6122,7 @@ const PRODUCTION_TEST_MODE=false;
   document.getElementById('stockprod-add')?.addEventListener('click',()=>{
     const form=document.getElementById('stockprod-form');
     if(form)form.reset();
+    const dateInput=document.getElementById('stockprod-date');if(dateInput)dateInput.value=todayISO();
     openModal('stockprod-modal');
   });
   document.getElementById('full-search')?.addEventListener('input',renderFull);
@@ -6153,11 +6167,13 @@ const PRODUCTION_TEST_MODE=false;
 
   document.getElementById('full-launch-form')?.addEventListener('submit',async e=>{
     e.preventDefault();
+    e.stopPropagation();
     const p=fullData.find(x=>x.id===document.getElementById('full-launch-id').value);if(!p)return;
     const person=document.getElementById('full-launch-person').value;
     const qty=num(document.getElementById('full-launch-qty').value);
-    const now=new Date(),date=todayISO(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const now=new Date(),date=document.getElementById('full-launch-date')?.value||todayISO(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent='Salvando...'}
+    window.mimarProductionSaving=true;
     try{
       await saveProductionCloud({
         data:date,
@@ -6175,22 +6191,25 @@ const PRODUCTION_TEST_MODE=false;
     }catch(err){
       alert('Não foi possível registrar a produção no banco. '+(err?.message||err));
     }finally{
+      window.mimarProductionSaving=false;
       if(btn){btn.disabled=false;btn.textContent='Registrar produção'}
     }
   });
 
   document.getElementById('stockprod-form')?.addEventListener('submit',async e=>{
     e.preventDefault();
+    e.stopPropagation();
     const now=new Date();
     const item={
       time:now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
       person:document.getElementById('stockprod-person').value,
       product:document.getElementById('stockprod-product').value.trim(),
       qty:num(document.getElementById('stockprod-qty').value),
-      date:todayISO(),
+      date:document.getElementById('stockprod-date')?.value||todayISO(),
       note:''
     };
     const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent='Salvando...'}
+    window.mimarProductionSaving=true;
     try{
       await saveProductionCloud({
         data:item.date,
@@ -6208,6 +6227,7 @@ const PRODUCTION_TEST_MODE=false;
     }catch(err){
       alert('Não foi possível registrar a produção no banco. '+(err?.message||err));
     }finally{
+      window.mimarProductionSaving=false;
       if(btn){btn.disabled=false;btn.textContent='Registrar produção'}
     }
   });
@@ -6607,6 +6627,7 @@ document.addEventListener('click',function(e){
   const modal=document.getElementById('stockprod-modal');
   const form=document.getElementById('stockprod-form');
   if(form)form.reset();
+  const dateInput=document.getElementById('stockprod-date');if(dateInput)dateInput.value=(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(modal){
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
