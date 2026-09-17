@@ -7653,37 +7653,41 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 })();
 </script>
 
-<script id="mimar-extra-card-integration-v1">
+<script id="mimar-extra-card-integration-v2">
 (()=>{
- const escExtra=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
- const isoToday=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ const today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
  async function refreshExtraCard(){
    if(typeof cloud==='undefined')return;
+   const card=document.getElementById('report-card'); if(!card)return;
+   const selected=document.getElementById('history-date')?.value||today();
    try{
-     const cardDate=document.getElementById('history-date')?.value||isoToday();
-     const {data,error}=await cloud.from('outras_atividades').select('colaborador,tipo,quantidade,observacao,data').eq('data',cardDate).order('created_at',{ascending:true});
+     const {data,error}=await cloud.from('outras_atividades').select('id,data,colaborador,tipo,quantidade,observacao,created_at').eq('data',selected).order('created_at',{ascending:true});
      if(error)throw error;
-     const rows=data||[];
      let box=document.getElementById('card-extra-activities');
-     const card=document.getElementById('report-card') || document.getElementById('card-page');
-     if(!card)return;
-     if(!box){
-       box=document.createElement('div');box.id='card-extra-activities';
-       box.style.cssText='margin-top:14px;padding:14px;border:1px solid rgba(0,0,0,.10);border-radius:14px;background:#fff;';
-       card.appendChild(box);
-     }
-     if(!rows.length){box.style.display='none';return}
-     box.style.display='';
+     if(!box){box=document.createElement('section');box.id='card-extra-activities';box.className='card-extra-activities';card.appendChild(box)}
+     const rows=data||[];
+     if(!rows.length){box.remove();return}
      const total=rows.reduce((s,r)=>s+(Number(r.quantidade)||0),0);
-     box.innerHTML=`<div style="font-weight:800;font-size:14px;margin-bottom:8px">Pedidos externos · ${total} pedido(s)</div>`+
-       rows.map(r=>{const detail=String(r.observacao||'').split('\n---OBS---\n')[0]||'';return `<div style="font-size:12px;margin:5px 0"><b>${escExtra(r.colaborador)}</b> · ${Number(r.quantidade)||0} pedido(s) · ${escExtra(detail)}</div>`}).join('');
-   }catch(e){console.error('Card pedidos externos:',e)}
+     box.innerHTML=`<div style="margin-top:14px;padding:14px 16px;border:1px solid #f0d6c8;border-radius:14px;background:#fffaf7">
+       <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:9px">
+         <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;color:#b84f2c">Produção fora do marketplace</div><div style="font-size:17px;font-weight:900;color:#17324a">Pedidos externos</div></div>
+         <div style="text-align:right"><b style="font-size:20px">${total}</b><div style="font-size:10px;color:#667085">pedido(s)</div></div>
+       </div>
+       ${rows.map(r=>{const parts=String(r.observacao||'').split('\n---OBS---\n');const detalhe=parts[0]||'';const obs=parts.slice(1).join(' · ');return `<div style="padding:7px 0;border-top:1px solid #f1e4dc;font-size:12px"><b>${esc(r.colaborador)}</b> · <b>${Number(r.quantidade)||0} pedido(s)</b>${detalhe?` · ${esc(detalhe)}`:''}${obs?` <span style="color:#667085">· ${esc(obs)}</span>`:''}</div>`}).join('')}
+     </div>`;
+   }catch(err){console.error('Pedidos externos no Card:',err)}
  }
  window.refreshExtraCard=refreshExtraCard;
- window.addEventListener('mimar:system-login',()=>setTimeout(refreshExtraCard,500));
- document.getElementById('history-date')?.addEventListener('change',()=>setTimeout(refreshExtraCard,80));
- document.addEventListener('click',e=>{if(e.target.closest('[data-tab="card"],[href="#card-dia"],#nav-card'))setTimeout(refreshExtraCard,250)});
- setTimeout(refreshExtraCard,1400);
+ // Refresh after the existing application updates the report card.
+ const queue=()=>{setTimeout(refreshExtraCard,80);setTimeout(refreshExtraCard,350);setTimeout(refreshExtraCard,900)};
+ document.getElementById('history-date')?.addEventListener('change',queue);
+ document.addEventListener('click',e=>{if(e.target.closest('#btn-generate-card,#btn-update-expedition,[data-tab="card"],[data-page="card-page"]'))queue()});
+ window.addEventListener('mimar:system-login',queue);
+ // Observe report-card redraws; existing code may replace innerHTML after our first render.
+ const card=document.getElementById('report-card');
+ if(card){let busy=false;new MutationObserver(()=>{if(busy)return;busy=true;setTimeout(()=>{busy=false;if(!document.getElementById('card-extra-activities'))refreshExtraCard()},120)}).observe(card,{childList:true,subtree:false})}
+ setTimeout(queue,1200);
 })();
 </script>
 
