@@ -7299,8 +7299,8 @@ function accessSafe(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;'
 function slugUser(v){return String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/\\s+/g,'.').replace(/[^a-z0-9._-]/g,'')}
 function selectedPerms(){return [...document.querySelectorAll('#access-perms input:checked')].map(x=>x.value)}
 function setStatus(t,bad=false){const e=document.getElementById('access-status');if(e){e.textContent=t;e.style.color=bad?'#b42318':'#667085'}}
-async function invokeAccess(body){const {data,error}=await cloud.functions.invoke('manage-users',{body});if(error)throw new Error(error.message||'Falha na função de acessos.');if(data?.error)throw new Error(data.error);return data}
-async function loadAccess(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;setStatus('Atualizando acessos...');try{const data=await invokeAccess({action:'list'});renderAccess(data.users||[]);setStatus(`${(data.users||[]).length} acesso(s) cadastrado(s).`)}catch(e){setStatus('A gestão de acessos ainda precisa da Edge Function manage-users no Supabase: '+e.message,true)}}
+async function invokeAccess(body){const {data:{session}}=await cloud.auth.getSession();if(!session?.access_token)throw new Error('Sessão expirada. Entre novamente no sistema.');const {data,error}=await cloud.functions.invoke('manage-users',{body,headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw new Error(error.message||'Falha na função de acessos.');if(data?.error)throw new Error(data.error);return data}
+async function loadAccess(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const body=document.getElementById('access-body');setStatus('Atualizando acessos...');try{const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('Tempo excedido ao carregar acessos.')),12000));const data=await Promise.race([invokeAccess({action:'list'}),timeout]);renderAccess(data.users||[]);setStatus(`${(data.users||[]).length} acesso(s) cadastrado(s).`)}catch(e){if(body)body.innerHTML=`<tr><td colspan="6" style="padding:18px;color:#b42318"><b>Não foi possível carregar os acessos.</b><br>${String(e?.message||e)}</td></tr>`;setStatus('Falha ao carregar acessos: '+(e?.message||e),true)}}
 function renderAccess(users){const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions"><button data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button data-access-act="permissions">Permissões</button><button data-access-act="reset">Nova senha</button><button data-access-act="delete" class="access-delete-btn">Remover</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}
 async function createOne(name,user,password,role,permissions){return invokeAccess({action:'create',nome:name,usuario:user,senha:password,perfil:role,permissoes:permissions})}
 const MIMAR_INITIAL_TEAM=[
@@ -7665,7 +7665,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
      const {data,error}=await cloud.from('outras_atividades').select('id,data,colaborador,tipo,quantidade,observacao,created_at').eq('data',selected).order('created_at',{ascending:true});
      if(error)throw error;
      let box=document.getElementById('card-extra-activities');
-     if(!box){box=document.createElement('section');box.id='card-extra-activities';box.className='card-extra-activities';card.appendChild(box)}
+     if(!box){box=document.createElement('section');box.id='card-extra-activities';box.className='card-extra-activities';const footer=card.querySelector('.card-footer,.report-footer,[data-card-footer]');if(footer)card.insertBefore(box,footer);else card.appendChild(box)}
      const rows=data||[];
      if(!rows.length){box.remove();return}
      const total=rows.reduce((s,r)=>s+(Number(r.quantidade)||0),0);
@@ -7683,6 +7683,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
  const queue=()=>{setTimeout(refreshExtraCard,80);setTimeout(refreshExtraCard,350);setTimeout(refreshExtraCard,900)};
  document.getElementById('history-date')?.addEventListener('change',queue);
  document.addEventListener('click',e=>{if(e.target.closest('#btn-generate-card,#btn-update-expedition,[data-tab="card"],[data-page="card-page"]'))queue()});
+ document.addEventListener('pointerdown',e=>{if(e.target.closest('#btn-generate-card,#btn-download-card,#download-card,[data-action="download-card"],[data-action="generate-card"]'))refreshExtraCard()},true);
  window.addEventListener('mimar:system-login',queue);
  // Observe report-card redraws; existing code may replace innerHTML after our first render.
  const card=document.getElementById('report-card');
