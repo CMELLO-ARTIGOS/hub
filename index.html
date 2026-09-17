@@ -3335,6 +3335,211 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 @media(max-width:480px){.bucket-grid{grid-template-columns:1fr!important}.bucket-note{max-height:none!important;-webkit-line-clamp:3!important}}
 </style>
 
+
+<style id="mimar-access-v1">
+.access-card{margin-top:18px;padding:22px;border:1px solid #e6e9ee;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.access-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}.access-head h2{margin:2px 0 5px}.access-head p{margin:0;color:#667085}
+.access-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr auto;gap:10px;align-items:end}.access-grid label{font-size:12px;font-weight:800;color:#475467}.access-grid input,.access-grid select{width:100%;margin-top:5px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:10px;background:#fff}
+.access-perms{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.access-perms label{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700}
+.access-table-wrap{overflow:auto;margin-top:16px}.access-table{width:100%;border-collapse:collapse}.access-table th,.access-table td{padding:11px 9px;border-bottom:1px solid #eef0f3;text-align:left;font-size:13px}.access-table th{font-size:11px;text-transform:uppercase;color:#667085}.access-badge{display:inline-flex;padding:4px 8px;border-radius:999px;background:#fff3e8;color:#a44d00;font-weight:800;font-size:11px}.access-badge.leader{background:#eef4ff;color:#3157a5}.access-badge.admin{background:#ecfdf3;color:#027a48}
+.access-actions{display:flex;gap:6px;flex-wrap:wrap}.access-actions button{border:0;border-radius:8px;padding:7px 9px;font-weight:800;cursor:pointer}.access-status{font-size:12px;margin-top:10px;color:#667085}.access-bulk{display:flex;gap:8px;flex-wrap:wrap}.access-bulk textarea{width:100%;min-height:90px;border:1px solid #d0d5dd;border-radius:10px;padding:10px;margin-top:8px}
+@media(max-width:900px){.access-grid{grid-template-columns:1fr 1fr}.access-grid .wide-mobile{grid-column:1/-1}}
+</style>
+
+<style id="mimar-gestao-clean-v2">
+/* Gestão 17/09/2026 · foco em equipe e acessos */
+body:has(#gestao.active) #pickup-strip{display:none!important}
+#gestao.active{padding-top:4px}
+#gestao .page-heading{margin-bottom:18px}
+#gestao #access-management{margin:0 0 22px;padding:0;background:transparent;border:0;box-shadow:none}
+#gestao #access-management .access-head{background:#fff;border:1px solid #e8e2dc;border-radius:16px;padding:20px 22px;margin-bottom:12px;align-items:center}
+#gestao #access-management .access-head h2{font-size:22px;margin:3px 0 5px;color:#20262d}
+#gestao #access-management .access-head p{margin:0;color:#737b82;font-size:13px}
+#gestao #access-management .access-grid{background:#fff;border:1px solid #e8e2dc;border-radius:16px;padding:18px;display:grid;grid-template-columns:1.2fr 1fr 1fr .8fr auto;gap:12px;align-items:end}
+#gestao #access-management .access-grid label{font-size:11px;font-weight:800;color:#626b73;letter-spacing:.02em}
+#gestao #access-management .access-grid input,#gestao #access-management .access-grid select{margin-top:7px;width:100%;min-height:42px;border:1px solid #ddd6cf;border-radius:10px;background:#fff;padding:0 11px;font:600 13px Inter;color:#27313b;outline:none}
+#gestao #access-management .access-grid input:focus,#gestao #access-management .access-grid select:focus{border-color:#d96d57;box-shadow:0 0 0 3px rgba(217,109,87,.10)}
+#gestao #access-management .access-perms{margin:12px 0;background:#fff;border:1px solid #e8e2dc;border-radius:14px;padding:13px 16px;display:flex;gap:9px 18px;flex-wrap:wrap}
+#gestao #access-management .access-perms:before{content:'Permissões';width:100%;font-size:11px;font-weight:900;color:#626b73;text-transform:uppercase;letter-spacing:.06em}
+#gestao #access-management .access-perms label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#4d565e}
+#gestao #access-management details{background:#fff;border:1px solid #e8e2dc;border-radius:14px;padding:13px 16px;margin:0 0 12px}
+#gestao #access-management details summary{cursor:pointer;color:#343c43;font-size:12px}
+#gestao #access-management .access-status{min-height:20px;margin:7px 2px 10px;font-size:12px;font-weight:700}
+#gestao #access-management .access-table-wrap{background:#fff;border:1px solid #e8e2dc;border-radius:16px;overflow:auto}
+#gestao #access-management .access-table{width:100%;border-collapse:collapse}
+#gestao #access-management .access-table th{background:#f8f6f3;color:#68717a;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:12px 14px;text-align:left;border-bottom:1px solid #e8e2dc;white-space:nowrap}
+#gestao #access-management .access-table td{padding:14px;border-bottom:1px solid #f0ece8;font-size:12px;color:#48515a;vertical-align:middle}
+#gestao #access-management .access-table tr:last-child td{border-bottom:0}
+#gestao #access-management .access-table td:first-child b{font-size:13px;color:#252d34}
+#gestao #access-management .access-actions{display:flex;gap:6px;flex-wrap:wrap}
+#gestao #access-management .access-actions button{border:1px solid #ddd6cf;background:#fff;border-radius:8px;padding:7px 9px;font:700 10px Inter;color:#525c64;cursor:pointer}
+#gestao #access-management .access-actions button:hover{background:#f7f4f1}
+#gestao #access-management .access-badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;background:#f0f2f3;color:#56616a;font-size:10px;font-weight:800;text-transform:capitalize}
+#gestao #access-management .access-badge.leader{background:#fff3df;color:#9a6518}
+#gestao #access-management .access-badge.admin{background:#f2ece8;color:#704d3e}
+#gestao .management-imports{margin-top:8px}
+@media(max-width:1100px){#gestao #access-management .access-grid{grid-template-columns:1fr 1fr}#gestao #access-management .access-grid .wide-mobile{grid-column:1/-1}}
+@media(max-width:650px){#gestao #access-management .access-grid{grid-template-columns:1fr}#gestao #access-management .access-head{align-items:flex-start;gap:12px;flex-direction:column}#gestao #access-management .access-head .btn{width:100%}}
+</style>
+
+<style id="mimar-gestao-access-v3">
+#gestao #access-management{background:#fff!important;border:1px solid #e6e8eb!important;border-radius:16px!important;padding:0!important;overflow:hidden!important;box-shadow:0 8px 24px rgba(16,24,40,.05)!important}
+#gestao #access-management .access-head{border:0!important;border-radius:0!important;margin:0!important;padding:22px 24px 18px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:20px!important;background:#fff!important}
+#gestao #access-management .access-head h2{font-size:22px!important;margin:3px 0 4px!important}.access-head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.access-head-actions input{width:230px;height:42px;border:1px solid #d8dde3;border-radius:10px;padding:0 13px;font:500 13px Inter;background:#fff}.access-head-actions .btn{height:42px;white-space:nowrap}
+#gestao #access-management .access-table-wrap{margin:0 14px!important;border:1px solid #e7e9ec!important;border-radius:12px!important;overflow-x:auto!important}.access-table{min-width:820px}.access-table th{padding:13px 15px!important;background:#f7f8f9!important;font-size:11px!important}.access-table td{padding:14px 15px!important;font-size:13px!important}.access-table th:nth-child(1){width:20%}.access-table th:nth-child(2){width:15%}.access-table th:nth-child(3){width:14%}.access-table th:nth-child(4){width:11%}.access-table th:nth-child(5){width:24%}.access-table th:nth-child(6){width:16%}
+#gestao #access-management .access-status{margin:0 24px 10px!important;min-height:0!important}.access-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;color:#667085;font-size:12px}.access-legend{display:flex;align-items:center;gap:7px}.access-legend i{width:9px;height:9px;border-radius:50%;background:#12a150}
+.access-modal[hidden]{display:none!important}.access-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px}.access-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.42);backdrop-filter:blur(2px)}.access-modal-dialog{position:relative;width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(15,23,42,.22);padding:24px}.access-modal-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;padding-bottom:18px;border-bottom:1px solid #eceff2}.access-modal-head h3{font-size:22px;margin:3px 0 4px}.access-modal-head p{margin:0;color:#667085;font-size:13px}.access-modal-close{width:38px;height:38px;border:1px solid #e1e5e9;background:#fff;border-radius:10px;font-size:24px;line-height:1;cursor:pointer;color:#475467}.access-modal .access-grid{border:0!important;padding:20px 0 4px!important;grid-template-columns:1fr 1fr!important}.access-modal .access-perms{border:1px solid #e7e9ec!important;margin:14px 0 0!important;padding:15px!important}.access-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:20px;margin-top:18px;border-top:1px solid #eceff2}
+@media(max-width:760px){#gestao #access-management .access-head{align-items:flex-start!important;flex-direction:column!important}.access-head-actions{width:100%}.access-head-actions input{width:100%;flex:1 1 100%}.access-head-actions .btn{flex:1}.access-modal .access-grid{grid-template-columns:1fr!important}.access-modal-dialog{padding:18px}.access-modal-actions .btn{flex:1}}
+</style>
+
+<style id="gestao-responsive-no-horizontal-scroll">
+/* GESTÃO 3.1 · RESPONSIVA · SEM ROLAGEM HORIZONTAL */
+html,body{max-width:100%;overflow-x:hidden!important}
+#gestao{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important}
+#gestao *{box-sizing:border-box;min-width:0}
+#gestao .gestao-tabs{width:100%!important;max-width:100%!important}
+#gestao #access-management{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+#gestao #access-management .access-head{display:grid!important;grid-template-columns:minmax(280px,1fr) auto!important;align-items:center!important;gap:18px!important;width:100%!important}
+#gestao #access-management .access-head-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:10px!important;max-width:100%!important}
+#gestao #access-management .access-head-actions input{width:min(260px,100%)!important;max-width:100%!important;flex:1 1 220px!important}
+#gestao #access-management .access-head-actions .btn{white-space:nowrap!important;flex:0 0 auto!important}
+#gestao #access-management .access-table-wrap{width:calc(100% - 28px)!important;max-width:calc(100% - 28px)!important;overflow:hidden!important}
+#gestao #access-management .access-table{width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important}
+#gestao #access-management .access-table th,#gestao #access-management .access-table td{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;padding:12px 12px!important}
+#gestao #access-management .access-table th:nth-child(1){width:20%}
+#gestao #access-management .access-table th:nth-child(2){width:17%}
+#gestao #access-management .access-table th:nth-child(3){width:15%}
+#gestao #access-management .access-table th:nth-child(4){width:13%}
+#gestao #access-management .access-table th:nth-child(5){width:22%}
+#gestao #access-management .access-table th:nth-child(6){width:13%}
+#gestao #access-management .access-table td:last-child{white-space:normal!important}
+#gestao #access-management .access-footer{display:flex!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important}
+@media(max-width:1180px){
+ #gestao #access-management .access-head{grid-template-columns:1fr!important}
+ #gestao #access-management .access-head-actions{justify-content:flex-start!important;width:100%!important}
+ #gestao #access-management .access-head-actions input{flex:1 1 280px!important}
+ #gestao #access-management .access-table th:nth-child(5),#gestao #access-management .access-table td:nth-child(5){display:none!important}
+ #gestao #access-management .access-table th:nth-child(1){width:25%}
+ #gestao #access-management .access-table th:nth-child(2){width:22%}
+ #gestao #access-management .access-table th:nth-child(3){width:18%}
+ #gestao #access-management .access-table th:nth-child(4){width:15%}
+ #gestao #access-management .access-table th:nth-child(6){width:20%}
+}
+@media(max-width:760px){
+ #gestao{padding-left:0!important;padding-right:0!important}
+ #gestao #access-management .access-head{padding:18px!important}
+ #gestao #access-management .access-head-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
+ #gestao #access-management .access-head-actions input{grid-column:1/-1;width:100%!important}
+ #gestao #access-management .access-head-actions .btn{width:100%!important;padding:0 10px!important}
+ #gestao #access-management .access-table th:nth-child(2),#gestao #access-management .access-table td:nth-child(2){display:none!important}
+ #gestao #access-management .access-table th:nth-child(1){width:34%}
+ #gestao #access-management .access-table th:nth-child(3){width:24%}
+ #gestao #access-management .access-table th:nth-child(4){width:18%}
+ #gestao #access-management .access-table th:nth-child(6){width:24%}
+ #gestao #access-management .access-table th,#gestao #access-management .access-table td{padding:10px 8px!important;font-size:11px!important}
+}
+</style>
+
+<style id="mimar-gestao-layout-final-1709">
+/* GESTÃO FINAL — layout aprovado, sem rolagem horizontal */
+html,body{max-width:100%;overflow-x:hidden!important}
+body:has(#gestao.active){padding-right:0!important}
+body:has(#gestao.active) .wrap{max-width:none!important;width:auto!important;margin-right:0!important}
+body:has(#gestao.active) .pickup-strip{display:none!important}
+#gestao{width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important;box-sizing:border-box!important}
+#gestao .page-heading{margin-bottom:18px!important}
+#gestao .page-heading h1{font-size:38px!important;line-height:1.05!important;margin:3px 0 5px!important}
+#gestao .page-heading p{font-size:14px!important;color:#667085!important}
+#gestao .gestao-tabs{display:flex!important;align-items:stretch!important;width:100%!important;max-width:100%!important;margin:0 0 20px!important;padding:0 10px!important;background:#fff!important;border:1px solid #e7e8ec!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(16,24,40,.035)!important;overflow:hidden!important}
+#gestao .gestao-tab{flex:0 1 auto!important;min-width:0!important;padding:16px 20px!important;border:0!important;border-right:1px solid #eceef1!important;background:#fff!important;color:#27364a!important;font-size:13px!important;font-weight:800!important;white-space:nowrap!important;border-radius:0!important}
+#gestao .gestao-tab:last-child{border-right:0!important}
+#gestao .gestao-tab.active{color:#e85f3f!important;background:#fff4ed!important;box-shadow:inset 0 -2px #f06445!important}
+#gestao .gestao-panel{width:100%!important;max-width:100%!important;min-width:0!important}
+#gestao #access-management{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;margin:0!important;padding:0 0 14px!important;background:#fff!important;border:1px solid #e4e7ec!important;border-radius:16px!important;box-shadow:0 8px 28px rgba(16,24,40,.045)!important;overflow:hidden!important}
+#gestao #access-management .access-head{display:grid!important;grid-template-columns:minmax(250px,1fr) minmax(460px,auto)!important;align-items:center!important;gap:22px!important;width:100%!important;box-sizing:border-box!important;padding:20px 24px!important;background:#fff!important}
+#gestao #access-management .access-head>div:first-child{position:relative!important;min-width:0!important;min-height:54px!important;padding:0 0 0 66px!important}
+#gestao #access-management .access-head>div:first-child:before{content:'👥';position:absolute!important;left:0!important;top:1px!important;width:52px!important;height:52px!important;display:grid!important;place-items:center!important;border-radius:12px!important;background:#fff1e8!important;font-size:25px!important}
+#gestao #access-management .mgmt-eyebrow{display:none!important}
+#gestao #access-management h2{margin:0 0 4px!important;font-size:22px!important;line-height:1.15!important;color:#172033!important}
+#gestao #access-management .access-head p{margin:0!important;font-size:12px!important;line-height:1.4!important;color:#667085!important}
+#gestao .access-head-actions{display:grid!important;grid-template-columns:minmax(180px,1fr) auto auto!important;align-items:center!important;gap:9px!important;width:100%!important;min-width:0!important}
+#gestao .access-head-actions input{width:100%!important;min-width:0!important;height:42px!important;margin:0!important;border:1px solid #d7dce3!important;border-radius:9px!important;padding:0 13px!important;font-size:12px!important;background:#fff!important}
+#gestao .access-head-actions .btn{height:42px!important;margin:0!important;padding:0 15px!important;border-radius:9px!important;white-space:nowrap!important;font-size:11px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+#gestao #access-open-create{background:#e87560!important;border-color:#e87560!important;min-width:142px!important}
+#gestao #access-refresh{background:#fff!important;color:#344054!important;border:1px solid #d9dde4!important}
+#gestao .access-status{margin:0 24px!important}
+#gestao .access-table-wrap{width:auto!important;max-width:none!important;margin:0 14px!important;border:1px solid #e5e7eb!important;border-radius:10px!important;overflow:hidden!important;background:#fff!important}
+#gestao #access-management .access-table{width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important}
+#gestao .access-table th,#gestao .access-table td{box-sizing:border-box!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;padding:12px 13px!important;text-align:left!important}
+#gestao .access-table th{background:#f8f9fb!important;color:#475467!important;font-size:10px!important;font-weight:800!important}
+#gestao .access-table td{color:#344054!important;font-size:11px!important;border-top:1px solid #eef0f2!important}
+#gestao .access-table th:nth-child(1){width:22%!important}#gestao .access-table th:nth-child(2){width:17%!important}#gestao .access-table th:nth-child(3){width:14%!important}#gestao .access-table th:nth-child(4){width:13%!important}#gestao .access-table th:nth-child(5){width:22%!important}#gestao .access-table th:nth-child(6){width:12%!important}
+#gestao .access-footer{display:flex!important;justify-content:space-between!important;align-items:center!important;padding:13px 20px 0!important;color:#667085!important;font-size:11px!important}
+/* Coletas continuam em todas as abas operacionais; somente Gestão esconde. */
+body:not(:has(#gestao.active)) .pickup-strip{visibility:visible!important}
+@media(max-width:1100px){#gestao #access-management .access-head{grid-template-columns:1fr!important;gap:14px!important}#gestao .access-head-actions{grid-template-columns:minmax(180px,1fr) auto auto!important}}
+@media(max-width:820px){#gestao .gestao-tabs{overflow-x:auto!important;justify-content:flex-start!important}#gestao .gestao-tab{padding:14px 15px!important}#gestao .access-head-actions{grid-template-columns:1fr 1fr!important}#gestao .access-head-actions input{grid-column:1/-1!important}#gestao .access-table th:nth-child(5),#gestao .access-table td:nth-child(5){display:none!important}#gestao .access-table th:nth-child(1){width:28%!important}#gestao .access-table th:nth-child(2){width:23%!important}#gestao .access-table th:nth-child(3){width:18%!important}#gestao .access-table th:nth-child(4){width:16%!important}#gestao .access-table th:nth-child(6){width:15%!important}}
+@media(max-width:580px){#gestao #access-management .access-head{padding:17px!important}#gestao .access-head-actions{grid-template-columns:1fr!important}#gestao .access-head-actions input{grid-column:auto!important}#gestao .access-table th:nth-child(2),#gestao .access-table td:nth-child(2),#gestao .access-table th:nth-child(3),#gestao .access-table td:nth-child(3){display:none!important}#gestao .access-table th:nth-child(1){width:42%!important}#gestao .access-table th:nth-child(4){width:26%!important}#gestao .access-table th:nth-child(6){width:32%!important}}
+</style>
+
+
+<style id="mimar-pickup-layout-fix-1709">
+/* FIX: Coletas compactas no topo das abas operacionais; nunca alteram a largura da página. */
+@media (min-width:1281px){
+  body{padding-right:0!important;}
+  .wrap{max-width:none!important;}
+}
+body:not(:has(#gestao.active)) .pickup-strip{
+  position:sticky!important;top:0!important;right:auto!important;bottom:auto!important;left:auto!important;
+  width:100%!important;max-width:100%!important;height:auto!important;
+  margin:0 0 18px!important;padding:12px 14px!important;overflow:visible!important;
+  display:block!important;border-radius:16px!important;box-sizing:border-box!important;
+}
+body:not(:has(#gestao.active)) .pickup-head{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
+  margin:0 0 10px!important;padding:0!important;border:0!important;
+}
+body:not(:has(#gestao.active)) .pickup-title{display:flex!important;align-items:center!important;gap:9px!important;}
+body:not(:has(#gestao.active)) .pickup-title strong{font-size:14px!important;}
+body:not(:has(#gestao.active)) .pickup-title span{display:block!important;font-size:10px!important;margin-top:2px!important;}
+body:not(:has(#gestao.active)) .pickup-admin-actions{display:flex!important;flex:0 0 auto!important;gap:7px!important;margin:0!important;}
+body:not(:has(#gestao.active)) .pickup-admin-actions .btn{flex:0 0 auto!important;padding:7px 10px!important;font-size:9px!important;}
+body:not(:has(#gestao.active)) .pickup-row{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;
+  overflow:visible!important;padding:0!important;width:100%!important;
+}
+body:not(:has(#gestao.active)) .pickup-card{
+  min-width:0!important;width:auto!important;min-height:86px!important;padding:10px 11px!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:4px 8px!important;
+  border-radius:12px!important;box-sizing:border-box!important;
+}
+body:not(:has(#gestao.active)) .pickup-account{font-size:11px!important;}
+body:not(:has(#gestao.active)) .pickup-time{font-size:10px!important;}
+body:not(:has(#gestao.active)) .pickup-count{font-size:17px!important;}
+body:not(:has(#gestao.active)) .pickup-note{font-size:8px!important;}
+body:not(:has(#gestao.active)) .pickup-state{font-size:8px!important;padding:3px 6px!important;}
+body:not(:has(#gestao.active)) .pickup-done-btn{
+  grid-column:1/-1!important;grid-row:auto!important;width:100%!important;margin-top:2px!important;
+  padding:6px 7px!important;font-size:8px!important;
+}
+body:not(:has(#gestao.active)) .pickup-strip:after{display:none!important;content:none!important;}
+body:has(#gestao.active) .pickup-strip{display:none!important;}
+@media(max-width:1180px){body:not(:has(#gestao.active)) .pickup-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+@media(max-width:700px){
+ body:not(:has(#gestao.active)) .pickup-head{align-items:flex-start!important;flex-direction:column!important;}
+ body:not(:has(#gestao.active)) .pickup-admin-actions{width:100%!important;}
+ body:not(:has(#gestao.active)) .pickup-admin-actions .btn{flex:1!important;}
+ body:not(:has(#gestao.active)) .pickup-row{grid-template-columns:1fr!important;}
+}
+</style>
+\n<style id="mimar-proporcao-fix-1709">\n/* Ajuste de proporção desktop: conteúdo usa melhor a área útil sem alterar a lógica */\n:root{--mimar-sidebar-w:286px;--mimar-content-max:1480px;--mimar-gap:22px}\nhtml,body{max-width:100%;overflow-x:hidden}\nbody{min-width:0}\n.sidebar{width:var(--mimar-sidebar-w)!important;max-width:var(--mimar-sidebar-w)!important}\n.main,.main-content,.content,.app-main{min-width:0!important}\n/* A área principal deve começar logo após a sidebar e usar quase toda a largura */\nbody .main, body .main-content, body .app-main{margin-left:var(--mimar-sidebar-w)!important;width:calc(100% - var(--mimar-sidebar-w))!important;max-width:none!important}\n/* Containers principais: mesma régua horizontal */\nbody .main > *,body .main-content > *,body .app-main > *,\nbody #pickup-wrap,body .pickup-wrap,body .pickup-section,body .page.active{box-sizing:border-box}\nbody .page.active{width:100%!important;max-width:var(--mimar-content-max)!important;margin-left:auto!important;margin-right:auto!important;padding-left:24px!important;padding-right:24px!important}\n/* Coletas seguem exatamente a largura do conteúdo */\nbody #pickup-wrap,body .pickup-wrap,body .pickup-section{width:calc(100% - 48px)!important;max-width:calc(var(--mimar-content-max) - 48px)!important;margin-left:auto!important;margin-right:auto!important}\n/* reduz o vazio vertical entre coletas e cabeçalho da página */\nbody #pickup-wrap + .page.active,body .pickup-wrap + .page.active,body .pickup-section + .page.active{padding-top:18px!important}\n/* cards de coleta proporcionais */\nbody #pickup-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;width:100%!important}\nbody #pickup-row>*{min-width:0!important;width:auto!important}\n/* títulos e blocos da visão geral não ficam estreitos */\nbody .page.active .section-head,body .page.active .page-head,body .page.active .hero,body .page.active .toolbar,body .page.active .panel,body .page.active .card{max-width:none}\n/* desktop grande */\n@media (min-width:1500px){\n :root{--mimar-sidebar-w:270px;--mimar-content-max:1540px}\n body .page.active{padding-left:28px!important;padding-right:28px!important}\n body #pickup-wrap,body .pickup-wrap,body .pickup-section{width:calc(100% - 56px)!important;max-width:calc(var(--mimar-content-max) - 56px)!important}\n}\n@media (max-width:1250px){\n :root{--mimar-sidebar-w:250px}\n body #pickup-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}\n}\n@media (max-width:900px){\n :root{--mimar-sidebar-w:0px}\n body .main,body .main-content,body .app-main{margin-left:0!important;width:100%!important}\n body .page.active{padding-left:16px!important;padding-right:16px!important}\n body #pickup-wrap,body .pickup-wrap,body .pickup-section{width:calc(100% - 32px)!important}\n body #pickup-row{grid-template-columns:1fr!important}\n}\n</style>\n
+<style id="mimar-remove-page-title-bar-1709">
+/* 17/09/2026 · remove definitivamente a barrinha laranja/verde dos cabeçalhos */
+.page-heading{padding-left:0!important;}
+.page-heading::before,.page-heading:before{content:none!important;display:none!important;background:none!important;width:0!important;height:0!important;}
+.page-accent{display:none!important;}
+#gestao .page-heading{padding-left:0!important;}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -3616,6 +3821,42 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
 
 <section class="page admin-restricted" id="gestao" hidden style="display:none!important">
   <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Gestão</h1><p>Indicadores consolidados para decisões da operação.</p></div><div class="page-accent"></div></div>
+  <div class="gestao-tabs admin-only" role="tablist" aria-label="Áreas da Gestão">
+    <button type="button" class="gestao-tab active" data-gestao-tab="colaboradores">👥 <span>Colaboradores</span></button>
+    <button type="button" class="gestao-tab" data-gestao-tab="importacao">↥ <span>Importação de Dados</span></button>
+    <button type="button" class="gestao-tab" data-gestao-tab="indicadores">⚙ <span>Indicadores</span></button>
+    <button type="button" class="gestao-tab" data-gestao-tab="backup">▣ <span>Backup</span></button>
+  </div>
+  <div class="gestao-panel active" data-gestao-panel="colaboradores">
+  <div class="access-card admin-only" id="access-management">
+    <div class="access-head">
+      <div><span class="mgmt-eyebrow">GESTÃO DE EQUIPE</span><h2>Colaboradores e Acessos</h2><p>Gerencie usuários, perfis e permissões do sistema.</p></div>
+      <div class="access-head-actions"><input id="access-search" type="search" placeholder="Pesquisar colaborador..." aria-label="Pesquisar colaborador"><button class="btn btn-dark" type="button" id="access-refresh">↻ Atualizar</button><button class="btn btn-orange" type="button" id="access-open-create">＋ Novo colaborador</button></div>
+    </div>
+    <div class="access-status" id="access-status"></div>
+    <div class="access-table-wrap"><table class="access-table"><thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Status</th><th>Permissões</th><th>Ações</th></tr></thead><tbody id="access-body"><tr><td colspan="6">Carregando...</td></tr></tbody></table></div>
+    <div class="access-footer"><span id="access-count">Colaboradores cadastrados</span><span class="access-legend"><i></i> Ativo</span></div>
+
+    <div class="access-modal" id="access-create-modal" hidden>
+      <div class="access-modal-backdrop" data-access-close></div>
+      <div class="access-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="access-modal-title">
+        <div class="access-modal-head"><div><span class="mgmt-eyebrow">NOVO ACESSO</span><h3 id="access-modal-title">Novo colaborador</h3><p>Cadastre o acesso e escolha somente as áreas necessárias.</p></div><button type="button" class="access-modal-close" data-access-close aria-label="Fechar">×</button></div>
+        <div class="access-grid">
+          <label>Nome<input id="access-name" placeholder="Ex.: Bryan"></label>
+          <label>Usuário<input id="access-user" placeholder="Ex.: bryan" autocomplete="off"></label>
+          <label>Senha inicial<input id="access-password" type="password" placeholder="Nome1234@" autocomplete="new-password"></label>
+          <label>Perfil<select id="access-role"><option value="colaborador">Colaborador</option><option value="lider">Líder</option><option value="admin">Administrador</option></select></label>
+        </div>
+        <div class="access-perms" id="access-perms">
+          <label><input type="checkbox" value="dashboard" checked> Visão Geral</label><label><input type="checkbox" value="card" checked> Card do Dia</label><label><input type="checkbox" value="producao" checked> Produção</label><label><input type="checkbox" value="estoque" checked> Estoque</label><label><input type="checkbox" value="medidas"> Medidas</label><label><input type="checkbox" value="rodizios"> Rodízios</label><label><input type="checkbox" value="rotina" checked> Minha Rotina</label><label><input type="checkbox" value="gestao"> Gestão</label>
+        </div>
+        <div class="access-modal-actions"><button class="btn btn-dark" type="button" data-access-close>Cancelar</button><button class="btn btn-orange" type="button" id="access-create">＋ Criar acesso</button></div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <div class="gestao-panel" data-gestao-panel="importacao">
   <div class="card management-imports admin-only">
     <div class="management-import-head"><div><span class="mgmt-eyebrow">ATUALIZAÇÃO DE DADOS</span><h2>Importar planilhas</h2><div class="sub">Atualize Produção e Expedição aqui. Os dados alimentam automaticamente a Visão Geral, o Card do Dia e os indicadores de Gestão.</div></div></div>
     <div class="management-import-grid">
@@ -3626,6 +3867,8 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <input id="exp-file-2" type="file" accept=".csv,.xlsx,.xls" multiple>
     </div>
   </div>
+  </div>
+  <div class="gestao-panel" data-gestao-panel="indicadores">
   <div class="mgmt-toolbar"><div><span class="mgmt-eyebrow">RESUMO DO MÊS</span><h2>Indicadores operacionais</h2><div class="sub" style="margin:5px 0 0">Expedição e produção consolidadas no período selecionado.</div></div><select id="management-month"></select></div>
   <div class="mgmt-kpis">
     <div class="mgmt-kpi"><div class="label">Expedição no mês</div><div class="value blue" id="mg-exp-total">0</div><div class="hint" id="mg-exp-days">0 dias registrados</div></div>
@@ -3638,7 +3881,13 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
     <div class="card"><h2>Central de importações</h2><div class="sub">Confirme rapidamente quais dias possuem Expedição e Produção conectadas.</div><div style="overflow:auto"><table class="import-table"><thead><tr><th>Data</th><th>Expedição</th><th>Produção</th><th>Situação</th></tr></thead><tbody id="import-center"></tbody></table></div></div>
     <div class="card"><h2>Resumo de qualidade dos dados</h2><div class="sub">Ajuda a identificar dias incompletos antes de usar o card.</div><div id="data-quality"></div></div>
   </div>
+
+
+
+  </div>
+  <div class="gestao-panel" data-gestao-panel="backup">
   <div class="backup-box"><div><h3>Backup do histórico</h3><p>Exporte uma cópia de todos os dias registrados. O arquivo pode ser restaurado neste ou em outro computador, preservando Expedição e Produção.</p></div><div class="backup-actions"><button class="btn btn-dark" id="export-backup">↓ Exportar backup</button><label class="btn btn-orange" for="restore-backup">↑ Restaurar backup</label><input id="restore-backup" type="file" accept=".json,application/json"></div></div>
+  </div>
 </section>
 
 
@@ -3927,8 +4176,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <input type="hidden" id="full-launch-id">
       <label class="wide"><span>Colaborador</span><select id="full-launch-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
       <label class="wide"><span>Quantidade produzida</span><input id="full-launch-qty" required type="number" min="1" placeholder="Ex.: 120"></label>
-      <label class="wide"><span>Data da produção</span><input id="full-launch-date" required type="date"></label>
-      <div class="employee-launch-hint wide">Escolha o dia em que a produção foi realmente feita. O horário do lançamento é registrado automaticamente.</div>
+      <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="full-launch-modal" type="button">Cancelar</button><button class="btn btn-green" type="submit">Registrar produção</button></div>
     </form>
   </div>
@@ -3996,8 +4244,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
       <label><span>Colaborador</span><select id="stockprod-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
       <label><span>Quantidade</span><input id="stockprod-qty" required type="number" min="1" placeholder="Ex.: 100"></label>
       <label class="wide"><span>Produto</span><input id="stockprod-product" list="stockprod-products-list" required placeholder="Digite ou selecione o produto"><datalist id="stockprod-products-list"></datalist></label>
-      <label class="wide"><span>Data da produção</span><input id="stockprod-date" required type="date"></label>
-      <div class="employee-launch-hint wide">Escolha o dia em que a produção foi realmente feita. O horário do lançamento é registrado automaticamente.</div>
+      <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="stockprod-modal" type="button">Cancelar</button><button class="btn btn-orange" type="submit">Registrar produção</button></div>
     </form>
   </div>
@@ -4279,7 +4526,7 @@ body:not(.admin-mode) #gestao-tab, body:not(.admin-mode) #gestao{display:none!im
     <h3>Entrar no Mimar Expedição</h3>
     <p>Use sua conta individual. O sistema identifica automaticamente seu perfil e libera somente as áreas permitidas.</p>
     <form id="auth-form">
-      <div class="auth-field"><label for="auth-email">E-mail</label><input id="auth-email" type="email" autocomplete="username" required></div>
+      <div class="auth-field"><label for="auth-email">Usuário</label><input id="auth-email" type="text" autocomplete="username" placeholder="Ex.: bryan" required></div>
       <div class="auth-field"><label for="auth-password">Senha</label><input id="auth-password" type="password" autocomplete="current-password" required></div>
       <div class="auth-error" id="auth-error"></div>
       <div class="auth-actions"><button type="button" class="btn btn-dark" id="auth-cancel">Cancelar</button><button type="submit" class="btn btn-green" id="auth-submit">Entrar</button></div>
@@ -4334,25 +4581,12 @@ function mimarStockIsBeingEdited(){
   return activeStock && (stockEditMode || editingField);
 }
 function mimarSafeReload(){
-  // A tela de Produção trabalha com atualização em memória/Supabase.
-  // Nunca faça location.reload() enquanto ela estiver ativa: isso evita
-  // o salto para a Visão Geral após registrar FULL ou Estoque.
-  const productionPage=document.getElementById('producao-controle');
-  const productionActive=!!productionPage?.classList.contains('active');
-  const productionModalOpen=!!document.querySelector('#full-launch-modal.show, #stockprod-modal.show');
-  if(window.mimarProductionSaving || productionModalOpen || productionActive){
-    _mimarDeferredCloudReload=true;
-    return false;
-  }
-  if(mimarStockIsBeingEdited()){
-    _mimarDeferredCloudReload=true;
-    return false;
-  }
-  const activePage=document.querySelector('.page.active')?.id||'dashboard';
-  sessionStorage.setItem('mimar_restore_page',activePage);
-  sessionStorage.setItem('mimar_restore_scroll',String(window.scrollY||0));
-  location.reload();
-  return true;
+  // FIX 17/09/2026 v2 · NUNCA reconstruir a página automaticamente.
+  // O Supabase continua sincronizando o cache em segundo plano, mas a tela atual
+  // não é remontada, não perde posição, não fecha modal e não volta ao início.
+  // As tabelas operacionais (produção/estoque/expedição) possuem Realtime próprio.
+  if(mimarStockIsBeingEdited()) _mimarDeferredCloudReload=true;
+  return false;
 }
 window.addEventListener('load',()=>{
   const page=sessionStorage.getItem('mimar_restore_page');
@@ -4477,12 +4711,10 @@ async function mimarInitialCloudSync(){
       }
     }finally{_mimarCloudApplying=false}
     _mimarCloudReady=true;
-    if(changed&&!sessionStorage.getItem('mimar_cloud_boot_reload')){
-      sessionStorage.setItem('mimar_cloud_boot_reload','1');
-      mimarSafeReload();
-      return;
-    }
+    // FIX 17/09/2026 · nunca recarregar o documento durante o boot.
+    // As mudanças já foram aplicadas ao storage; basta iniciar o Realtime.
     sessionStorage.removeItem('mimar_cloud_boot_reload');
+    if(changed) mimarSafeReload();
     mimarStartRealtimeSync();
   }catch(err){console.warn('Mimar Cloud: sincronização inicial falhou.',err)}
 }
@@ -4552,10 +4784,12 @@ function mimarStartOperationalRealtime(){
     .subscribe();
 }
 window.addEventListener('load',()=>{setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime()},150)});
-window.addEventListener('focus',()=>void mimarPullCloudState());
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)void mimarPullCloudState()});
-setInterval(()=>{if(!document.hidden)void mimarPullCloudState()},5000);
-cloud.auth.onAuthStateChange((event,session)=>{if(session?.user)setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime();void mimarPullCloudState()},250)});
+// FIX 17/09/2026 v2 · sincronização silenciosa: não redesenha a página ao focar
+// e não executa conferência a cada 5 segundos. O Realtime mantém os dados operacionais vivos.
+window.addEventListener('focus',()=>void mimarPullCloudState({reload:false}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void mimarPullCloudState({reload:false})});
+setInterval(()=>{if(!document.hidden)void mimarPullCloudState({reload:false})},60000);
+cloud.auth.onAuthStateChange((event,session)=>{if(session?.user)setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime();void mimarPullCloudState({reload:false})},250)});
 let currentUser=null,isAdmin=false,cloudProductionRecords=[],cloudExpeditionRecords=[],stockRecords=[],stockEditMode=false;
 const EMBED_NAMES=["Bryan","Thiago","Fagner","Leonardo","Elisabete","Rafael","Novo Colaborador"];
 const EMBED_ROWS=[
@@ -4641,7 +4875,7 @@ function refreshProductionAdminButtons(){
     el.style.display=admin?'':'none';
   });
 }
-async function signInSystem(email,password){const {error}=await cloud.auth.signInWithPassword({email,password});if(error)throw error;await refreshAuthUI();closeAuth();window.dispatchEvent(new CustomEvent('mimar:system-login'))}
+async function signInSystem(login,password){const raw=String(login||'').trim().toLowerCase();const email=raw.includes('@')?raw:(raw.replace(/[^a-z0-9._-]/g,'')+'@mimar.local');const {error}=await cloud.auth.signInWithPassword({email,password});if(error)throw new Error('Usuário ou senha inválidos.');await refreshAuthUI();closeAuth();window.dispatchEvent(new CustomEvent('mimar:system-login'))}
 async function deleteDateRows(table,date){const {error}=await cloud.from(table).delete().eq('data',date);if(error)throw error}
 async function insertChunks(table,rows,size=500){for(let i=0;i<rows.length;i+=size){const {error}=await cloud.from(table).insert(rows.slice(i,i+size));if(error)throw error}}
 async function upsertImportDates(dates,tipo,arquivo){if(!dates.length)return;const rows=dates.map(data=>({data,tipo,arquivo,atualizado_em:new Date().toISOString()}));const {error}=await cloud.from('importacoes').upsert(rows,{onConflict:'data,tipo'});if(error)throw error}
@@ -6084,7 +6318,6 @@ const PRODUCTION_TEST_MODE=false;
       document.getElementById('full-launch-product-label').textContent=`${p.name} · Meta ${fmt(p.target)}`;
       document.getElementById('full-launch-person').value='';
       document.getElementById('full-launch-qty').value='';
-      document.getElementById('full-launch-date').value=todayISO();
       openModal('full-launch-modal');
     }
     const editProduct=e.target.closest('[data-full-edit-product]');
@@ -6122,7 +6355,6 @@ const PRODUCTION_TEST_MODE=false;
   document.getElementById('stockprod-add')?.addEventListener('click',()=>{
     const form=document.getElementById('stockprod-form');
     if(form)form.reset();
-    const dateInput=document.getElementById('stockprod-date');if(dateInput)dateInput.value=todayISO();
     openModal('stockprod-modal');
   });
   document.getElementById('full-search')?.addEventListener('input',renderFull);
@@ -6167,13 +6399,11 @@ const PRODUCTION_TEST_MODE=false;
 
   document.getElementById('full-launch-form')?.addEventListener('submit',async e=>{
     e.preventDefault();
-    e.stopPropagation();
     const p=fullData.find(x=>x.id===document.getElementById('full-launch-id').value);if(!p)return;
     const person=document.getElementById('full-launch-person').value;
     const qty=num(document.getElementById('full-launch-qty').value);
-    const now=new Date(),date=document.getElementById('full-launch-date')?.value||todayISO(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const now=new Date(),date=todayISO(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent='Salvando...'}
-    window.mimarProductionSaving=true;
     try{
       await saveProductionCloud({
         data:date,
@@ -6191,25 +6421,22 @@ const PRODUCTION_TEST_MODE=false;
     }catch(err){
       alert('Não foi possível registrar a produção no banco. '+(err?.message||err));
     }finally{
-      window.mimarProductionSaving=false;
       if(btn){btn.disabled=false;btn.textContent='Registrar produção'}
     }
   });
 
   document.getElementById('stockprod-form')?.addEventListener('submit',async e=>{
     e.preventDefault();
-    e.stopPropagation();
     const now=new Date();
     const item={
       time:now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
       person:document.getElementById('stockprod-person').value,
       product:document.getElementById('stockprod-product').value.trim(),
       qty:num(document.getElementById('stockprod-qty').value),
-      date:document.getElementById('stockprod-date')?.value||todayISO(),
+      date:todayISO(),
       note:''
     };
     const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent='Salvando...'}
-    window.mimarProductionSaving=true;
     try{
       await saveProductionCloud({
         data:item.date,
@@ -6227,7 +6454,6 @@ const PRODUCTION_TEST_MODE=false;
     }catch(err){
       alert('Não foi possível registrar a produção no banco. '+(err?.message||err));
     }finally{
-      window.mimarProductionSaving=false;
       if(btn){btn.disabled=false;btn.textContent='Registrar produção'}
     }
   });
@@ -6627,7 +6853,6 @@ document.addEventListener('click',function(e){
   const modal=document.getElementById('stockprod-modal');
   const form=document.getElementById('stockprod-form');
   if(form)form.reset();
-  const dateInput=document.getElementById('stockprod-date');if(dateInput)dateInput.value=(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
   if(modal){
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
@@ -7005,7 +7230,176 @@ window.addEventListener('focus',()=>{refreshRoutineFromCloud();if(R.profile)load
 window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();if(R.profile)loadTasks().then(()=>{saveRoutineCache();render();}).catch(console.warn);refreshTimers();});
 })();
 </script>
+\n<script id="mimar-access-script-v1">\n(()=>{\nconst PERM_PAGE={dashboard:'dashboard',card:'card-page',producao:'producao-controle',estoque:'estoque-controle',medidas:'medidas',rodizios:'rodizios',rotina:'minha-rotina',gestao:'gestao'};\nwindow.mimarPermissions=[];window.mimarRole='';\nfunction accessSafe(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]))}\nfunction slugUser(v){return String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/\\s+/g,'.').replace(/[^a-z0-9._-]/g,'')}\nfunction selectedPerms(){return [...document.querySelectorAll('#access-perms input:checked')].map(x=>x.value)}\nfunction setStatus(t,bad=false){const e=document.getElementById('access-status');if(e){e.textContent=t;e.style.color=bad?'#b42318':'#667085'}}\nasync function invokeAccess(body){const {data,error}=await cloud.functions.invoke('manage-users',{body});if(error)throw new Error(error.message||'Falha na função de acessos.');if(data?.error)throw new Error(data.error);return data}\nasync function loadAccess(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;setStatus('Atualizando acessos...');try{const data=await invokeAccess({action:'list'});renderAccess(data.users||[]);setStatus(`${(data.users||[]).length} acesso(s) cadastrado(s).`)}catch(e){setStatus('A gestão de acessos ainda precisa da Edge Function manage-users no Supabase: '+e.message,true)}}\nfunction renderAccess(users){const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions"><button data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button data-access-act="reset">Nova senha</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}\nasync function createOne(name,user,password,role,permissions){return invokeAccess({action:'create',nome:name,usuario:user,password,perfil:role,permissoes:permissions})}\ndocument.getElementById('access-name')?.addEventListener('input',e=>{const u=document.getElementById('access-user');if(u&&!u.dataset.manual)u.value=slugUser(e.target.value)});\ndocument.getElementById('access-user')?.addEventListener('input',e=>e.target.dataset.manual='1');\ndocument.getElementById('access-role')?.addEventListener('change',e=>{if(e.target.value==='lider'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao'].includes(x.value))}});\ndocument.getElementById('access-create')?.addEventListener('click',async()=>{const name=document.getElementById('access-name').value.trim(),user=slugUser(document.getElementById('access-user').value),password=document.getElementById('access-password').value,role=document.getElementById('access-role').value;if(!name||!user||password.length<8)return setStatus('Preencha nome, usuário e uma senha com pelo menos 8 caracteres.',true);try{setStatus('Criando acesso...');await createOne(name,user,password,role,selectedPerms());document.getElementById('access-password').value='';await loadAccess()}catch(e){setStatus(e.message,true)}});\ndocument.getElementById('access-bulk-create')?.addEventListener('click',async()=>{const names=document.getElementById('access-bulk-names').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);if(!names.length)return;const btn=document.getElementById('access-bulk-create');btn.disabled=true;let ok=0,fail=[];for(const name of names){const first=name.split(/\\s+/)[0];const role=/^elisabete$/i.test(first)?'lider':'colaborador';const perms=role==='lider'?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']:['dashboard','card','producao','estoque','rotina'];try{await createOne(name,slugUser(first),first+'1234@',role,perms);ok++}catch(e){fail.push(name+': '+e.message)}}btn.disabled=false;setStatus(`${ok} criado(s).${fail.length?' Falhas: '+fail.join(' | '):''}`,!!fail.length);await loadAccess()});\ndocument.getElementById('access-refresh')?.addEventListener('click',loadAccess);\ndocument.getElementById('access-body')?.addEventListener('click',async e=>{const btn=e.target.closest('[data-access-act]');if(!btn)return;const id=btn.closest('tr')?.dataset.userId;if(!id)return;try{if(btn.dataset.accessAct==='toggle'){await invokeAccess({action:'update',id,ativo:btn.dataset.active!=='true'})}else{const pass=prompt('Digite a nova senha temporária:');if(!pass)return;await invokeAccess({action:'reset_password',id,password:pass})}await loadAccess()}catch(err){setStatus(err.message,true)}});\nasync function loadOwnAccess(){try{const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return;const {data}=await cloud.from('colaboradores').select('perfil,permissoes,ativo').eq('id',session.user.id).maybeSingle();window.mimarRole=data?.perfil||'';window.mimarPermissions=Array.isArray(data?.permissoes)?data.permissoes:[];if(window.isAdmin)return;document.querySelectorAll('.tab[data-page]').forEach(tab=>{const key=Object.keys(PERM_PAGE).find(k=>PERM_PAGE[k]===tab.dataset.page);if(key&&key!=='dashboard')tab.style.display=window.mimarPermissions.includes(key)?'flex':'none'})}catch(e){console.warn('Permissões:',e)}}\nwindow.addEventListener('mimar:system-login',()=>setTimeout(()=>{loadOwnAccess();loadAccess()},250));window.addEventListener('load',()=>setTimeout(()=>{loadOwnAccess();if(document.body.classList.contains('admin-mode'))loadAccess()},900));\n})();\n</script>\n
+<script id="mimar-access-ui-v3">
+(()=>{const modal=document.getElementById('access-create-modal'),open=document.getElementById('access-open-create'),search=document.getElementById('access-search'),body=document.getElementById('access-body'),count=document.getElementById('access-count');if(!modal)return;const show=()=>{modal.hidden=false;setTimeout(()=>document.getElementById('access-name')?.focus(),0)};const hide=()=>{modal.hidden=true};open?.addEventListener('click',show);modal.querySelectorAll('[data-access-close]').forEach(el=>el.addEventListener('click',hide));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)hide()});search?.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();[...body.querySelectorAll('tr')].forEach(tr=>{tr.style.display=!q||tr.textContent.toLowerCase().includes(q)?'':'none'})});const updateCount=()=>{if(!count||!body)return;const n=[...body.querySelectorAll('tr')].filter(tr=>tr.querySelectorAll('td').length>1).length;count.textContent=n?`${n} colaborador${n===1?'':'es'} cadastrado${n===1?'':'s'}`:'Colaboradores cadastrados'};new MutationObserver(updateCount).observe(body,{childList:true,subtree:true});updateCount()})();
+</script>
+
+<script>
+(function(){
+  function initGestaoTabs(){
+    var root=document.getElementById('gestao'); if(!root || root.dataset.tabsReady==='1') return;
+    root.dataset.tabsReady='1';
+    var tabs=[].slice.call(root.querySelectorAll('[data-gestao-tab]'));
+    var panels=[].slice.call(root.querySelectorAll('[data-gestao-panel]'));
+    function activate(name){
+      tabs.forEach(function(b){var on=b.dataset.gestaoTab===name;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});
+      panels.forEach(function(p){p.classList.toggle('active',p.dataset.gestaoPanel===name);});
+      if(name==='indicadores' && typeof renderManagement==='function'){try{renderManagement();}catch(e){}}
+    }
+    tabs.forEach(function(b){b.addEventListener('click',function(){activate(b.dataset.gestaoTab);});});
+    activate('colaboradores');
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initGestaoTabs); else initGestaoTabs();
+})();
+</script>
+
+<style id="mimar-frontend-modern-final-1709">
+/* MIMAR FRONT-END MODERNO — inspirado no layout aprovado */
+:root{--m-orange:#ff5a1f;--m-orange-soft:#fff1e8;--m-ink:#101828;--m-text:#344054;--m-muted:#667085;--m-line:#e4e7ec;--m-bg:#f6f7f9;--m-white:#fff;--m-green:#12a45a}
+*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden!important}body{background:linear-gradient(180deg,#fffaf6 0,#f7f8fa 150px,#f7f8fa 100%)!important;color:var(--m-ink)!important}
+.wrap{width:auto!important;max-width:none!important;margin:0!important;padding:82px 26px 34px 278px!important;min-height:100vh!important}
+header{position:fixed!important;z-index:30!important;left:252px!important;right:0!important;top:0!important;height:72px!important;padding:0 28px!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;background:rgba(255,250,246,.96)!important;border-bottom:1px solid #f0e8e2!important;backdrop-filter:blur(10px)!important}
+.header-actions{margin:0!important;display:flex!important;align-items:center!important;gap:12px!important}.cloud-state{height:38px!important;padding:0 14px!important;background:#fff!important;border:1px solid #e4e7ec!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(16,24,40,.03)!important}.cloud-dot{background:var(--m-green)!important}
+#admin-login-btn{height:42px!important;border-radius:12px!important;background:var(--m-orange)!important;color:#fff!important;border:0!important;box-shadow:0 7px 18px rgba(255,90,31,.18)!important}
+.tabs{left:0!important;top:0!important;bottom:0!important;width:252px!important;border:0!important;border-right:1px solid #e9e6e3!important;border-radius:0!important;padding:22px 14px!important;box-shadow:none!important;background:rgba(255,255,255,.97)!important;overflow-y:auto!important;gap:6px!important}
+.side-brand{padding:2px 16px 22px!important;margin:0 0 10px!important;border-bottom:1px solid #eee9e5!important}.brand-title{font-size:24px!important;line-height:1!important;letter-spacing:-.8px!important;color:#111827!important}.brand-mimar{display:block!important;color:var(--m-orange)!important;font-size:27px!important;margin-bottom:3px!important}.brand-sub{font-size:9px!important;letter-spacing:2.1px!important;color:#98a0aa!important;margin-top:7px!important}.side-section-label{padding:4px 16px 7px!important;font-size:9px!important;letter-spacing:1.8px!important;color:#a0a6ad!important}
+.tab{height:48px!important;padding:0 15px!important;border-radius:10px!important;font-size:13px!important;font-weight:700!important;color:#46505d!important;display:flex!important;align-items:center!important;gap:11px!important}.tab:hover{background:#faf7f5!important;color:#1f2937!important}.tab.active{background:var(--m-orange-soft)!important;color:#ee501c!important;box-shadow:inset 3px 0 var(--m-orange)!important}.nav-icon{width:20px!important;height:20px!important}.tab.active .nav-icon svg{stroke:#f45b26!important}
+.month-highlight{margin:12px 7px 0!important;border:1px solid #eee7e1!important;border-radius:13px!important;background:#fff!important;box-shadow:0 5px 18px rgba(16,24,40,.035)!important;padding:14px!important}.mh-name{color:var(--m-orange)!important}.mh-total{color:#111827!important}
+.pickup-strip{margin:0 0 20px!important;width:100%!important;max-width:100%!important;border:1px solid var(--m-line)!important;border-radius:15px!important;background:#fff!important;box-shadow:0 7px 22px rgba(16,24,40,.035)!important;padding:16px 18px!important}.pickup-head{margin-bottom:12px!important}.pickup-title strong{color:#172033!important}.pickup-title span{color:#667085!important}.pickup-row{gap:10px!important}.pickup-card{border-color:#eceff2!important;border-radius:12px!important;background:#fcfcfd!important}
+.page{width:100%!important;max-width:100%!important;min-width:0!important}.page-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 18px!important;padding:0 2px!important}.page-heading .eyebrow{color:var(--m-orange)!important;font-size:9px!important;font-weight:850!important;letter-spacing:1.7px!important}.page-heading h1{font-family:Inter,Arial,sans-serif!important;font-size:34px!important;line-height:1.08!important;letter-spacing:-1.2px!important;color:#101828!important;margin:4px 0!important}.page-heading p{font-size:13px!important;color:#667085!important;margin:0!important}.page-accent{display:none!important}
+.card,.production-panel,.stock-focus-section,.stock-activity-panel,.trend-wrap,.backup-box,.management-imports,.compare-card,.sourcebar,.hero{border:1px solid var(--m-line)!important;border-radius:15px!important;background:#fff!important;box-shadow:0 7px 24px rgba(16,24,40,.04)!important}
+.hero{background:#fff!important;color:#101828!important;padding:24px!important}.hero-label,.hero-sub{color:#667085!important}.hero-num{color:#101828!important}.chip{background:#f8fafc!important;border:1px solid #edf0f3!important;color:#344054!important;border-radius:10px!important}.chip b{color:#101828!important}
+.btn{border-radius:9px!important;font-family:Inter,Arial,sans-serif!important;font-weight:750!important}.btn-orange{background:var(--m-orange)!important;border-color:var(--m-orange)!important;color:#fff!important;box-shadow:0 5px 14px rgba(255,90,31,.14)!important}.btn-dark{background:#172033!important;color:#fff!important}
+input,select,textarea{border:1px solid #d0d5dd!important;border-radius:9px!important;background:#fff!important;color:#344054!important;box-shadow:0 1px 2px rgba(16,24,40,.02)!important}input:focus,select:focus,textarea:focus{outline:none!important;border-color:#f79b7b!important;box-shadow:0 0 0 3px rgba(255,90,31,.09)!important}
+table{border-collapse:collapse!important}th{background:#f8f9fb!important;color:#475467!important}td{color:#344054!important}tbody tr:hover{background:#fcfcfd!important}
+/* Gestão exatamente na linguagem visual aprovada */
+#gestao{background:transparent!important;padding:0 0 28px!important}#gestao .page-heading{padding:0!important;margin-bottom:18px!important}#gestao .gestao-tabs{display:flex!important;align-items:stretch!important;width:100%!important;margin:0 0 20px!important;padding:7px!important;background:#fff!important;border:1px solid var(--m-line)!important;border-radius:14px!important;box-shadow:0 7px 22px rgba(16,24,40,.04)!important;overflow:hidden!important}#gestao .gestao-tab{flex:1 1 0!important;min-width:0!important;height:50px!important;padding:0 14px!important;border:0!important;border-right:1px solid #eef0f3!important;border-radius:9px!important;background:#fff!important;color:#344054!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important}#gestao .gestao-tab:last-child{border-right:0!important}#gestao .gestao-tab.active{background:var(--m-orange-soft)!important;color:#ee501c!important;box-shadow:inset 0 -2px var(--m-orange)!important}
+#gestao #access-management{width:100%!important;max-width:100%!important;margin:0!important;padding:0 0 12px!important;background:#fff!important;border:1px solid var(--m-line)!important;border-radius:16px!important;box-shadow:0 9px 28px rgba(16,24,40,.045)!important;overflow:hidden!important}#gestao #access-management .access-head{display:grid!important;grid-template-columns:minmax(260px,1fr) minmax(430px,auto)!important;align-items:center!important;gap:20px!important;padding:20px 22px!important;background:#fff!important}#gestao #access-management .access-head>div:first-child{padding-left:62px!important;min-height:50px!important}#gestao #access-management .access-head>div:first-child:before{width:50px!important;height:50px!important;background:var(--m-orange-soft)!important;border-radius:12px!important}#gestao #access-management h2{font-size:21px!important;color:#101828!important}.access-head-actions{display:grid!important;grid-template-columns:minmax(180px,1fr) auto auto!important;gap:9px!important;min-width:0!important}.access-head-actions input{width:100%!important;min-width:0!important;height:42px!important}.access-head-actions .btn{height:42px!important;white-space:nowrap!important}#access-open-create{background:var(--m-orange)!important;border-color:var(--m-orange)!important}
+#gestao #access-management .access-table-wrap{width:auto!important;max-width:100%!important;margin:0 12px!important;overflow:hidden!important;border:1px solid #e4e7ec!important;border-radius:10px!important}#gestao #access-management .access-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}#gestao .access-table th,#gestao .access-table td{padding:12px 11px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}#gestao .access-table th:nth-child(1){width:21%!important}#gestao .access-table th:nth-child(2){width:16%!important}#gestao .access-table th:nth-child(3){width:14%!important}#gestao .access-table th:nth-child(4){width:13%!important}#gestao .access-table th:nth-child(5){width:24%!important}#gestao .access-table th:nth-child(6){width:12%!important}.access-footer{padding:13px 20px 2px!important}
+/* Coletas: visíveis em todas as áreas operacionais e ocultas somente na Gestão */
+body:has(#gestao.active) .pickup-strip{display:none!important}body:not(:has(#gestao.active)) .pickup-strip{display:block!important}
+footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top:34px!important;padding-top:20px!important}
+@media(max-width:1180px){.wrap{padding-left:258px!important;padding-right:18px!important}.tabs{width:236px!important}header{left:236px!important}#gestao #access-management .access-head{grid-template-columns:1fr!important}.access-head-actions{grid-template-columns:minmax(180px,1fr) auto auto!important}}
+@media(max-width:900px){.wrap{padding:76px 14px 26px!important}.tabs{transform:translateX(-100%);transition:.2s ease}header{left:0!important}.pickup-strip{margin-top:4px!important}#gestao .gestao-tabs{overflow-x:auto!important;justify-content:flex-start!important}#gestao .gestao-tab{flex:0 0 auto!important;min-width:150px!important}.access-head-actions{grid-template-columns:1fr 1fr!important}.access-head-actions input{grid-column:1/-1!important}#gestao .access-table th:nth-child(5),#gestao .access-table td:nth-child(5){display:none!important}#gestao .access-table th:nth-child(1){width:28%!important}#gestao .access-table th:nth-child(2){width:23%!important}#gestao .access-table th:nth-child(3){width:18%!important}#gestao .access-table th:nth-child(4){width:16%!important}#gestao .access-table th:nth-child(6){width:15%!important}}
+@media(max-width:620px){.page-heading h1{font-size:29px!important}.access-head-actions{grid-template-columns:1fr!important}.access-head-actions input{grid-column:auto!important}#gestao .access-table th:nth-child(2),#gestao .access-table td:nth-child(2),#gestao .access-table th:nth-child(3),#gestao .access-table td:nth-child(3){display:none!important}#gestao .access-table th:nth-child(1){width:42%!important}#gestao .access-table th:nth-child(4){width:25%!important}#gestao .access-table th:nth-child(6){width:33%!important}}
+</style>
+
+<style id="gestao-colaboradores-fix-1709">
+/* Ajuste isolado: Gestão > Colaboradores. Não altera as demais abas. */
+#gestao .gestao-panel[data-gestao-panel="colaboradores"]{display:none!important;width:100%!important;min-width:0!important}
+#gestao .gestao-panel[data-gestao-panel="colaboradores"].active{display:block!important}
+#gestao #access-management{display:block!important;position:relative!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important;border:1px solid #e4e7ec!important;border-radius:16px!important;box-shadow:0 10px 28px rgba(16,24,40,.05)!important}
+#gestao #access-management .access-head{position:relative!important;float:none!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:24px!important;width:100%!important;min-height:96px!important;box-sizing:border-box!important;margin:0!important;padding:20px 22px!important;border:0!important;border-bottom:1px solid #eef0f3!important;background:#fff!important}
+#gestao #access-management .access-head>div:first-child{position:relative!important;display:block!important;flex:1 1 auto!important;min-width:260px!important;min-height:54px!important;padding:0 0 0 66px!important;margin:0!important}
+#gestao #access-management .access-head>div:first-child:before{content:'👥'!important;position:absolute!important;left:0!important;top:1px!important;width:52px!important;height:52px!important;display:grid!important;place-items:center!important;border-radius:12px!important;background:#fff1e8!important;font-size:24px!important}
+#gestao #access-management .access-head h2{margin:0 0 5px!important;font-size:22px!important;line-height:1.15!important;color:#101828!important}
+#gestao #access-management .access-head p{margin:0!important;font-size:12px!important;line-height:1.45!important;color:#667085!important}
+#gestao #access-management .access-head-actions{position:static!important;display:flex!important;flex:0 1 650px!important;align-items:center!important;justify-content:flex-end!important;gap:9px!important;min-width:0!important;margin:0!important}
+#gestao #access-management .access-head-actions input{flex:1 1 260px!important;min-width:190px!important;max-width:300px!important;width:auto!important;height:42px!important;margin:0!important}
+#gestao #access-management .access-head-actions .btn{flex:0 0 auto!important;height:42px!important;margin:0!important;white-space:nowrap!important}
+#gestao #access-management .access-status{display:block!important;position:static!important;clear:both!important;margin:0!important;padding:0 22px!important;min-height:0!important}
+#gestao #access-management .access-table-wrap{position:relative!important;float:none!important;clear:both!important;display:block!important;width:calc(100% - 32px)!important;max-width:calc(100% - 32px)!important;box-sizing:border-box!important;margin:16px!important;overflow:hidden!important;border:1px solid #e4e7ec!important;border-radius:11px!important;background:#fff!important}
+#gestao #access-management .access-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
+#gestao #access-management .access-table th,#gestao #access-management .access-table td{padding:13px 14px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#gestao #access-management .access-table th{background:#f8f9fb!important;color:#475467!important;font-size:11px!important;font-weight:800!important}
+#gestao #access-management .access-table td{font-size:12px!important;color:#344054!important}
+#gestao #access-management .access-table th:nth-child(1){width:21%!important}
+#gestao #access-management .access-table th:nth-child(2){width:17%!important}
+#gestao #access-management .access-table th:nth-child(3){width:14%!important}
+#gestao #access-management .access-table th:nth-child(4){width:13%!important}
+#gestao #access-management .access-table th:nth-child(5){width:23%!important}
+#gestao #access-management .access-table th:nth-child(6){width:12%!important}
+#gestao #access-management .access-footer{display:none!important}
+@media(max-width:1100px){
+ #gestao #access-management .access-head{align-items:flex-start!important;flex-direction:column!important;gap:14px!important}
+ #gestao #access-management .access-head-actions{width:100%!important;flex:0 0 auto!important;justify-content:flex-start!important}
+ #gestao #access-management .access-head-actions input{max-width:none!important}
+}
+@media(max-width:700px){
+ #gestao #access-management .access-head{padding:18px!important}
+ #gestao #access-management .access-head>div:first-child{min-width:0!important}
+ #gestao #access-management .access-head-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
+ #gestao #access-management .access-head-actions input{grid-column:1/-1!important;width:100%!important;max-width:none!important}
+ #gestao #access-management .access-head-actions .btn{width:100%!important}
+ #gestao #access-management .access-table th:nth-child(5),#gestao #access-management .access-table td:nth-child(5){display:none!important}
+}
+</style>
 </body>
 </html>
 
-<style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}</style>
+<style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}
+/* ===== GESTÃO 3.0 · LAYOUT PROFISSIONAL 17/09/2026 ===== */
+#gestao{background:#f6f7f9!important;padding-bottom:34px!important}
+#gestao .page-heading{padding:8px 4px 18px!important;margin-bottom:0!important}
+#gestao .page-heading .eyebrow{color:#f05a28!important;font-weight:800;letter-spacing:.12em}
+#gestao .page-heading h1{font-size:36px!important;letter-spacing:-.04em;margin:5px 0 3px!important;color:#101828!important}
+#gestao .page-heading p{color:#667085!important;font-size:14px!important}
+.gestao-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:8px;margin:0 0 20px;box-shadow:0 8px 24px rgba(16,24,40,.04)}
+.gestao-tab{height:54px;border:0;border-right:1px solid #eef0f3;background:transparent;color:#344054;font:700 13px Inter,Arial;display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;border-radius:10px;transition:.18s ease}
+.gestao-tab:last-child{border-right:0}.gestao-tab:hover{background:#fafafa}.gestao-tab.active{background:#fff3ea;color:#e94f1d;box-shadow:inset 0 -2px #ff6422}
+.gestao-panel{display:none}.gestao-panel.active{display:block}
+#gestao #access-management{background:#fff!important;border:1px solid #e4e7ec!important;border-radius:16px!important;box-shadow:0 10px 30px rgba(16,24,40,.05)!important;overflow:hidden!important;margin:0!important;padding:0 0 12px!important}
+#gestao #access-management .access-head{padding:22px 26px 18px!important;border:0!important;background:#fff!important}
+#gestao #access-management .access-head>div:first-child{position:relative;padding-left:66px;min-height:52px;display:flex;flex-direction:column;justify-content:center}
+#gestao #access-management .access-head>div:first-child:before{content:'👥';position:absolute;left:0;top:0;width:50px;height:50px;border-radius:12px;background:#fff1e8;display:grid;place-items:center;font-size:25px}
+#gestao #access-management .mgmt-eyebrow{display:none!important}
+#gestao #access-management .access-head h2{font-size:23px!important;letter-spacing:-.025em;color:#101828!important;margin:0 0 4px!important}
+#gestao #access-management .access-head p{font-size:13px!important;color:#667085!important}
+.access-head-actions{gap:10px!important}.access-head-actions input{width:260px!important;height:44px!important;border:1px solid #d0d5dd!important;border-radius:9px!important;padding:0 14px!important;background:#fff!important}.access-head-actions .btn{height:44px!important;border-radius:9px!important;padding:0 16px!important;font-weight:750!important}
+#gestao #access-management .access-table-wrap{margin:0 14px!important;border:1px solid #e4e7ec!important;border-radius:10px!important;overflow:auto!important;background:#fff!important}
+#gestao #access-management .access-table{min-width:760px!important}.access-table th{background:#f8f9fb!important;color:#475467!important;font-size:11px!important;text-transform:none!important;letter-spacing:0!important;padding:13px 15px!important}.access-table td{font-size:13px!important;padding:13px 15px!important;color:#344054!important}.access-table tbody tr:hover{background:#fcfcfd}
+#gestao #access-management .access-footer{padding:14px 22px 4px!important;border:0!important;color:#667085!important}
+#gestao .management-imports,#gestao .mgmt-toolbar,#gestao .trend-wrap,#gestao .grid2,#gestao .backup-box{border:1px solid #e4e7ec!important;box-shadow:0 8px 24px rgba(16,24,40,.04)!important;border-radius:16px!important}
+@media(max-width:900px){.gestao-tabs{grid-template-columns:1fr 1fr}.gestao-tab:nth-child(2){border-right:0}.access-head-actions{width:100%}.access-head-actions input{width:100%!important;flex:1 1 100%}#gestao #access-management .access-head{align-items:flex-start!important;flex-direction:column!important}}
+@media(max-width:560px){.gestao-tabs{grid-template-columns:1fr}.gestao-tab{border-right:0;border-bottom:1px solid #eef0f3}.gestao-tab:last-child{border-bottom:0}#gestao .page-heading h1{font-size:30px!important}#gestao #access-management .access-head>div:first-child{padding-left:0;padding-top:60px}#gestao #access-management .access-head>div:first-child:before{top:0}.access-head-actions .btn{flex:1 1 auto!important}}
+</style>
+
+<style id="mimar-layout-alinhado-definitivo">
+/* Layout estrutural final: uma única grade para sidebar, topo, coletas e páginas */
+html,body{max-width:100%!important;overflow-x:hidden!important}
+body{margin:0!important;padding:0!important;background:#f7f8fa!important}
+.wrap{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:92px 28px 36px 268px!important}
+header{box-sizing:border-box!important;position:fixed!important;z-index:40!important;left:240px!important;right:0!important;top:0!important;height:72px!important;margin:0!important;padding:0 28px!important;background:rgba(255,250,246,.97)!important;border-bottom:1px solid #ece7e3!important}
+.tabs{box-sizing:border-box!important;position:fixed!important;z-index:50!important;left:0!important;top:0!important;bottom:0!important;width:240px!important;margin:0!important;padding:18px 14px!important;border:0!important;border-right:1px solid #e7e9ed!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow-y:auto!important;overflow-x:hidden!important}
+.side-brand{padding:2px 10px 18px!important;margin:0 0 14px!important;border-bottom:1px solid #eee9e5!important}
+.tab{box-sizing:border-box!important;width:100%!important;min-width:0!important}
+.pickup-strip,.page,footer{box-sizing:border-box!important;width:100%!important;max-width:1440px!important;margin-left:auto!important;margin-right:auto!important}
+.pickup-strip{margin-top:0!important;margin-bottom:22px!important;padding:16px!important}
+.pickup-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;margin-bottom:12px!important}
+.pickup-admin-actions{display:flex!important;gap:8px!important;flex-wrap:wrap!important;justify-content:flex-end!important}
+.pickup-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;width:100%!important;overflow:visible!important;padding:0!important}
+.pickup-card{box-sizing:border-box!important;min-width:0!important;width:100%!important;flex:none!important;padding:12px!important}
+.pickup-done-btn{max-width:100%!important}
+.page-heading{width:100%!important;box-sizing:border-box!important;margin:0 0 18px!important}
+.sourcebar,.hero,.daily-compare-grid,.card,.grid2,.grid3,.production-panel,.stock-focus-section,.stock-activity-panel,.management-imports,.trend-wrap,.backup-box{max-width:100%!important;box-sizing:border-box!important}
+/* Gestão não exibe coletas; demais abas usam exatamente o mesmo alinhamento */
+body:has(#gestao.active) .pickup-strip{display:none!important}
+body:not(:has(#gestao.active)) .pickup-strip{display:block!important}
+#gestao,#dashboard,#card-page,#producao-controle,#estoque-controle,#medidas,#rodizios,#minha-rotina{width:100%!important;max-width:1440px!important;margin-left:auto!important;margin-right:auto!important}
+/* Gestão: tabela sem empurrar a página */
+#gestao #access-management{width:100%!important;max-width:100%!important}
+#gestao #access-management .access-head{grid-template-columns:minmax(260px,1fr) minmax(480px,.9fr)!important}
+#gestao #access-management .access-table-wrap{overflow:hidden!important;max-width:100%!important}
+#gestao #access-management .access-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+@media(max-width:1250px){
+ .wrap{padding-left:250px!important;padding-right:18px!important}
+ .tabs{width:226px!important}
+ header{left:226px!important;padding-left:18px!important;padding-right:18px!important}
+ .pickup-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #gestao #access-management .access-head{grid-template-columns:1fr!important}
+}
+@media(max-width:900px){
+ .wrap{padding:82px 14px 28px!important}
+ header{left:0!important;height:64px!important;padding:0 14px!important}
+ .tabs{transform:translateX(-100%)!important}
+ .pickup-strip,.page,footer{max-width:100%!important}
+ .pickup-head{align-items:flex-start!important;flex-direction:column!important}
+ .pickup-admin-actions{width:100%!important;justify-content:flex-start!important}
+ .pickup-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+ .pickup-row{grid-template-columns:1fr!important}
+ .pickup-admin-actions .btn{flex:1 1 auto!important}
+}
+</style>
