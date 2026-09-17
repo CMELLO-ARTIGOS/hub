@@ -4216,7 +4216,7 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
     </div>
     <form class="production-form" id="full-launch-form">
       <input type="hidden" id="full-launch-id">
-      <label class="wide"><span>Colaborador</span><select id="full-launch-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
+      <label class="wide"><span>Colaborador</span><select id="full-launch-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option><option>Fabiola</option></select></label>
       <label class="wide"><span>Quantidade produzida</span><input id="full-launch-qty" required type="number" min="1" placeholder="Ex.: 120"></label>
       <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="full-launch-modal" type="button">Cancelar</button><button class="btn btn-green" type="submit">Registrar produção</button></div>
@@ -4283,7 +4283,7 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
       <button class="production-close" data-production-close="stockprod-modal" type="button">×</button>
     </div>
     <form class="production-form" id="stockprod-form">
-      <label><span>Colaborador</span><select id="stockprod-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option></select></label>
+      <label><span>Colaborador</span><select id="stockprod-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option><option>Fabiola</option></select></label>
       <label><span>Quantidade</span><input id="stockprod-qty" required type="number" min="1" placeholder="Ex.: 100"></label>
       <label class="wide"><span>Produto</span><input id="stockprod-product" list="stockprod-products-list" required placeholder="Digite ou selecione o produto"><datalist id="stockprod-products-list"></datalist></label>
       <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
@@ -7704,6 +7704,38 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 #permission-dashboard{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:12000;display:none;align-items:center;justify-content:center;padding:22px}#permission-dashboard.show{display:flex}.perm-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 28px 80px rgba(15,23,42,.24);padding:24px}.perm-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.perm-head h3{margin:0;font-size:24px}.perm-head p{margin:5px 0 0;color:#667085}.perm-close{border:0;background:#f2f4f7;border-radius:12px;width:40px;height:40px;font-size:20px;cursor:pointer}.perm-profile{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;background:#f8fafc;border:1px solid #e4e7ec;border-radius:16px;margin-bottom:16px}.perm-profile label{font-size:12px;font-weight:800;color:#475467}.perm-profile input,.perm-profile select{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid #d0d5dd;border-radius:10px;background:white}.perm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.perm-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4e7ec;border-radius:14px;padding:13px 14px}.perm-item b{font-size:14px}.perm-item small{display:block;color:#667085;margin-top:2px}.perm-item input{width:20px;height:20px;accent-color:#ff5a2a}.perm-note{margin-top:14px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:12px;color:#7c2d12}.perm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.perm-actions button{padding:11px 18px;border-radius:11px;border:1px solid #d0d5dd;font-weight:800;cursor:pointer}.perm-save{background:#ff5a2a!important;color:#fff;border-color:#ff5a2a!important}@media(max-width:650px){.perm-grid,.perm-profile{grid-template-columns:1fr}}
 </style><div id="permission-dashboard" aria-hidden="true"><div class="perm-card"><div class="perm-head"><div><h3 id="perm-title">Permissões</h3><p>Marque as áreas que este acesso poderá utilizar.</p></div><button class="perm-close" id="perm-x" type="button">×</button></div><div class="perm-profile"><label>Colaborador<input id="perm-user-name" disabled></label><label>Perfil<select id="perm-role"><option value="colaborador">Colaborador</option><option value="lider">Liderança</option><option value="admin">Administrador</option></select></label></div><div class="perm-grid" id="perm-grid"></div><div class="perm-note"><b>Controle de acesso:</b> você pode voltar aqui e alterar essas permissões quando quiser. Gestão fica disponível somente para perfil Administrador.</div><div class="perm-actions"><button id="perm-cancel" type="button">Cancelar</button><button class="perm-save" id="perm-save" type="button">Salvar permissões</button></div></div></div>
 <script id="permission-dashboard-script">(()=>{const defs=[['dashboard','Visão Geral','Indicadores gerais'],['card','Card do Dia','Card operacional'],['producao','Produção','Full, estoque e pedidos externos'],['estoque','Estoque','Consulta de estoque'],['medidas','Medidas','Medidas e cubagem'],['rodizios','Rodízios','Escalas e rodízios'],['rotina','Minha Rotina','Afazeres individuais'],['gestao','Gestão','Administração do sistema']];const presets={colaborador:['dashboard','card','producao','estoque','rotina'],lider:['dashboard','card','producao','estoque','medidas','rodizios','rotina'],admin:defs.map(x=>x[0])};let targetId='';const modal=document.getElementById('permission-dashboard'),grid=document.getElementById('perm-grid'),role=document.getElementById('perm-role');const draw=s=>grid.innerHTML=defs.map(([k,n,d])=>`<label class="perm-item"><span><b>${n}</b><small>${d}</small></span><input type="checkbox" data-perm="${k}" ${s.includes(k)?'checked':''}></label>`).join('');window.openPermissionDashboard=(tr,id)=>{targetId=id;const nome=tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=(tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';const perms=(tr.children[4]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);document.getElementById('perm-title').textContent=`Permissões de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(perms.length?perms:presets[perfil]);modal.classList.add('show')};const close=()=>modal.classList.remove('show');role.onchange=()=>draw(presets[role.value]);document.getElementById('perm-x').onclick=close;document.getElementById('perm-cancel').onclick=close;document.getElementById('perm-save').onclick=async()=>{const btn=document.getElementById('perm-save');let perms=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);if(role.value!=='admin')perms=perms.filter(x=>x!=='gestao');try{btn.disabled=true;btn.textContent='Salvando...';await invokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});close();await loadAccess();setStatus('Permissões atualizadas com sucesso.')}catch(e){alert('Não foi possível salvar: '+(e?.message||e))}finally{btn.disabled=false;btn.textContent='Salvar permissões'}}})();</script>
+
+<script id="mimar-operational-team-v1">
+(()=>{
+ const KEY='mimar_operational_team_v1';
+ const DEFAULT=['Thiago','Fagner','Leonardo','Rafael','Bryan','Elisabete','Beatriz','Arthur','Fabiola'];
+ const clean=s=>String(s||'').trim();
+ function getTeam(){
+   let a=[];try{a=JSON.parse(localStorage.getItem(KEY)||'[]')}catch{}
+   return [...new Set([...(Array.isArray(a)?a:[]),...DEFAULT].map(clean).filter(Boolean))];
+ }
+ function saveTeam(a){localStorage.setItem(KEY,JSON.stringify([...new Set(a.map(clean).filter(Boolean))]));refreshTeamSelects()}
+ function refreshTeamSelects(){
+   const team=getTeam();
+   ['full-launch-person','stockprod-person','extra-person'].forEach(id=>{
+     const s=document.getElementById(id);if(!s)return;
+     const old=s.value;
+     s.innerHTML='<option value="">Selecione</option>'+team.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('');
+     if(team.includes(old))s.value=old;
+   });
+ }
+ window.mimarOperationalTeam={get:getTeam,save:saveTeam,refresh:refreshTeamSelects};
+ function addButton(){
+   const sel=document.getElementById('full-launch-person');if(!sel||document.getElementById('full-team-add'))return;
+   const b=document.createElement('button');b.type='button';b.id='full-team-add';b.className='btn';b.style.cssText='margin-top:8px;width:max-content;padding:8px 12px;font-size:12px';
+   b.textContent='+ Adicionar colaborador';
+   b.onclick=()=>{const n=clean(prompt('Nome do novo colaborador:'));if(!n)return;const team=getTeam();if(!team.some(x=>x.toLowerCase()===n.toLowerCase()))team.push(n);saveTeam(team);sel.value=n};
+   sel.parentElement.appendChild(b);
+ }
+ const run=()=>{refreshTeamSelects();addButton()};
+ setTimeout(run,500);window.addEventListener('mimar:system-login',()=>setTimeout(run,250));
+})();
+</script>
 </body>
 </html>
 
