@@ -4823,6 +4823,7 @@ function mimarStartOperationalRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'producao'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
     .on('postgres_changes',{event:'*',schema:'public',table:'expedicao'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
     .on('postgres_changes',{event:'*',schema:'public',table:'importacoes'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'coletas_diarias'},payload=>{const row=payload.new||payload.old;if(!row?.data||row.data===pickupTodayKey())void pickupLoadCloudStatus()})
     .subscribe();
 }
 window.addEventListener('load',()=>{setTimeout(async()=>{await mimarInitialCloudSync();mimarStartOperationalRealtime()},150)});
@@ -5440,7 +5441,26 @@ function openPickupEditor(){if(!isAdmin){openAuth();return}renderPickupEditor();
 function closePickupEditor(){const o=document.getElementById('pickup-overlay');o.classList.remove('open');o.setAttribute('aria-hidden','true')}
 function renderPickupEditor(){const ed=document.getElementById('pickup-editor');ed.innerHTML=pickupSchedule.map((a,i)=>`<div class="pickup-editor-row" data-i="${i}"><input data-field="name" value="${stockSafe(a.name)}" placeholder="Nome da conta"><input data-field="start" type="time" value="${a.start}"><input data-field="end" type="time" value="${a.end}"><button class="pickup-remove" data-remove="${i}">Remover</button></div>`).join('')}
 function collectPickupEditor(){document.querySelectorAll('.pickup-editor-row').forEach((r,i)=>{if(!pickupSchedule[i])return;pickupSchedule[i].name=r.querySelector('[data-field="name"]').value.trim()||'Conta';pickupSchedule[i].start=r.querySelector('[data-field="start"]').value||'';pickupSchedule[i].end=r.querySelector('[data-field="end"]').value||''})}
-document.getElementById('pickup-row').addEventListener('click',e=>{const undo=e.target.closest('[data-pickup-undo]');if(undo){const a=pickupSchedule.find(x=>x.id===undo.dataset.pickupUndo);if(!a)return;a.collected=false;a.collectedAt=null;pickupSaveLocal();renderPickups();return}const b=e.target.closest('[data-pickup-done]');if(!b)return;const a=pickupSchedule.find(x=>x.id===b.dataset.pickupDone);if(!a)return;a.collected=true;a.collectedAt=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});pickupSaveLocal();renderPickups()});
+async function pickupLoadCloudStatus(){
+ try{
+  const {data,error}=await cloud.from('coletas_diarias').select('coleta_id,coletado,coletado_em').eq('data',pickupTodayKey());if(error)throw error;
+  const map=new Map((data||[]).map(r=>[String(r.coleta_id),r]));
+  pickupSchedule=pickupSchedule.map(a=>{const r=map.get(String(a.id));return {...a,collected:!!r?.coletado,collectedAt:r?.coletado_em?new Date(r.coletado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):null}});
+  _mimarCloudApplying=true;try{_mimarNativeSetItem.call(localStorage,PICKUP_DATE_KEY,JSON.stringify(pickupTodayKey()));_mimarNativeSetItem.call(localStorage,PICKUP_KEY,JSON.stringify(pickupSchedule))}finally{_mimarCloudApplying=false}
+  renderPickups();
+ }catch(err){console.warn('Coletas Supabase:',err)}
+}
+async function pickupSetCloud(id,collected){
+ const {data:{session}}=await cloud.auth.getSession();if(!session?.user)throw new Error('Sessão expirada.');
+ const now=new Date().toISOString();
+ const {error}=await cloud.from('coletas_diarias').upsert({data:pickupTodayKey(),coleta_id:String(id),coletado:!!collected,coletado_em:collected?now:null,atualizado_por:session.user.id,updated_at:now},{onConflict:'data,coleta_id'});if(error)throw error;
+ await pickupLoadCloudStatus();
+}
+document.getElementById('pickup-row').addEventListener('click',async e=>{
+ const undo=e.target.closest('[data-pickup-undo]'),done=e.target.closest('[data-pickup-done]');const btn=undo||done;if(!btn)return;
+ const id=undo?.dataset.pickupUndo||done?.dataset.pickupDone;btn.disabled=true;
+ try{await pickupSetCloud(id,!!done)}catch(err){alert('Não foi possível sincronizar a coleta: '+(err?.message||err));btn.disabled=false}
+});
 document.getElementById('pickup-edit-times').addEventListener('click',openPickupEditor);
 document.getElementById('pickup-manage').addEventListener('click',openPickupEditor);
 document.getElementById('pickup-close').addEventListener('click',closePickupEditor);
@@ -5449,6 +5469,9 @@ document.getElementById('pickup-add').addEventListener('click',()=>{collectPicku
 document.getElementById('pickup-editor').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;collectPickupEditor();pickupSchedule.splice(Number(b.dataset.remove),1);renderPickupEditor()});
 document.getElementById('pickup-save').addEventListener('click',()=>{collectPickupEditor();pickupSaveLocal();renderPickups();closePickupEditor()});
 renderPickups();setInterval(renderPickups,1000);
+setTimeout(()=>void pickupLoadCloudStatus(),1200);
+window.addEventListener('focus',()=>void pickupLoadCloudStatus());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void pickupLoadCloudStatus()});
 
 cloud.auth.onAuthStateChange(()=>setTimeout(refreshAuthUI,0));
 
@@ -7363,22 +7386,7 @@ document.getElementById('access-body')?.addEventListener('click',async e=>{
     if(!confirm(`Remover ${nome}?\n\nO acesso será excluído do sistema e do Supabase Authentication. Esta ação não pode ser desfeita.`))return;
     setStatus(`Removendo ${nome}...`);
     await invokeAccess({action:'delete',id});
-  }else if(act==='permissions'){
-    const nome=tr.querySelector('td b')?.textContent||'Colaborador';
-    const current=(tr.children[3]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);
-    const all=[
-      ['dashboard','Visão Geral'],['card','Card do Dia'],['producao','Produção'],
-      ['estoque','Estoque'],['medidas','Medidas'],['rodizios','Rodízios'],
-      ['rotina','Minha Rotina'],['gestao','Gestão']
-    ];
-    const chosen=[];
-    for(const [key,label] of all){
-      if(confirm(`${nome}\n\nPermitir acesso a "${label}"?\n\nOK = permitir | Cancelar = não permitir`))chosen.push(key);
-    }
-    if(!chosen.includes('dashboard'))chosen.unshift('dashboard');
-    await invokeAccess({action:'update-permissions',id,permissoes:chosen});
-    setStatus(`Permissões de ${nome} atualizadas.`);
-  }else{
+  }else if(act==='permissions'){openPermissionDashboard(tr,id);return;}else{
     const pass=prompt('Digite a nova senha temporária:');if(!pass)return;
     await invokeAccess({action:'reset_password',id,password:pass});
   }
@@ -7692,6 +7700,10 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 })();
 </script>
 
+<style id="permission-dashboard-style">
+#permission-dashboard{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:12000;display:none;align-items:center;justify-content:center;padding:22px}#permission-dashboard.show{display:flex}.perm-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 28px 80px rgba(15,23,42,.24);padding:24px}.perm-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.perm-head h3{margin:0;font-size:24px}.perm-head p{margin:5px 0 0;color:#667085}.perm-close{border:0;background:#f2f4f7;border-radius:12px;width:40px;height:40px;font-size:20px;cursor:pointer}.perm-profile{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;background:#f8fafc;border:1px solid #e4e7ec;border-radius:16px;margin-bottom:16px}.perm-profile label{font-size:12px;font-weight:800;color:#475467}.perm-profile input,.perm-profile select{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid #d0d5dd;border-radius:10px;background:white}.perm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.perm-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4e7ec;border-radius:14px;padding:13px 14px}.perm-item b{font-size:14px}.perm-item small{display:block;color:#667085;margin-top:2px}.perm-item input{width:20px;height:20px;accent-color:#ff5a2a}.perm-note{margin-top:14px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:12px;color:#7c2d12}.perm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.perm-actions button{padding:11px 18px;border-radius:11px;border:1px solid #d0d5dd;font-weight:800;cursor:pointer}.perm-save{background:#ff5a2a!important;color:#fff;border-color:#ff5a2a!important}@media(max-width:650px){.perm-grid,.perm-profile{grid-template-columns:1fr}}
+</style><div id="permission-dashboard" aria-hidden="true"><div class="perm-card"><div class="perm-head"><div><h3 id="perm-title">Permissões</h3><p>Marque as áreas que este acesso poderá utilizar.</p></div><button class="perm-close" id="perm-x" type="button">×</button></div><div class="perm-profile"><label>Colaborador<input id="perm-user-name" disabled></label><label>Perfil<select id="perm-role"><option value="colaborador">Colaborador</option><option value="lider">Liderança</option><option value="admin">Administrador</option></select></label></div><div class="perm-grid" id="perm-grid"></div><div class="perm-note"><b>Controle de acesso:</b> você pode voltar aqui e alterar essas permissões quando quiser. Gestão fica disponível somente para perfil Administrador.</div><div class="perm-actions"><button id="perm-cancel" type="button">Cancelar</button><button class="perm-save" id="perm-save" type="button">Salvar permissões</button></div></div></div>
+<script id="permission-dashboard-script">(()=>{const defs=[['dashboard','Visão Geral','Indicadores gerais'],['card','Card do Dia','Card operacional'],['producao','Produção','Full, estoque e pedidos externos'],['estoque','Estoque','Consulta de estoque'],['medidas','Medidas','Medidas e cubagem'],['rodizios','Rodízios','Escalas e rodízios'],['rotina','Minha Rotina','Afazeres individuais'],['gestao','Gestão','Administração do sistema']];const presets={colaborador:['dashboard','card','producao','estoque','rotina'],lider:['dashboard','card','producao','estoque','medidas','rodizios','rotina'],admin:defs.map(x=>x[0])};let targetId='';const modal=document.getElementById('permission-dashboard'),grid=document.getElementById('perm-grid'),role=document.getElementById('perm-role');const draw=s=>grid.innerHTML=defs.map(([k,n,d])=>`<label class="perm-item"><span><b>${n}</b><small>${d}</small></span><input type="checkbox" data-perm="${k}" ${s.includes(k)?'checked':''}></label>`).join('');window.openPermissionDashboard=(tr,id)=>{targetId=id;const nome=tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=(tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';const perms=(tr.children[4]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);document.getElementById('perm-title').textContent=`Permissões de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(perms.length?perms:presets[perfil]);modal.classList.add('show')};const close=()=>modal.classList.remove('show');role.onchange=()=>draw(presets[role.value]);document.getElementById('perm-x').onclick=close;document.getElementById('perm-cancel').onclick=close;document.getElementById('perm-save').onclick=async()=>{const btn=document.getElementById('perm-save');let perms=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);if(role.value!=='admin')perms=perms.filter(x=>x!=='gestao');try{btn.disabled=true;btn.textContent='Salvando...';await invokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});close();await loadAccess();setStatus('Permissões atualizadas com sucesso.')}catch(e){alert('Não foi possível salvar: '+(e?.message||e))}finally{btn.disabled=false;btn.textContent='Salvar permissões'}}})();</script>
 </body>
 </html>
 
