@@ -7527,7 +7527,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    body.innerHTML=rows.length?rows.map(x=>{const raw=String(x.observacao||'');const parts=raw.split('\n---OBS---\n');const detalhe=parts[0]||'—',obs=parts.slice(1).join('\n---OBS---\n')||'—';return `<tr><td>${esc(br(x.data))} · ${esc(fmtTime(x.created_at))}</td><td><b>${esc(x.colaborador)}</b></td><td>${esc(x.tipo)}</td><td><b>${Number(x.quantidade||0).toLocaleString('pt-BR')} pedido(s)</b></td><td><b>${esc(detalhe)}</b></td><td>${esc(obs)}</td><td class="admin-only-action">${window.isAdmin?`<button class="production-remove-btn" data-extra-remove="${esc(x.id)}" type="button">Remover</button>`:'—'}</td></tr>`}).join(''):'<tr><td colspan="7">Nenhum pedido externo registrado.</td></tr>';
  }
  async function load(){
-   if(!window.cloud)return;
+   if(typeof cloud==='undefined')return;
    loading=true;render();
    try{
      const {data,error}=await cloud.from(TABLE).select('id,data,colaborador,tipo,quantidade,observacao,criado_por,created_at,updated_at').order('data',{ascending:false}).order('created_at',{ascending:false}).limit(500);
@@ -7581,7 +7581,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    }catch{}
 
    // 3. Contas do Supabase como complemento, não como fonte exclusiva da equipe.
-   if(window.cloud){
+   if(typeof cloud!=='undefined'){
      try{
        const {data,error}=await cloud.from('colaboradores').select('nome,ativo').eq('ativo',true).order('nome');
        if(!error)(data||[]).forEach(c=>c.nome&&names.push(String(c.nome).trim()));
@@ -7658,7 +7658,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
  const escExtra=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const isoToday=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
  async function refreshExtraCard(){
-   if(!window.cloud)return;
+   if(typeof cloud==='undefined')return;
    try{
      const cardDate=document.getElementById('history-date')?.value||isoToday();
      const {data,error}=await cloud.from('outras_atividades').select('colaborador,tipo,quantidade,observacao,data').eq('data',cardDate).order('created_at',{ascending:true});
