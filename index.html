@@ -3924,6 +3924,7 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
     <div class="production-switch">
       <button type="button" class="active" data-production-view="full">FULL</button>
       <button type="button" data-production-view="stock">Produção de Estoque</button>
+      <button type="button" data-production-view="extra">Outras atividades</button>
     </div>
 <div class="production-queue">
       <div class="queue-card">
@@ -3990,6 +3991,28 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
 
       <div class="full-product-list" id="full-product-list"></div>
       <div class="production-demo-note">Produção sincronizada pelo Supabase. Colaboradores podem lançar produção sem login administrativo.</div>
+    </div>
+
+    <div class="production-panel" id="production-extra-panel">
+      <div class="full-cycle-banner extra-activity-banner">
+        <div>
+          <span class="cycle-kicker">ATIVIDADES FORA DO FLUXO NORMAL</span>
+          <h2>Pedidos externos e atividades especiais</h2>
+          <p>Registre pedidos e trabalhos que não aparecem na expedição dos marketplaces. A quantidade representa número de pedidos; o detalhe mostra o tamanho e a complexidade real do trabalho.</p>
+        </div>
+        <div class="full-cycle-date"><strong id="extra-total-day">0</strong><span>pedidos hoje</span></div>
+      </div>
+      <div class="stock-production-summary stock-production-summary-3">
+        <div class="full-summary-card"><span>Lançamentos hoje</span><b id="extra-count-day">0</b></div>
+        <div class="full-summary-card good"><span>Pedidos externos</span><b id="extra-qty-day">0</b></div>
+        <div class="full-summary-card"><span>Colaboradores envolvidos</span><b id="extra-people-day">0</b></div>
+      </div>
+      <div class="full-toolbar">
+        <div><h2>Pedidos que não aparecem na expedição</h2><p>A quantidade abaixo é de pedidos. Informe no detalhe o conteúdo/volume, por exemplo: 1 pedido com 5.000 unidades de Giz.</p></div>
+        <div class="full-toolbar-actions"><input id="extra-search" type="search" placeholder="Buscar colaborador, pedido, produto ou atividade"><button class="btn btn-orange" id="extra-add" type="button">＋ Registrar pedido</button></div>
+      </div>
+      <div class="stock-production-table"><table><thead><tr><th>Data / horário</th><th>Colaborador</th><th>Atividade</th><th>Pedidos</th><th>Detalhe do pedido</th><th>Observação</th><th class="admin-only-action">Ações</th></tr></thead><tbody id="extra-body"></tbody></table></div>
+      <div class="production-demo-note">Exemplo: <b>Thiago · 1 pedido externo · 5.000 unidades de Giz</b>. Assim o sistema registra 1 pedido, mas deixa evidente que foi um trabalho de alto volume e maior complexidade.</div>
     </div>
 
     <div class="production-panel" id="production-stock-panel">
@@ -4864,7 +4887,7 @@ async function refreshAuthUI(){
       await cloud.auth.signOut();
       currentUser=null;
       document.body.classList.remove('mimar-auth-granted','user-logged-in','admin-mode');
-      window.mimarSignedProfileName='';window.mimarRole='';window.mimarPermissions=[];
+      window.mimarSignedProfileName='';window.mimarRole='';window.mimarPermissions=[];window.isAdmin=false;
       const err=document.getElementById('auth-error');if(err)err.textContent=profileData?.ativo===false?'Este acesso está desativado. Procure um administrador.':'Este usuário não possui acesso ao Mimar Expedição.';
       openAuth();
       return false;
@@ -4872,11 +4895,13 @@ async function refreshAuthUI(){
     profile=profileData;profileName=profile.nome||profile.usuario||'';
     const {data:adminData,error:adminError}=await cloud.rpc('is_admin');
     isAdmin=(profile.perfil==='admin')||(!adminError&&adminData===true);
+    window.isAdmin=isAdmin;
     window.mimarRole=profile.perfil||'';
     window.mimarPermissions=Array.isArray(profile.permissoes)?profile.permissoes:[];
   }
 
   window.mimarSignedProfileName=profileName;
+  window.isAdmin=!!isAdmin;
   document.body.classList.toggle('admin-mode',isAdmin);
   document.body.classList.toggle('user-logged-in',!!currentUser);
   document.body.classList.toggle('mimar-auth-granted',!!currentUser);
@@ -7276,17 +7301,92 @@ function selectedPerms(){return [...document.querySelectorAll('#access-perms inp
 function setStatus(t,bad=false){const e=document.getElementById('access-status');if(e){e.textContent=t;e.style.color=bad?'#b42318':'#667085'}}
 async function invokeAccess(body){const {data,error}=await cloud.functions.invoke('manage-users',{body});if(error)throw new Error(error.message||'Falha na função de acessos.');if(data?.error)throw new Error(data.error);return data}
 async function loadAccess(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;setStatus('Atualizando acessos...');try{const data=await invokeAccess({action:'list'});renderAccess(data.users||[]);setStatus(`${(data.users||[]).length} acesso(s) cadastrado(s).`)}catch(e){setStatus('A gestão de acessos ainda precisa da Edge Function manage-users no Supabase: '+e.message,true)}}
-function renderAccess(users){const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions"><button data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button data-access-act="reset">Nova senha</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}
+function renderAccess(users){const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions"><button data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button data-access-act="permissions">Permissões</button><button data-access-act="reset">Nova senha</button><button data-access-act="delete" class="access-delete-btn">Remover</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}
 async function createOne(name,user,password,role,permissions){return invokeAccess({action:'create',nome:name,usuario:user,senha:password,perfil:role,permissoes:permissions})}
+const MIMAR_INITIAL_TEAM=[
+ {nome:'Arthur',perfil:'colaborador'},
+ {nome:'Beatriz',perfil:'colaborador'},
+ {nome:'Bryan',perfil:'colaborador'},
+ {nome:'Elisabete',perfil:'lider'},
+ {nome:'Fabiola',perfil:'colaborador'},
+ {nome:'Fagner',perfil:'colaborador'},
+ {nome:'Leonardo',perfil:'colaborador'},
+ {nome:'Rafael',perfil:'admin'},
+ {nome:'Thiago',perfil:'colaborador'}
+];
+let mimarProvisioning=false;
+async function provisionInitialTeam(){
+ if(mimarProvisioning||(!window.isAdmin&&!document.body.classList.contains('admin-mode')))return;
+ mimarProvisioning=true;
+ try{
+  const listed=await invokeAccess({action:'list'});
+  let users=listed.users||[];
+  let created=0;
+  for(const m of MIMAR_INITIAL_TEAM){
+    const usuario=slugUser(m.nome);
+    const existing=users.find(u=>String(u.nome||'').toLowerCase()===m.nome.toLowerCase() || String(u.usuario||'').toLowerCase()===usuario);
+    const perms=m.perfil==='admin'
+      ?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']
+      :m.perfil==='lider'
+        ?['dashboard','card','producao','estoque','medidas','rodizios','rotina']
+        :['dashboard','card','producao','estoque','rotina'];
+    if(existing){
+      await invokeAccess({action:'update-permissions',id:existing.id,perfil:m.perfil,permissoes:perms});
+      continue;
+    }
+    try{
+      await createOne(m.nome,usuario,m.nome+'1234@',m.perfil,perms);
+      created++;
+    }catch(err){
+      console.warn('Cadastro inicial '+m.nome+':',err);
+    }
+  }
+  if(created)setStatus(`${created} acesso(s) inicial(is) da equipe criado(s).`);
+ }finally{mimarProvisioning=false}
+}
+
 document.getElementById('access-name')?.addEventListener('input',e=>{const u=document.getElementById('access-user');if(u&&!u.dataset.manual)u.value=slugUser(e.target.value)});
 document.getElementById('access-user')?.addEventListener('input',e=>e.target.dataset.manual='1');
 document.getElementById('access-role')?.addEventListener('change',e=>{if(e.target.value==='lider'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao'].includes(x.value))}});
 document.getElementById('access-create')?.addEventListener('click',async()=>{const name=document.getElementById('access-name').value.trim(),user=slugUser(document.getElementById('access-user').value),password=document.getElementById('access-password').value,role=document.getElementById('access-role').value;if(!name||!user||password.length<8)return setStatus('Preencha nome, usuário e uma senha com pelo menos 8 caracteres.',true);try{setStatus('Criando acesso...');await createOne(name,user,password,role,selectedPerms());document.getElementById('access-password').value='';document.getElementById('access-create-modal')?.setAttribute('hidden','');await loadAccess()}catch(e){setStatus(e.message,true)}});
 document.getElementById('access-bulk-create')?.addEventListener('click',async()=>{const names=document.getElementById('access-bulk-names').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);if(!names.length)return;const btn=document.getElementById('access-bulk-create');btn.disabled=true;let ok=0,fail=[];for(const name of names){const first=name.split(/\\s+/)[0];const role=/^elisabete$/i.test(first)?'lider':'colaborador';const perms=role==='lider'?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']:['dashboard','card','producao','estoque','rotina'];try{await createOne(name,slugUser(first),first+'1234@',role,perms);ok++}catch(e){fail.push(name+': '+e.message)}}btn.disabled=false;setStatus(`${ok} criado(s).${fail.length?' Falhas: '+fail.join(' | '):''}`,!!fail.length);await loadAccess()});
 document.getElementById('access-refresh')?.addEventListener('click',loadAccess);
-document.getElementById('access-body')?.addEventListener('click',async e=>{const btn=e.target.closest('[data-access-act]');if(!btn)return;const id=btn.closest('tr')?.dataset.userId;if(!id)return;try{if(btn.dataset.accessAct==='toggle'){await invokeAccess({action:'update',id,ativo:btn.dataset.active!=='true'})}else{const pass=prompt('Digite a nova senha temporária:');if(!pass)return;await invokeAccess({action:'reset_password',id,password:pass})}await loadAccess()}catch(err){setStatus(err.message,true)}});
+document.getElementById('access-body')?.addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-access-act]');if(!btn)return;
+ const tr=btn.closest('tr'),id=tr?.dataset.userId;if(!id)return;
+ const act=btn.dataset.accessAct;
+ try{
+  if(act==='toggle'){
+    await invokeAccess({action:'update',id,ativo:btn.dataset.active!=='true'});
+  }else if(act==='delete'){
+    const nome=tr.querySelector('td b')?.textContent||'este usuário';
+    if(!confirm(`Remover ${nome}?\n\nO acesso será excluído do sistema e do Supabase Authentication. Esta ação não pode ser desfeita.`))return;
+    setStatus(`Removendo ${nome}...`);
+    await invokeAccess({action:'delete',id});
+  }else if(act==='permissions'){
+    const nome=tr.querySelector('td b')?.textContent||'Colaborador';
+    const current=(tr.children[3]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);
+    const all=[
+      ['dashboard','Visão Geral'],['card','Card do Dia'],['producao','Produção'],
+      ['estoque','Estoque'],['medidas','Medidas'],['rodizios','Rodízios'],
+      ['rotina','Minha Rotina'],['gestao','Gestão']
+    ];
+    const chosen=[];
+    for(const [key,label] of all){
+      if(confirm(`${nome}\n\nPermitir acesso a "${label}"?\n\nOK = permitir | Cancelar = não permitir`))chosen.push(key);
+    }
+    if(!chosen.includes('dashboard'))chosen.unshift('dashboard');
+    await invokeAccess({action:'update-permissions',id,permissoes:chosen});
+    setStatus(`Permissões de ${nome} atualizadas.`);
+  }else{
+    const pass=prompt('Digite a nova senha temporária:');if(!pass)return;
+    await invokeAccess({action:'reset_password',id,password:pass});
+  }
+  await loadAccess();
+ }catch(err){setStatus(err.message,true)}
+});
 async function loadOwnAccess(){try{const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return;const {data}=await cloud.from('colaboradores').select('perfil,permissoes,ativo').eq('id',session.user.id).maybeSingle();window.mimarRole=data?.perfil||'';window.mimarPermissions=Array.isArray(data?.permissoes)?data.permissoes:[];if(window.isAdmin)return;document.querySelectorAll('.tab[data-page]').forEach(tab=>{const key=Object.keys(PERM_PAGE).find(k=>PERM_PAGE[k]===tab.dataset.page);if(key&&key!=='dashboard')tab.style.display=window.mimarPermissions.includes(key)?'flex':'none'})}catch(e){console.warn('Permissões:',e)}}
-window.addEventListener('mimar:system-login',()=>setTimeout(()=>{loadOwnAccess();loadAccess()},250));window.addEventListener('load',()=>setTimeout(()=>{loadOwnAccess();if(document.body.classList.contains('admin-mode'))loadAccess()},900));
+window.addEventListener('mimar:system-login',()=>setTimeout(async()=>{loadOwnAccess();if(window.isAdmin||document.body.classList.contains('admin-mode')){await provisionInitialTeam();await loadAccess()}},250));window.addEventListener('load',()=>setTimeout(async()=>{loadOwnAccess();if(document.body.classList.contains('admin-mode')){await provisionInitialTeam();await loadAccess()}},900));
 })();
 </script>\n
 <script id="mimar-access-ui-v3">
@@ -7383,6 +7483,210 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
  #gestao #access-management .access-table th:nth-child(5),#gestao #access-management .access-table td:nth-child(5){display:none!important}
 }
 </style>
+
+<style id="extra-activity-button-fix">
+#extra-add{cursor:pointer!important;pointer-events:auto!important;position:relative!important;z-index:2!important}
+#extra-modal.production-modal.show{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:10050!important}
+#extra-modal .production-modal-card,#extra-modal button,#extra-modal input,#extra-modal select{pointer-events:auto!important}
+</style>
+<div class="production-modal" id="extra-modal" aria-hidden="true">
+  <div class="production-modal-card"><div class="production-modal-head"><div><h3>Registrar pedido externo</h3><p>Informe quantos pedidos foram feitos e detalhe o conteúdo/volume do trabalho.</p></div><button class="production-close" id="extra-close" type="button">×</button></div>
+  <form class="create-cycle-form" id="extra-form">
+    <div class="form-grid"><label>Data da atividade<input id="extra-date" type="date" required></label><label>Colaborador
+<select id="extra-person" required>
+<option value="">Selecione o colaborador</option>
+</select>
+</label><label>Tipo de atividade<select id="extra-type"><option>Pedidos externos</option><option>Retrabalho</option><option>Recebimento</option><option>Apoio ao estoque</option><option>Separação especial</option><option>Outra atividade</option></select></label><label>Quantidade de pedidos<input id="extra-qty" type="number" min="1" step="1" value="1" required></label><label>Detalhe do pedido<input id="extra-detail" required placeholder="Ex.: 5.000 unidades de Giz"></label><label>Observação<input id="extra-note" placeholder="Ex.: Cliente, nº do pedido ou contexto"></label></div>
+    <div class="production-form-actions"><button class="btn btn-dark" id="extra-cancel" type="button">Cancelar</button><button class="btn btn-orange" type="submit">Registrar pedido</button></div>
+  </form></div>
+</div>
+<script id="mimar-extra-activities-supabase-v2">
+(()=>{
+ const TABLE='outras_atividades';
+ let records=[];
+ let loading=false;
+ const today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ const br=d=>String(d||'').split('-').reverse().join('/');
+ const fmtTime=v=>{if(!v)return '—';try{return new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return '—'}};
+ const status=(msg,bad=false)=>{const el=document.getElementById('extra-cloud-status');if(el){el.textContent=msg;el.style.color=bad?'#b42318':'#667085'}};
+ function ensureStatus(){
+   if(document.getElementById('extra-cloud-status'))return;
+   const note=document.querySelector('#production-extra-panel .production-demo-note');
+   if(note){const el=document.createElement('div');el.id='extra-cloud-status';el.style.cssText='margin-top:8px;font-size:12px;color:#667085';el.textContent='Sincronizado pelo Supabase.';note.after(el)}
+ }
+ function render(){
+   ensureStatus();
+   const q=(document.getElementById('extra-search')?.value||'').trim().toLowerCase();
+   const day=records.filter(x=>x.data===today());
+   const rows=records.filter(x=>!q||[x.colaborador,x.tipo,x.observacao,x.data].some(v=>String(v||'').toLowerCase().includes(q)));
+   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+   set('extra-count-day',day.length);set('extra-total-day',day.length);set('extra-qty-day',day.reduce((s,x)=>s+(Number(x.quantidade)||0),0).toLocaleString('pt-BR'));set('extra-people-day',new Set(day.map(x=>x.colaborador)).size);
+   const body=document.getElementById('extra-body');if(!body)return;
+   if(loading){body.innerHTML='<tr><td colspan="6">Carregando atividades...</td></tr>';return}
+   body.innerHTML=rows.length?rows.map(x=>{const raw=String(x.observacao||'');const parts=raw.split('\n---OBS---\n');const detalhe=parts[0]||'—',obs=parts.slice(1).join('\n---OBS---\n')||'—';return `<tr><td>${esc(br(x.data))} · ${esc(fmtTime(x.created_at))}</td><td><b>${esc(x.colaborador)}</b></td><td>${esc(x.tipo)}</td><td><b>${Number(x.quantidade||0).toLocaleString('pt-BR')} pedido(s)</b></td><td><b>${esc(detalhe)}</b></td><td>${esc(obs)}</td><td class="admin-only-action">${window.isAdmin?`<button class="production-remove-btn" data-extra-remove="${esc(x.id)}" type="button">Remover</button>`:'—'}</td></tr>`}).join(''):'<tr><td colspan="7">Nenhum pedido externo registrado.</td></tr>';
+ }
+ async function load(){
+   if(!window.cloud)return;
+   loading=true;render();
+   try{
+     const {data,error}=await cloud.from(TABLE).select('id,data,colaborador,tipo,quantidade,observacao,criado_por,created_at,updated_at').order('data',{ascending:false}).order('created_at',{ascending:false}).limit(500);
+     if(error)throw error;
+     records=data||[];status('Atividades sincronizadas pelo Supabase.');
+   }catch(err){console.error('Outras atividades:',err);status('Não foi possível carregar as outras atividades: '+(err?.message||err),true)}
+   finally{loading=false;render()}
+ }
+ async function loadCollaborators(){
+   const sel=document.getElementById('extra-person');
+   if(!sel)return;
+   const previous=sel.value;
+   let names=[];
+
+   // 1. Equipe operacional que já existe no próprio painel.
+   // Procura selects, listas e chips usados pelas telas de produção/rodízio/gestão.
+   const selectors=[
+     '#stockprod-person option',
+     '#full-production-person option',
+     '#production-person option',
+     '[data-collaborator-name]',
+     '[data-colaborador]',
+     '.team-member-name',
+     '.collaborator-name'
+   ];
+   selectors.forEach(css=>{
+     document.querySelectorAll(css).forEach(el=>{
+       const raw=el.dataset?.collaboratorName||el.dataset?.colaborador||el.value||el.textContent||'';
+       const n=String(raw).trim();
+       if(n && !/selecione|todos|colaborador/i.test(n))names.push(n);
+     });
+   });
+
+   // 2. Chaves de equipe já utilizadas pelo sistema/localStorage.
+   try{
+     Object.keys(localStorage).forEach(k=>{
+       if(!/team|equipe|colabor/i.test(k))return;
+       try{
+         const v=JSON.parse(localStorage.getItem(k));
+         const walk=x=>{
+           if(Array.isArray(x))return x.forEach(walk);
+           if(x&&typeof x==='object'){
+             const n=x.nome||x.name||x.colaborador;
+             if(n&&typeof n==='string')names.push(n.trim());
+             Object.values(x).forEach(walk);
+           }
+         };
+         walk(v);
+       }catch{}
+     });
+   }catch{}
+
+   // 3. Contas do Supabase como complemento, não como fonte exclusiva da equipe.
+   if(window.cloud){
+     try{
+       const {data,error}=await cloud.from('colaboradores').select('nome,ativo').eq('ativo',true).order('nome');
+       if(!error)(data||[]).forEach(c=>c.nome&&names.push(String(c.nome).trim()));
+     }catch(err){console.warn('Complemento Supabase colaboradores:',err)}
+   }
+
+   // Nomes operacionais padrão do painel caso ainda não tenham sido renderizados.
+   const fallback=['Arthur','Beatriz','Bryan','Elisabete','Fabiola','Fagner','Leonardo','Rafael','Thiago'];
+   if(names.length<4)names.push(...fallback);
+
+   names=[...new Set(names.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+   sel.innerHTML='<option value="">Selecione o colaborador</option>'+
+     names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+   if(previous && names.includes(previous))sel.value=previous;
+ }
+ function open(){
+   loadCollaborators();
+   const date=document.getElementById('extra-date');
+   if(date&&!date.value)date.value=today();
+   const modal=document.getElementById('extra-modal');
+   if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false');}
+ }
+ function close(){
+   const modal=document.getElementById('extra-modal');
+   if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}
+ }
+ document.getElementById('extra-add')?.addEventListener('click',open);
+ document.getElementById('extra-close')?.addEventListener('click',close);
+ document.getElementById('extra-cancel')?.addEventListener('click',close);
+ document.getElementById('extra-search')?.addEventListener('input',render);
+ document.getElementById('extra-form')?.addEventListener('submit',async e=>{
+   e.preventDefault();
+   const btn=e.submitter||e.target.querySelector('[type="submit"]');
+   const date=document.getElementById('extra-date').value||today();
+   const colaborador=document.getElementById('extra-person').value;
+   const tipo=document.getElementById('extra-type').value;
+   const quantidade=Math.max(1,Math.floor(Number(document.getElementById('extra-qty').value)||1));
+   const detalhe=document.getElementById('extra-detail').value.trim();
+   const nota=document.getElementById('extra-note').value.trim();
+   const observacao=detalhe+(nota?'\n---OBS---\n'+nota:'');
+   if(!colaborador)return alert('Informe o colaborador.');
+   if(!detalhe)return alert('Informe o detalhe do pedido. Ex.: 5.000 unidades de Giz.');
+   try{
+     if(btn)btn.disabled=true;status('Salvando atividade no Supabase...');
+     const {error}=await cloud.from(TABLE).insert({data:date,colaborador,tipo,quantidade,observacao:observacao||null});
+     if(error)throw error;
+     e.target.reset();document.getElementById('extra-qty').value=1;document.getElementById('extra-date').value=today();close();await load();
+   }catch(err){console.error(err);status('Não foi possível registrar a atividade: '+(err?.message||err),true);alert('Não foi possível registrar a atividade no Supabase: '+(err?.message||err))}
+   finally{if(btn)btn.disabled=false}
+ });
+ document.getElementById('extra-body')?.addEventListener('click',async e=>{
+   const btn=e.target.closest('[data-extra-remove]');if(!btn)return;
+   if(!window.isAdmin)return alert('Somente administradores podem remover atividades.');
+   if(!confirm('Remover este lançamento de outra atividade?'))return;
+   try{btn.disabled=true;const {error}=await cloud.from(TABLE).delete().eq('id',btn.dataset.extraRemove);if(error)throw error;await load()}catch(err){btn.disabled=false;alert('Não foi possível remover: '+(err?.message||err))}
+ });
+ document.querySelectorAll('[data-production-view]').forEach(b=>b.addEventListener('click',()=>{
+   if(b.dataset.productionView==='extra'){
+     document.querySelectorAll('[data-production-view]').forEach(x=>x.classList.toggle('active',x===b));
+     document.querySelectorAll('.production-panel').forEach(x=>x.classList.remove('active'));
+     document.getElementById('production-extra-panel')?.classList.add('active');load();
+   }
+ }));
+ const date=document.getElementById('extra-date');if(date)date.value=today();
+ window.addEventListener('mimar:system-login',()=>setTimeout(()=>{loadCollaborators();load()},150));
+ window.addEventListener('focus',()=>{if(document.getElementById('production-extra-panel')?.classList.contains('active'))load()});
+ setTimeout(()=>{loadCollaborators();load()},900);
+ render();
+})();
+</script>
+
+<script id="mimar-extra-card-integration-v1">
+(()=>{
+ const escExtra=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ const isoToday=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+ async function refreshExtraCard(){
+   if(!window.cloud)return;
+   try{
+     const cardDate=document.getElementById('history-date')?.value||isoToday();
+     const {data,error}=await cloud.from('outras_atividades').select('colaborador,tipo,quantidade,observacao,data').eq('data',cardDate).order('created_at',{ascending:true});
+     if(error)throw error;
+     const rows=data||[];
+     let box=document.getElementById('card-extra-activities');
+     const card=document.getElementById('report-card') || document.getElementById('card-page');
+     if(!card)return;
+     if(!box){
+       box=document.createElement('div');box.id='card-extra-activities';
+       box.style.cssText='margin-top:14px;padding:14px;border:1px solid rgba(0,0,0,.10);border-radius:14px;background:#fff;';
+       card.appendChild(box);
+     }
+     if(!rows.length){box.style.display='none';return}
+     box.style.display='';
+     const total=rows.reduce((s,r)=>s+(Number(r.quantidade)||0),0);
+     box.innerHTML=`<div style="font-weight:800;font-size:14px;margin-bottom:8px">Pedidos externos · ${total} pedido(s)</div>`+
+       rows.map(r=>{const detail=String(r.observacao||'').split('\n---OBS---\n')[0]||'';return `<div style="font-size:12px;margin:5px 0"><b>${escExtra(r.colaborador)}</b> · ${Number(r.quantidade)||0} pedido(s) · ${escExtra(detail)}</div>`}).join('');
+   }catch(e){console.error('Card pedidos externos:',e)}
+ }
+ window.refreshExtraCard=refreshExtraCard;
+ window.addEventListener('mimar:system-login',()=>setTimeout(refreshExtraCard,500));
+ document.getElementById('history-date')?.addEventListener('change',()=>setTimeout(refreshExtraCard,80));
+ document.addEventListener('click',e=>{if(e.target.closest('[data-tab="card"],[href="#card-dia"],#nav-card'))setTimeout(refreshExtraCard,250)});
+ setTimeout(refreshExtraCard,1400);
+})();
+</script>
+
 </body>
 </html>
 
@@ -7411,6 +7715,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 #gestao .management-imports,#gestao .mgmt-toolbar,#gestao .trend-wrap,#gestao .grid2,#gestao .backup-box{border:1px solid #e4e7ec!important;box-shadow:0 8px 24px rgba(16,24,40,.04)!important;border-radius:16px!important}
 @media(max-width:900px){.gestao-tabs{grid-template-columns:1fr 1fr}.gestao-tab:nth-child(2){border-right:0}.access-head-actions{width:100%}.access-head-actions input{width:100%!important;flex:1 1 100%}#gestao #access-management .access-head{align-items:flex-start!important;flex-direction:column!important}}
 @media(max-width:560px){.gestao-tabs{grid-template-columns:1fr}.gestao-tab{border-right:0;border-bottom:1px solid #eef0f3}.gestao-tab:last-child{border-bottom:0}#gestao .page-heading h1{font-size:30px!important}#gestao #access-management .access-head>div:first-child{padding-left:0;padding-top:60px}#gestao #access-management .access-head>div:first-child:before{top:0}.access-head-actions .btn{flex:1 1 auto!important}}
+.access-actions .access-delete-btn{color:#b42318!important;border-color:#f3b7b2!important;background:#fff7f6!important}.access-actions .access-delete-btn:hover{background:#fee4e2!important}
 </style>
 
 <style id="mimar-layout-alinhado-definitivo">
