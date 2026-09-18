@@ -5419,8 +5419,9 @@ function mimarPrintStockCount(){
   const now=new Date(),date=now.toLocaleDateString('pt-BR'),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const qty=r=>Number(r.quantidade??r.qty??0).toLocaleString('pt-BR');
   const half=Math.ceil(stockRecords.length/2);
-  const makeRows=(items,offset)=>items.map((r,i)=>`<tr><td><span class="num">${offset+i+1}.</span> ${esc(r.produto)}</td><td>${qty(r)}</td><td></td></tr>`).join('');
-  const table=rows=>`<table><thead><tr><th>PRODUTO</th><th>SIST.</th><th>CONTAGEM</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const unit=r=>({unidade:'UND',und:'UND',caixa_master:'CX','caixa master':'CX',cx:'CX',pct:'PCT',pacote:'PCT',fardo:'PCT'}[String(r.volume||'').toLowerCase()]||String(r.volume||'').toUpperCase()||'UND');
+  const makeRows=(items,offset)=>items.map((r,i)=>`<tr><td><span class="num">${offset+i+1}.</span> ${esc(r.produto)}</td><td>${esc(unit(r))}</td><td>${qty(r)}</td><td></td></tr>`).join('');
+  const table=rows=>`<table><thead><tr><th>PRODUTO</th><th>CX / UND / PCT</th><th>QUANTIDADE</th><th>CONTAGEM</th></tr></thead><tbody>${rows}</tbody></table>`;
   const html=`<!doctype html><html><head><meta charset="utf-8"><title>Contagem de Estoque</title><style>
   @page{size:A4 portrait;margin:5mm}
   *{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,sans-serif}
@@ -5433,14 +5434,14 @@ function mimarPrintStockCount(){
   table{width:100%;border-collapse:collapse;table-layout:fixed}
   th,td{border:1px solid #555;padding:3px 4px;font-size:9.2px;height:20px;line-height:1.12}
   th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;text-align:center;height:15px}
-  th:first-child,td:first-child{text-align:left;width:68%}th:nth-child(2),td:nth-child(2){width:14%;text-align:center}th:nth-child(3),td:nth-child(3){width:18%;text-align:center}
+  th:first-child,td:first-child{text-align:left;width:60%}th:nth-child(2),td:nth-child(2){width:15%;text-align:center;font-weight:700}th:nth-child(3),td:nth-child(3){width:15%;text-align:center}th:nth-child(4),td:nth-child(4){width:10%;text-align:center}
   .num{display:inline-block;width:13px;text-align:right;margin-right:2px;color:#555}.footer{margin-top:5px;font-size:8px;color:#666;display:flex;justify-content:space-between}
   @media print{.no-print{display:none!important}}
   </style></head><body><div class="sheet">
   <div class="head"><div class="title"><div><h1>Mimar · Contagem de Estoque</h1><p>Conferência física do estoque — comparar com a quantidade atual do sistema.</p></div><div style="font-size:7.5px;text-align:right"><b>Impresso:</b> ${date} · ${time}</div></div></div>
   <div class="meta"><div><b>COLABORADOR:</b> ____________________________________________________</div><div><b>DATA:</b> ____ / ____ / ______</div></div>
   <div class="cols"><div>${table(makeRows(stockRecords.slice(0,half),0))}</div><div>${table(makeRows(stockRecords.slice(half),half))}</div></div>
-  <div class="footer"><span>Total de produtos: ${stockRecords.length}</span><span>Qtd. Sistema = quantidade registrada no momento da impressão.</span></div>
+  <div class="footer"><span>Total de produtos: ${stockRecords.length}</span><span>Quantidade = saldo registrado no sistema · Tipo = CX, UND ou PCT.</span></div>
   </div><script>window.onload=()=>{setTimeout(()=>window.print(),150)}<\/script></body></html>`;
   const w=window.open('','_blank','width=900,height=1000');
   if(!w){alert('O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.');return}
