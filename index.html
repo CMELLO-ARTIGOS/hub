@@ -5346,34 +5346,92 @@ document.getElementById('stock-table-body').addEventListener('change',e=>{
 
 // Impressão da contagem semanal: mantém exatamente a ordem atual recebida do estoque no site.
 function mimarPrintStockCount(){
-  const sheet=document.getElementById('stock-print-sheet');
-  if(!sheet)return;
-  if(!Array.isArray(stockRecords)||!stockRecords.length){alert('O estoque ainda não foi carregado. Aguarde a sincronização e tente novamente.');return}
+  if(!Array.isArray(stockRecords)||!stockRecords.length){
+    alert('O estoque ainda não foi carregado. Aguarde a sincronização e tente novamente.');
+    return;
+  }
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const now=new Date();
   const date=now.toLocaleDateString('pt-BR');
   const time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const qty=r=>Number(r.quantidade??r.qty??0).toLocaleString('pt-BR');
-  // Divide sequencialmente em duas metades: esquerda primeiro, direita continua a ordem do site.
+
+  // Duas colunas sequenciais para aproveitar uma única folha A4.
   const half=Math.ceil(stockRecords.length/2);
-  const makeRows=(items,offset)=>items.map((r,i)=>`<tr><td><span class="stock-print-num">${offset+i+1}.</span> ${esc(r.produto)}</td><td>${qty(r)}</td><td></td></tr>`).join('');
-  const leftRows=makeRows(stockRecords.slice(0,half),0);
-  const rightRows=makeRows(stockRecords.slice(half),half);
-  const table=rows=>`<table class="stock-print-table"><thead><tr><th>PRODUTO</th><th>SIST.</th><th>CONTAGEM</th></tr></thead><tbody>${rows}</tbody></table>`;
-  sheet.innerHTML=`
-    <div class="stock-print-head">
-      <div class="stock-print-title"><div><h1>Mimar · Contagem de Estoque</h1><p>Conferência física do estoque — comparar com a quantidade atual do sistema.</p></div><div style="font-size:7.5px;text-align:right"><b>Impresso:</b> ${date} · ${time}</div></div>
-    </div>
-    <div class="stock-print-meta">
-      <div><b>COLABORADOR:</b> ____________________________________________________</div>
-      <div><b>DATA:</b> ____ / ____ / ______</div>
-    </div>
-    <div class="stock-print-columns">
-      <div class="stock-print-column">${table(leftRows)}</div>
-      <div class="stock-print-column">${table(rightRows)}</div>
-    </div>
-    <div class="stock-print-footer"><span>Total de produtos: ${stockRecords.length}</span><span>Qtd. Sistema = quantidade registrada no momento da impressão.</span></div>`;
-  window.print();
+  const makeRows=(items,offset)=>items.map((r,i)=>`
+    <tr>
+      <td class="prod"><span class="num">${offset+i+1}.</span>${esc(r.produto)}</td>
+      <td class="sys">${qty(r)}</td>
+      <td class="count"></td>
+    </tr>`).join('');
+  const table=(rows)=>`<table><thead><tr><th>PRODUTO</th><th>SIST.</th><th>CONTAGEM</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  const printWin=window.open('','_blank','width=1100,height=800');
+  if(!printWin){
+    alert('O navegador bloqueou a janela de impressão. Permita pop-ups para este site e tente novamente.');
+    return;
+  }
+
+  printWin.document.open();
+  printWin.document.write(`<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Mimar · Contagem de Estoque</title>
+<style>
+  @page{size:A4 portrait;margin:7mm}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,sans-serif}
+  .sheet{width:100%}
+  .head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #222;padding-bottom:4px;margin-bottom:5px}
+  h1{font-size:14px;line-height:1;margin:0}
+  .sub{font-size:7.5px;color:#555;margin-top:3px}
+  .printed{font-size:7px;text-align:right;white-space:nowrap}
+  .meta{display:grid;grid-template-columns:1.35fr .65fr;gap:5px;margin:5px 0 6px}
+  .meta div{border:1px solid #555;min-height:22px;padding:5px 6px;font-size:8px}
+  .columns{display:grid;grid-template-columns:1fr 1fr;gap:3mm;align-items:start}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;break-inside:avoid}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  th,td{border:1px solid #555;padding:1.5px 2.5px;font-size:6.6px;line-height:1.05;height:13px;vertical-align:middle}
+  th{font-weight:700;text-align:center;background:#eee;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .prod{width:68%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sys{width:14%;text-align:center}
+  .count{width:18%;text-align:center}
+  .num{display:inline-block;width:14px;text-align:right;margin-right:3px;color:#555}
+  .footer{display:flex;justify-content:space-between;gap:12px;margin-top:4px;font-size:6.8px;color:#555}
+  @media print{
+    html,body{width:100%;height:auto;overflow:visible}
+    .sheet{page-break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="head">
+    <div><h1>Mimar · Contagem de Estoque</h1><div class="sub">Conferência física do estoque — comparar com a quantidade atual do sistema.</div></div>
+    <div class="printed"><b>Impresso:</b> ${date} · ${time}</div>
+  </div>
+  <div class="meta">
+    <div><b>COLABORADOR:</b> ____________________________________________________</div>
+    <div><b>DATA:</b> ____ / ____ / ______</div>
+  </div>
+  <div class="columns">
+    <div>${table(makeRows(stockRecords.slice(0,half),0))}</div>
+    <div>${table(makeRows(stockRecords.slice(half),half))}</div>
+  </div>
+  <div class="footer">
+    <span>Total de produtos: ${stockRecords.length}</span>
+    <span>SIST. = quantidade registrada no sistema no momento da impressão.</span>
+  </div>
+</div>
+<script>
+window.onload=()=>{setTimeout(()=>window.print(),180)};
+window.onafterprint=()=>window.close();
+<\/script>
+</body>
+</html>`);
+  printWin.document.close();
 }
 document.getElementById('stock-print-count')?.addEventListener('click',mimarPrintStockCount);
 
