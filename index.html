@@ -2942,7 +2942,7 @@ body.admin-mode button.admin-only-action{display:inline-flex}
   .stock-print-column{min-width:0}
   .stock-print-table{width:100%;border-collapse:collapse;table-layout:fixed}
   .stock-print-table th,.stock-print-table td{border:1px solid #555;padding:1.5px 2.5px;font-size:6.7px;height:12.7px;line-height:1.02}
-  .stock-print-table th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;text-align:center;height:15px}
+  .stock-print-table th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;text-align:center;height:20px;font-size:8.5px}
   .stock-print-table th:first-child,.stock-print-table td:first-child{text-align:left;width:68%}
   .stock-print-table th:nth-child(2),.stock-print-table td:nth-child(2){width:14%;text-align:center}
   .stock-print-table th:nth-child(3),.stock-print-table td:nth-child(3){width:18%;text-align:center}
@@ -4299,7 +4299,25 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
   <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Estoque</h1><p>Consulta rápida e controle dos produtos disponíveis.</p></div><div class="page-accent"></div></div>
 
 
-  <div style="display:none"><span id="stock-title">Estoque</span><span id="stock-subtitle">Consulte e pesquise os produtos disponíveis.</span><span id="stock-sync-status">Supabase</span></div>
+  <div class="season-stock-tabs" id="season-stock-tabs">
+<button type="button" class="active" data-season-stock="normal">Estoque Geral</button>
+<button type="button" data-season-stock="natal">🎄 Estoque de Natal</button></div>
+<section id="natal-stock-panel" class="natal-stock-panel" hidden>
+  <div class="natal-stock-head"><div><span class="eyebrow">PRODUTO SAZONAL</span><h2>Estoque de Natal</h2><p>Controle separado dos produtos sazonais de Natal.</p></div><div><b id="natal-stock-count">0</b><span> produtos</span></div></div>
+  <div class="stock-counter-owner">
+    <div><label for="natal-current-owner">Quem está realizando a contagem?</label><select id="natal-current-owner"><option value="">Selecione seu nome</option></select></div>
+    <div class="owner-hint">O nome selecionado será registrado em todas as alterações deste estoque.</div>
+  </div>
+  <form class="stock-form natal-edit-only" id="natal-add-form" style="display:none">
+    <div class="stock-field stock-product-field"><label>Produto</label><input id="natal-new-product" required placeholder="Nome do produto"></div>
+    <div class="stock-field"><label>Quantidade</label><input id="natal-new-qty" type="number" min="0" value="0" required></div>
+    <div class="stock-field stock-product-field"><label>Observação</label><input id="natal-new-obs" placeholder="Opcional"></div>
+    <button class="btn btn-green" type="submit">＋ Adicionar produto</button>
+  </form>
+  <div class="stock-edit-strip"><div class="stock-edit-strip-text"><b>Controle do estoque de Natal</b><span>Pesquise normalmente ou ative o modo de alteração.</span></div><button class="btn btn-orange stock-edit-compact" id="natal-edit-toggle" type="button">✎ Alterar estoque</button><button class="btn btn-dark stock-edit-compact" id="natal-print-count" type="button">▤ Imprimir contagem</button></div>
+  <div class="stock-toolbar"><div class="stock-search"><input id="natal-stock-search" type="search" placeholder="Pesquisar produto de Natal..."></div></div>
+  <div class="stock-table-wrap"><table class="stock-table"><thead><tr><th>Produto</th><th>Quantidade</th><th>Observação</th><th>Atualizado</th><th class="natal-actions-head" style="display:none">Ações</th></tr></thead><tbody id="natal-stock-body"><tr><td colspan="5" class="stock-empty">Carregando estoque de Natal...</td></tr></tbody></table></div>
+</section><div style="display:none"><span id="stock-title">Estoque</span><span id="stock-subtitle">Consulte e pesquise os produtos disponíveis.</span><span id="stock-sync-status">Supabase</span></div>
 
   <section class="bucket-color-panel" id="bucketColorPanel">
     <div class="bucket-color-head">
@@ -5408,15 +5426,15 @@ function mimarPrintStockCount(){
   *{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,sans-serif}
   .sheet{width:100%}.head{border-bottom:2px solid #222;padding-bottom:4px;margin-bottom:5px}
   .title{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
-  h1{font-size:14px;margin:0}p{font-size:7.5px;margin:2px 0 0;color:#555}
-  .meta{display:grid;grid-template-columns:1.25fr .75fr;gap:5px;margin:5px 0 6px;font-size:8px}
+  h1{font-size:16px;margin:0}p{font-size:9px;margin:2px 0 0;color:#555}
+  .meta{display:grid;grid-template-columns:1.25fr .75fr;gap:6px;margin:6px 0 7px;font-size:9.5px}
   .meta div{border:1px solid #666;padding:4px 6px;min-height:22px}
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:3mm;align-items:start}
   table{width:100%;border-collapse:collapse;table-layout:fixed}
-  th,td{border:1px solid #555;padding:1.5px 2.5px;font-size:6.7px;height:12.7px;line-height:1.02}
+  th,td{border:1px solid #555;padding:3px 4px;font-size:9.2px;height:20px;line-height:1.12}
   th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;text-align:center;height:15px}
   th:first-child,td:first-child{text-align:left;width:68%}th:nth-child(2),td:nth-child(2){width:14%;text-align:center}th:nth-child(3),td:nth-child(3){width:18%;text-align:center}
-  .num{display:inline-block;width:13px;text-align:right;margin-right:2px;color:#555}.footer{margin-top:4px;font-size:6.8px;color:#666;display:flex;justify-content:space-between}
+  .num{display:inline-block;width:13px;text-align:right;margin-right:2px;color:#555}.footer{margin-top:5px;font-size:8px;color:#666;display:flex;justify-content:space-between}
   @media print{.no-print{display:none!important}}
   </style></head><body><div class="sheet">
   <div class="head"><div class="title"><div><h1>Mimar · Contagem de Estoque</h1><p>Conferência física do estoque — comparar com a quantidade atual do sistema.</p></div><div style="font-size:7.5px;text-align:right"><b>Impresso:</b> ${date} · ${time}</div></div></div>
@@ -7996,7 +8014,57 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
  setTimeout(apply,250);setTimeout(apply,1000);
 })();
 </script>
-</body>
+<style id="mimar-natal-stock-style-v3">
+.season-stock-tabs{display:flex;gap:6px;margin:0 0 16px;padding:5px;background:#f3f4f6;border:1px solid #e4e7ec;border-radius:12px;width:max-content}.season-stock-tabs button{border:0;background:transparent;padding:9px 14px;border-radius:9px;font-weight:800;color:#667085;cursor:pointer}.season-stock-tabs button.active{background:#fff;color:#101828;box-shadow:0 1px 4px rgba(16,24,40,.08)}
+.natal-stock-panel{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:18px;margin-bottom:18px}.natal-stock-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}.natal-stock-head h2{margin:3px 0;font-size:22px}.natal-stock-head p{margin:0;color:#667085;font-size:13px}.natal-stock-head>div:last-child{padding:9px 12px;border-radius:10px;background:#f8fafc;color:#667085}.natal-stock-head b{font-size:20px;color:#101828}
+#natal-stock-panel .stock-counter-owner{margin-bottom:14px}#natal-stock-panel .stock-table input{width:100%;border:1px solid #d0d5dd;border-radius:8px;padding:7px 8px}.natal-actions{display:flex;gap:5px}.natal-save,.natal-remove{border:1px solid #d0d5dd;border-radius:8px;padding:6px 9px;background:#fff;font-weight:800;cursor:pointer}.natal-save{background:#3c3c3b;color:#fff;border-color:#3c3c3b}.natal-remove{color:#b42318}
+</style>
+<script id="mimar-natal-stock-v3">
+(function(){
+ const page=document.getElementById('estoque-controle'),panel=document.getElementById('natal-stock-panel'),tabs=document.getElementById('season-stock-tabs');if(!page||!panel||!tabs)return;
+ const normal=[...page.children].filter(el=>el!==tabs&&el!==panel&&!el.matches?.('.page-heading')&&!(el.tagName==='DIV'&&el.style.display==='none'));let rows=[],edit=false;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function owners(){const {data}=await cloud.from('colaboradores').select('nome').eq('ativo',true).order('nome');const sel=document.getElementById('natal-current-owner'),old=sel.value;sel.innerHTML='<option value="">Selecione seu nome</option>'+(data||[]).map(x=>`<option>${esc(x.nome)}</option>`).join('');sel.value=old}
+ function sw(k){tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.seasonStock===k));panel.hidden=k!=='natal';normal.forEach(el=>el.style.display=k==='natal'?'none':'');if(k==='natal'){owners();load()}}
+ async function load(){const body=document.getElementById('natal-stock-body');body.innerHTML='<tr><td colspan="5" class="stock-empty">Carregando...</td></tr>';const {data,error}=await cloud.from('estoque_natal').select('*').order('produto');if(error){body.innerHTML='<tr><td colspan="5">Erro: '+esc(error.message)+'</td></tr>';return}rows=data||[];render()}
+ function render(){const q=(document.getElementById('natal-stock-search').value||'').toLowerCase(),list=rows.filter(r=>!q||r.produto.toLowerCase().includes(q));document.getElementById('natal-stock-count').textContent=rows.length;document.querySelector('.natal-actions-head').style.display=edit?'':'none';document.querySelectorAll('.natal-edit-only').forEach(x=>x.style.display=edit?'':'none');document.getElementById('natal-edit-toggle').textContent=edit?'✓ Finalizar alteração':'✎ Alterar estoque';
+ document.getElementById('natal-stock-body').innerHTML=list.map(r=>`<tr data-id="${r.id}"><td>${edit?`<input data-p value="${esc(r.produto)}">`:`<b>${esc(r.produto)}</b>`}</td><td>${edit?`<input data-q type="number" min="0" value="${Number(r.quantidade)||0}">`:Number(r.quantidade||0).toLocaleString('pt-BR')}</td><td>${edit?`<input data-o value="${esc(r.observacao||'')}" placeholder="Observação">`:esc(r.observacao||'—')}</td><td>${r.atualizado_por?`<b>${esc(r.atualizado_por)}</b><br>`:''}${r.atualizado_em?new Date(r.atualizado_em).toLocaleString('pt-BR'):'—'}</td>${edit?`<td><div class="natal-actions"><button class="natal-save" type="button">Salvar</button><button class="natal-remove" type="button">Remover</button></div></td>`:''}</tr>`).join('')||'<tr><td colspan="5">Nenhum produto encontrado.</td></tr>'}
+ function owner(){const n=document.getElementById('natal-current-owner').value.trim();if(!n){alert('Selecione quem está realizando a alteração.');return null}return n}
+ tabs.addEventListener('click',e=>{const b=e.target.closest('[data-season-stock]');if(b)sw(b.dataset.seasonStock)});document.getElementById('natal-stock-search').addEventListener('input',render);document.getElementById('natal-edit-toggle').addEventListener('click',()=>{edit=!edit;render()});
+ document.getElementById('natal-add-form').addEventListener('submit',async e=>{e.preventDefault();const n=owner();if(!n)return;const payload={produto:document.getElementById('natal-new-product').value.trim(),quantidade:Math.max(0,Number(document.getElementById('natal-new-qty').value)||0),observacao:document.getElementById('natal-new-obs').value.trim(),atualizado_por:n,atualizado_em:new Date().toISOString()};const {error}=await cloud.from('estoque_natal').insert(payload);if(error){alert('Não foi possível adicionar: '+error.message);return}e.target.reset();await load()});
+ document.getElementById('natal-stock-body').addEventListener('click',async e=>{const tr=e.target.closest('tr[data-id]');if(!tr)return;const n=owner();if(!n)return;
+  if(e.target.closest('.natal-save')){const payload={produto:tr.querySelector('[data-p]').value.trim(),quantidade:Math.max(0,Number(tr.querySelector('[data-q]').value)||0),observacao:tr.querySelector('[data-o]').value.trim(),atualizado_por:n,atualizado_em:new Date().toISOString()};const {error}=await cloud.from('estoque_natal').update(payload).eq('id',tr.dataset.id);if(error)alert('Não foi possível salvar: '+error.message);else await load()}
+  if(e.target.closest('.natal-remove')){if(!confirm('Remover este produto do Estoque de Natal?'))return;const {error}=await cloud.from('estoque_natal').delete().eq('id',tr.dataset.id);if(error)alert('Não foi possível remover: '+error.message);else await load()}
+ });
+
+ document.getElementById('natal-print-count').addEventListener('click',()=>{
+   if(!rows.length){alert('O estoque de Natal ainda não foi carregado.');return}
+   const now=new Date(),date=now.toLocaleDateString('pt-BR'),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+   const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+   // Preenche a coluna esquerda até embaixo e só então continua na direita.
+   const half=Math.ceil(rows.length/2);
+   const make=(items,offset)=>items.map((r,i)=>`<tr><td><span class="n">${offset+i+1}.</span> ${safe(r.produto)}</td><td>${Number(r.quantidade||0).toLocaleString('pt-BR')}</td><td></td></tr>`).join('');
+   const table=x=>`<table><thead><tr><th>PRODUTO</th><th>SIST.</th><th>CONTAGEM</th></tr></thead><tbody>${x}</tbody></table>`;
+   const doc=`<!doctype html><html><head><meta charset="utf-8"><title>Contagem - Estoque de Natal</title><style>
+   @page{size:A4 portrait;margin:8mm}*{box-sizing:border-box}html,body{margin:0;background:#fff;color:#111;font-family:Arial,sans-serif}
+   .head{border-bottom:2px solid #222;padding-bottom:6px;margin-bottom:7px}.top{display:flex;justify-content:space-between;align-items:flex-end}
+   h1{font-size:18px;margin:0}.sub{font-size:10px;color:#555;margin-top:2px}.stamp{font-size:9px;text-align:right}
+   .meta{display:grid;grid-template-columns:1.25fr .75fr;gap:7px;margin:7px 0 9px;font-size:10px}.meta div{border:1px solid #555;padding:6px;min-height:28px}
+   .cols{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+   table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #444;padding:5px 5px;font-size:10.2px;height:29px;line-height:1.15}
+   th{height:25px;background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9px}
+   th:first-child,td:first-child{width:65%;text-align:left}th:nth-child(2),td:nth-child(2){width:15%;text-align:center}th:nth-child(3),td:nth-child(3){width:20%;text-align:center}
+   .n{display:inline-block;width:16px;text-align:right;margin-right:3px;color:#555}.foot{display:flex;justify-content:space-between;margin-top:7px;font-size:8.5px;color:#666}
+   </style></head><body><div class="head"><div class="top"><div><h1>Mimar · Contagem de Estoque de Natal</h1><div class="sub">Conferência física dos produtos sazonais.</div></div><div class="stamp"><b>Impresso:</b> ${date} · ${time}</div></div></div>
+   <div class="meta"><div><b>COLABORADOR:</b> ______________________________________________</div><div><b>DATA:</b> ____ / ____ / ______</div></div>
+   <div class="cols"><div>${table(make(rows.slice(0,half),0))}</div><div>${table(make(rows.slice(half),half))}</div></div>
+   <div class="foot"><span>Total de produtos: ${rows.length}</span><span>SIST. = quantidade registrada no sistema.</span></div></body></html>`;
+   const w=window.open('','_blank','width=900,height=1000');if(!w){alert('Libere pop-ups para imprimir.');return}
+   w.document.open();w.document.write(doc);w.document.close();w.addEventListener('load',()=>setTimeout(()=>w.print(),150),{once:true});
+ });
+ window.mimarLoadNatalStock=load;
+})();
+</script></body>
 </html>
 
 <style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}
