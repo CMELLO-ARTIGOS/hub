@@ -7406,7 +7406,7 @@ async function provisionInitialTeam(){
         ?['dashboard','card','producao','estoque','medidas','rodizios','rotina']
         :['dashboard','card','producao','estoque','rotina'];
     if(existing){
-      await invokeAccess({action:'update-permissions',id:existing.id,perfil:m.perfil,permissoes:perms});
+      // Acesso já existe: nunca sobrescrever perfil/permissões definidos pela Gestão.
       continue;
     }
     try{
