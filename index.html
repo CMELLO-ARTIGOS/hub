@@ -5173,15 +5173,23 @@ function aggregateDashboardRange(view){
  }
  return{range,t,employees}
 }
+function setHeroChip(id,value,label){
+ const el=document.getElementById(id);if(!el)return;
+ el.textContent=fmt(value);
+ const sp=el.parentElement?.querySelector('span');if(sp)sp.textContent=label;
+}
 function renderProduction(){
  const data=aggregateDashboardRange(prodView),t=data.t,e=data.employees;
- const labels={week:'Produção da semana',month:'Produção do mês',general:'Produção geral'};
+ const labels={week:'Movimentação da semana',month:'Movimentação do mês',general:'Movimentação geral'};
  document.getElementById('hero-label').textContent=labels[prodView]||labels.week;
  document.getElementById('hero-date').textContent=data.range.label;
- document.getElementById('hero-total').textContent=fmt(t.total);
- document.getElementById('hero-full').textContent=fmt(t.full);
- document.getElementById('hero-stock').textContent=fmt(t.stock);
- document.getElementById('hero-done').textContent=fmt(t.external);
+ const expTotal=(cloudExpeditionRecords||[]).filter(r=>inDashboardRange(norm(r.data),data.range)).reduce((sum,r)=>sum+(Number(r.quantidade)||0),0);
+ const producaoTotal=t.full+t.stock+t.external;
+ document.getElementById('hero-total').textContent=fmt(expTotal+producaoTotal);
+ setHeroChip('hero-full',expTotal,'Expedição');
+ setHeroChip('hero-stock',producaoTotal,'Produção');
+ setHeroChip('hero-done',t.full,'Full');
+ const heroExp=document.getElementById('hero-exp');if(heroExp){heroExp.textContent=fmt(t.stock);const sp=heroExp.parentElement?.querySelector('span');if(sp)sp.textContent='Estoque';}
  document.getElementById('rank-sub').textContent=prodView==='week'?'Quem mais produziu nesta semana':prodView==='month'?'Quem mais produziu neste mês':'Ranking de todo o histórico';
  document.getElementById('prod-ranking').innerHTML=rankHTML(e);
  donut(agg.stockCats,'stock-donut','stock-total','stock-legend');
@@ -7789,6 +7797,134 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
  setTimeout(run,500);window.addEventListener('mimar:system-login',()=>setTimeout(run,250));
 })();
 </script>
+
+<style id="mimar-dashboard-chip-visibility-fix">
+.hero .chips{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+.hero .chips .chip{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;
+  min-height:92px!important;padding:16px 18px!important;background:#fff!important;
+  border:1px solid #e7eaf0!important;border-radius:14px!important;opacity:1!important;visibility:visible!important;
+}
+.hero .chips .chip b{
+  display:block!important;font-size:28px!important;line-height:1.05!important;font-weight:800!important;
+  color:#101828!important;-webkit-text-fill-color:#101828!important;opacity:1!important;visibility:visible!important;
+}
+.hero .chips .chip span{
+  display:block!important;margin-top:7px!important;font-size:13px!important;line-height:1.25!important;font-weight:600!important;
+  color:#667085!important;-webkit-text-fill-color:#667085!important;opacity:1!important;visibility:visible!important;
+}
+@media(max-width:760px){.hero .chips{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:430px){.hero .chips{grid-template-columns:1fr!important}}
+</style>
+
+<style id="mimar-segment-chart-style">
+.mimar-overview-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:stretch}
+.mimar-segment-card{background:#fff;border:1px solid #e4e7ec;border-radius:18px;padding:22px;display:flex;flex-direction:column}
+.mimar-segment-title{font-size:15px;font-weight:800;color:#101828}
+.mimar-segment-sub{font-size:12px;color:#667085;margin-top:4px}
+.mimar-segment-wrap{display:flex;align-items:center;justify-content:center;gap:22px;flex:1;min-height:230px}
+.mimar-segment-donut{width:150px;height:150px;border-radius:50%;position:relative;background:conic-gradient(#0074e1 0 33%,#dfed44 33% 66%,#3c3c3b 66% 100%)}
+.mimar-segment-donut:after{content:"";position:absolute;inset:28px;background:#fff;border-radius:50%}
+.mimar-segment-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;font-size:20px;font-weight:800;color:#101828}
+.mimar-segment-legend{display:grid;gap:10px;min-width:110px}
+.mimar-segment-item{display:grid;grid-template-columns:9px 1fr auto;gap:7px;align-items:center;font-size:12px;color:#667085}
+.mimar-segment-item i{width:9px;height:9px;border-radius:50%;display:block}
+.mimar-segment-item b{color:#101828;font-size:13px}
+@media(max-width:1050px){.mimar-overview-grid{grid-template-columns:1fr}.mimar-segment-card{min-height:270px}}
+</style>
+
+<script id="mimar-segment-chart-v1">
+(function(){
+ function ensureSegmentCard(){
+   const hero=document.querySelector('.hero');
+   if(!hero||document.getElementById('mimar-segment-card'))return;
+   const grid=document.createElement('div');grid.className='mimar-overview-grid';
+   hero.parentNode.insertBefore(grid,hero);grid.appendChild(hero);
+   const card=document.createElement('aside');card.id='mimar-segment-card';card.className='mimar-segment-card';
+   card.innerHTML='<div class="mimar-segment-title">Divisão por segmento</div><div class="mimar-segment-sub" id="mimar-segment-period">Período selecionado</div><div class="mimar-segment-wrap"><div class="mimar-segment-donut" id="mimar-segment-donut"><div class="mimar-segment-center" id="mimar-segment-total">0</div></div><div class="mimar-segment-legend" id="mimar-segment-legend"></div></div>';
+   grid.appendChild(card);
+ }
+ function paint(){
+   ensureSegmentCard();
+   if(typeof aggregateDashboardRange!=='function')return;
+   const d=aggregateDashboardRange(window.prodView||prodView||'week'),t=d.t;
+   const exp=(cloudExpeditionRecords||[]).filter(r=>inDashboardRange(norm(r.data),d.range)).reduce((a,r)=>a+(Number(r.quantidade)||0),0);
+   const vals=[
+     ['Expedição',Math.max(0,exp),'#0074e1'],
+     ['Full',Math.max(0,Number(t.full)||0),'#dfed44'],
+     ['Estoque',Math.max(0,Number(t.stock)||0),'#3c3c3b']
+   ];
+   const total=vals.reduce((a,x)=>a+x[1],0);
+   let acc=0,parts=[];
+   vals.forEach(x=>{const a=total?acc/total*100:0;acc+=x[1];const b=total?acc/total*100:0;parts.push(`${x[2]} ${a}% ${b}%`)});
+   const donut=document.getElementById('mimar-segment-donut');if(donut)donut.style.background=total?`conic-gradient(${parts.join(',')})`:'#eef0f3';
+   const ct=document.getElementById('mimar-segment-total');if(ct)ct.textContent=typeof fmt==='function'?fmt(total):total;
+   const per=document.getElementById('mimar-segment-period');if(per)per.textContent=d.range.label;
+   const lg=document.getElementById('mimar-segment-legend');if(lg)lg.innerHTML=vals.map(x=>`<div class="mimar-segment-item"><i style="background:${x[2]}"></i><span>${x[0]}</span><b>${typeof fmt==='function'?fmt(x[1]):x[1]}</b></div>`).join('');
+ }
+ const old=window.renderProduction;
+ if(typeof old==='function')window.renderProduction=function(){const r=old.apply(this,arguments);setTimeout(paint,0);return r};
+ document.addEventListener('click',e=>{if(e.target?.closest?.('#prod-view'))setTimeout(paint,50)});
+ window.addEventListener('load',()=>setTimeout(paint,900));
+ setTimeout(paint,1200);
+})();
+</script>
+
+
+
+<style id="mimar-ranking-periodo-unico-v2">
+#mimar-period-ranking{margin-top:18px;border:1px solid #e7eaf0;border-radius:14px;padding:16px 18px;background:#fff}
+.mimar-rank-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.mimar-rank-head b{font-size:15px;color:#101828}.mimar-rank-head span{font-size:11px;color:#667085}
+.mimar-rank-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:8px;padding:9px 0;border-top:1px solid #f0f2f5}
+.mimar-rank-pos{font-size:12px;font-weight:800;color:#667085}.mimar-rank-name{font-size:13px;font-weight:700;color:#344054}.mimar-rank-value{font-size:13px;font-weight:800;color:#101828}
+</style>
+<script id="mimar-ranking-periodo-unico-script-v2">
+(function(){
+ function currentView(){return window.prodView||prodView||'week'}
+ function ranking(){
+   if(typeof aggregateDashboardRange!=='function')return [];
+   const d=aggregateDashboardRange(currentView()),m={};
+   for(const r of (cloudProductionRecords||[])){
+     if(!inDashboardRange(norm(r.data),d.range))continue;
+     const tipo=strip(r.tipo);
+     if(tipo!=='full'&&tipo!=='estoque')continue;
+     const n=norm(r.funcionario)||'Sem colaborador';
+     m[n]=(m[n]||0)+(Number(r.quantidade)||0);
+   }
+   return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ }
+ function paint(){
+   const hero=document.querySelector('.hero');if(!hero)return;
+   let el=document.getElementById('mimar-period-ranking');
+   if(!el){el=document.createElement('div');el.id='mimar-period-ranking';hero.appendChild(el)}
+   const v=currentView(),titles={week:'Ranking semanal',month:'Ranking mensal',general:'Ranking geral'};
+   const subs={week:'Full + Estoque · segunda a sábado',month:'Full + Estoque · mês atual',general:'Full + Estoque · todo o histórico'};
+   const prodRows=ranking(),range=aggregateDashboardRange(v).range,expByPerson={},prodByPerson={};
+   for(const x of prodRows)prodByPerson[x[0]]=Number(x[1])||0;
+   for(const r of (cloudExpeditionRecords||[])){
+     if(!inDashboardRange(norm(r.data),range))continue;
+     const n=norm(r.funcionario)||'Sem colaborador';
+     expByPerson[n]=(expByPerson[n]||0)+(Number(r.quantidade)||0);
+   }
+   const names=new Set([...Object.keys(prodByPerson),...Object.keys(expByPerson)]);
+   const rows=[...names].map(n=>[n,(prodByPerson[n]||0)+(expByPerson[n]||0),prodByPerson[n]||0,expByPerson[n]||0]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+   el.innerHTML=`<div class="mimar-rank-head"><b>${titles[v]||titles.week}</b><span>Full + Estoque + Expedição</span></div>`+
+     (rows.length?rows.map((x,i)=>`<div class="mimar-rank-row mimar-rank-row-exp"><span class="mimar-rank-pos">${i+1}º</span><span class="mimar-rank-name">${x[0]}<small>Produção: ${typeof fmt==='function'?fmt(x[2]):x[2]} · Expedição: ${typeof fmt==='function'?fmt(x[3]):x[3]}</small></span><span class="mimar-rank-value"><small>Total geral</small>${typeof fmt==='function'?fmt(x[1]):x[1]}</span></div>`).join(''):'<div class="empty">Sem movimentação registrada no período.</div>');
+ }
+ document.addEventListener('click',e=>{if(e.target?.closest?.('#prod-view'))setTimeout(paint,100)});
+ window.addEventListener('load',()=>setTimeout(paint,1000));
+ window.addEventListener('focus',()=>setTimeout(paint,100));
+ setTimeout(paint,1400);
+})();
+</script>
+
+<style id="mimar-ranking-expedicao-v3">
+.mimar-rank-row-exp .mimar-rank-name{display:flex;flex-direction:column;gap:3px}
+.mimar-rank-row-exp .mimar-rank-name small{font-size:11px;font-weight:600;color:#667085}
+.mimar-rank-row-exp .mimar-rank-value{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.mimar-rank-row-exp .mimar-rank-value small{font-size:9px;font-weight:600;color:#98a2b3;text-transform:uppercase;letter-spacing:.03em}
+</style>
 </body>
 </html>
 
