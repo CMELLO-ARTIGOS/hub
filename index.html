@@ -7925,6 +7925,74 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 .mimar-rank-row-exp .mimar-rank-value{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .mimar-rank-row-exp .mimar-rank-value small{font-size:9px;font-weight:600;color:#98a2b3;text-transform:uppercase;letter-spacing:.03em}
 </style>
+
+
+
+<style id="mimar-permission-guard-style">
+.mimar-permission-denied{display:none!important}
+</style>
+<script id="mimar-permission-ui-guard-v3">
+(function(){
+ const ALL=['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao'];
+ function normalize(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+ function permissionKey(el){
+   const raw=normalize([el?.dataset?.page,el?.dataset?.target,el?.dataset?.tab,el?.getAttribute?.('href'),el?.getAttribute?.('aria-controls'),el?.textContent].filter(Boolean).join(' '));
+   if(/visao geral|dashboard|overview/.test(raw))return'dashboard';
+   if(/card do dia|card/.test(raw))return'card';
+   if(/producao/.test(raw))return'producao';
+   if(/estoque/.test(raw))return'estoque';
+   if(/medidas|cubagem/.test(raw))return'medidas';
+   if(/rodizios|rodizio/.test(raw))return'rodizios';
+   if(/minha rotina|rotina/.test(raw))return'rotina';
+   if(/gestao|administracao/.test(raw))return'gestao';
+   return null;
+ }
+ function candidates(){return [...document.querySelectorAll('nav a,nav button,.sidebar a,.sidebar button,[data-page],[data-target],[data-tab],[aria-controls]')]}
+ async function currentProfile(){
+   if(typeof cloud==='undefined')return null;
+   const {data:{user}}=await cloud.auth.getUser();if(!user)return null;
+   const {data,error}=await cloud.from('colaboradores').select('id,nome,perfil,permissoes,ativo').eq('id',user.id).maybeSingle();
+   if(error)throw error; return data;
+ }
+ async function apply(){
+   try{
+     const p=await currentProfile();if(!p)return;
+     if(p.ativo===false){await cloud.auth.signOut();location.reload();return}
+     const perms=new Set(Array.isArray(p.permissoes)?p.permissoes:[]);
+     // Admin retains administrative access; every other profile follows exactly the saved checkboxes.
+     if(p.perfil==='admin')ALL.forEach(x=>perms.add(x));
+     window.mimarCurrentPermissions=[...perms];
+     document.body.dataset.mimarProfile=p.perfil||'colaborador';
+
+     const els=candidates();
+     els.forEach(el=>{
+       const k=permissionKey(el);if(!k)return;
+       el.classList.toggle('mimar-permission-denied',!perms.has(k));
+       el.setAttribute('aria-hidden',perms.has(k)?'false':'true');
+     });
+
+     // Never leave a user inside a page whose permission was removed.
+     const active=els.find(el=>el.classList.contains('active')||el.getAttribute('aria-selected')==='true');
+     const ak=permissionKey(active);
+     if(ak&&!perms.has(ak)){
+       const first=els.find(el=>{const k=permissionKey(el);return k&&perms.has(k)&&!el.classList.contains('mimar-permission-denied')});
+       first?.click();
+     }
+   }catch(e){console.warn('Permissões: falha ao sincronizar perfil.',e)}
+ }
+ window.mimarApplyPermissions=apply;
+ window.mimarHasPermission=k=>(window.mimarCurrentPermissions||[]).includes(k);
+ window.addEventListener('mimar:system-login',()=>setTimeout(apply,80));
+ window.addEventListener('focus',apply);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
+ document.addEventListener('click',e=>{
+   const el=e.target?.closest?.('nav a,nav button,.sidebar a,.sidebar button,[data-page],[data-target],[data-tab],[aria-controls]');
+   const k=permissionKey(el);
+   if(k&&window.mimarCurrentPermissions&&!window.mimarCurrentPermissions.includes(k)){e.preventDefault();e.stopImmediatePropagation()}
+ },true);
+ setTimeout(apply,250);setTimeout(apply,1000);
+})();
+</script>
 </body>
 </html>
 
