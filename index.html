@@ -16,6 +16,9 @@ body:not(.mimar-auth-granted) .wrap > *:not(#auth-overlay){visibility:hidden!imp
 body:not(.mimar-auth-granted) #auth-overlay{display:flex!important;visibility:visible!important;pointer-events:auto!important}
 body:not(.mimar-auth-granted){overflow:hidden!important}
 body.mimar-auth-granted #auth-overlay:not(.open){display:none!important}
+.hero .chip{background:#f8fafc!important;border:1px solid #edf0f3!important;color:#344054!important}
+.hero .chip b{color:#101828!important}
+.hero .chip span{color:#667085!important}
 </style>
 <style>
 :root{--bg:#0e1319;--panel:#171e27;--panel2:#1e2732;--line:#2a3542;--text:#eef2f5;--muted:#8e99a8;--muted2:#627080;--green:#39c7a5;--green2:#245b50;--orange:#f2a641;--orange2:#644923;--blue:#6f9df7;--red:#e66b56;--gold:#f0c14b}
@@ -3605,11 +3608,11 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
 <section class="page active" id="dashboard">
   <div class="page-heading"><div><span class="eyebrow">MIMAR · OPERAÇÃO</span><h1>Visão geral</h1><p>Acompanhe a operação do dia em um só lugar.</p></div><div class="page-accent"></div></div>
   <div class="sourcebar"><span>Produção: <strong id="prod-source">snapshot carregado</strong></span><span>Atualizado: <strong id="prod-time">—</strong></span></div>
-  <div class="view-toggle" id="prod-view"><button class="active" data-view="today">Hoje</button><button data-view="period">Período total</button></div>
+  <div class="view-toggle" id="prod-view"><button class="active" data-view="week">Semana</button><button data-view="month">Mês</button><button data-view="general">Geral</button></div>
   <div class="hero">
-    <div class="hero-top"><span class="hero-label" id="hero-label">Produção de hoje</span><span class="hero-date" id="hero-date"></span></div>
+    <div class="hero-top"><span class="hero-label" id="hero-label">Produção da semana</span><span class="hero-date" id="hero-date"></span></div>
     <div class="hero-num" id="hero-total">0</div><div class="hero-sub">itens produzidos</div>
-    <div class="chips"><div class="chip green"><b id="hero-full">0</b><span>Full</span></div><div class="chip orange"><b id="hero-stock">0</b><span>Estoque</span></div><div class="chip"><b id="hero-done">0</b><span>Linhas concluídas</span></div><div class="chip blue"><b id="hero-exp">0</b><span>Expedidos no dia</span></div></div>
+    <div class="chips"><div class="chip green"><b id="hero-full">0</b><span>Full</span></div><div class="chip orange"><b id="hero-stock">0</b><span>Estoque</span></div><div class="chip"><b id="hero-done">0</b><span>Pedidos externos</span></div><div class="chip blue"><b id="hero-exp">0</b><span>Expedidos no dia</span></div></div>
   </div>
   <div class="daily-compare-grid" id="daily-compare-grid">
     <div class="compare-card primary"><div class="compare-top"><span class="compare-label">Pedidos expedidos hoje</span><span class="compare-value" id="cmp-exp-value">0</span></div><div class="compare-note neutral" id="cmp-exp-note"><span class="compare-badge">•</span><span>Aguardando último dia trabalhado</span></div></div>
@@ -4844,7 +4847,7 @@ const EMBED_ROWS=[
 ];
 const EMBED_EXP_HEADERS=["Nome completo do colaborador.","01. Utilize - SHOPEE (Cl)","01. Utilize - ML (Cl)","02. Mimar - ML (Cl)","03. Tem de Tudo - ML (Cl)","03. Tem de Tudo - SHOPEE (Cl)","04. Multi - ML (Cl)","04. Multi - SHOPEE (Cl)"];
 const EMBED_EXP_ROWS=[["Bryan Rodrigues",0,0,0,30,5,0,134],["Elisabete Denczuk",0,0,0,0,0,0,101],["Rafael Graciano",16,1,3,1,45,0,0],["Fagner",4,14,2,0,72,0,0],["Leonardo",1,0,26,2,1,0,0],["Thiago",37,0,0,0,0,0,0]];
-let prodRows=[],blocks=[],agg=null,prodView='today';
+let prodRows=[],blocks=[],agg=null,prodView='week',cloudExternalRecords=[];
 let expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};
 let expHistory=loadStore(EXP_HISTORY_KEY),prodHistory=loadStore(PROD_HISTORY_KEY),selectedDate='';
 function loadStore(k){try{return JSON.parse(localStorage.getItem(k)||'{}')||{}}catch(e){return {}}}
@@ -4869,7 +4872,7 @@ function aggregateCloudProduction(records){const emps={},todayEmp={},stockCats={
 function rebuildProdHistoryFromCloud(records){const out={};for(const r of records){const iso=norm(r.data);if(!iso)return;const q=Number(r.quantidade)||0,tipo=strip(r.tipo),name=norm(r.funcionario)||'Sem colaborador';out[iso]??={employeeProduction:{},totals:{total:0,full:0,stock:0},source:'Supabase'};const e=out[iso].employeeProduction[name]??={total:0,full:0,stock:0};e.total+=q;out[iso].totals.total+=q;if(tipo==='full'){e.full+=q;out[iso].totals.full+=q}else if(tipo==='estoque'){e.stock+=q;out[iso].totals.stock+=q}}return out}
 function rebuildExpHistoryFromCloud(records,imports=[]){const out={},files={};for(const x of imports||[]){if(x.tipo==='expedicao')files[x.data]=x.arquivo||'Supabase'}for(const r of records){const iso=norm(r.data),name=norm(r.funcionario),market=norm(r.marketplace),q=Number(r.quantidade)||0;if(!iso||!name)continue;out[iso]??={headers:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,source:files[iso]||'Supabase',dateISO:iso};const s=out[iso];s.employeeTotals[name]=(s.employeeTotals[name]||0)+q;s.employeeAccounts[name]??={};if(market){s.employeeAccounts[name][market]=(s.employeeAccounts[name][market]||0)+q;s.accountTotals[market]=(s.accountTotals[market]||0)+q}s.total+=q}return out}
 async function fetchAll(table,columns){const all=[],page=1000;for(let from=0;;from+=page){const {data,error}=await cloud.from(table).select(columns).order('data',{ascending:true}).range(from,from+page-1);if(error)throw error;all.push(...(data||[]));if(!data||data.length<page)break}return all}
-async function loadCloudData(){setCloudState('Sincronizando...');let e,p,i;try{[e,p,i]=await Promise.all([fetchAll('expedicao','data,funcionario,marketplace,quantidade,arquivo_origem'),fetchAll('producao','id,data,funcionario,produto,quantidade,tipo,categoria,status'),fetchAll('importacoes','data,tipo,arquivo,atualizado_em')])}catch(err){setCloudState('Erro de conexão','err');throw err}cloudExpeditionRecords=e||[];cloudProductionRecords=p||[];expHistory=rebuildExpHistoryFromCloud(cloudExpeditionRecords,i||[]);prodHistory=rebuildProdHistoryFromCloud(cloudProductionRecords);agg=aggregateCloudProduction(cloudProductionRecords);saveStore(EXP_HISTORY_KEY,expHistory);saveStore(PROD_HISTORY_KEY,prodHistory);document.getElementById('prod-source').textContent='Banco online · Supabase';document.getElementById('prod-time').textContent=new Date().toLocaleString('pt-BR');const dates=allHistoryDates();selectedDate=(selectedDate&&dates.includes(selectedDate))?selectedDate:(dates[0]||'');if(selectedDate){const h=expHistory[selectedDate];expData={headers:h?.headers||[],rows:[],employeeTotals:h?.employeeTotals||{},employeeAccounts:h?.employeeAccounts||{},accountTotals:h?.accountTotals||{},total:Number(h?.total)||0,date:labelDate(selectedDate),dateISO:selectedDate,source:h?.source||'Supabase'}}else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};renderAll();window.dispatchEvent(new CustomEvent('mimar:cloud-production-loaded'));setCloudState(`Online · ${dates.length} dia(s)`,'ok')}
+async function loadCloudData(){setCloudState('Sincronizando...');let e,p,i,x;try{[e,p,i,x]=await Promise.all([fetchAll('expedicao','data,funcionario,marketplace,quantidade,arquivo_origem'),fetchAll('producao','id,data,funcionario,produto,quantidade,tipo,categoria,status'),fetchAll('importacoes','data,tipo,arquivo,atualizado_em'),fetchAll('outras_atividades','data,colaborador,tipo,quantidade,observacao')])}catch(err){setCloudState('Erro de conexão','err');throw err}cloudExpeditionRecords=e||[];cloudProductionRecords=p||[];cloudExternalRecords=x||[];expHistory=rebuildExpHistoryFromCloud(cloudExpeditionRecords,i||[]);prodHistory=rebuildProdHistoryFromCloud(cloudProductionRecords);agg=aggregateCloudProduction(cloudProductionRecords);saveStore(EXP_HISTORY_KEY,expHistory);saveStore(PROD_HISTORY_KEY,prodHistory);document.getElementById('prod-source').textContent='Banco online · Supabase';document.getElementById('prod-time').textContent=new Date().toLocaleString('pt-BR');const dates=allHistoryDates();selectedDate=(selectedDate&&dates.includes(selectedDate))?selectedDate:(dates[0]||'');if(selectedDate){const h=expHistory[selectedDate];expData={headers:h?.headers||[],rows:[],employeeTotals:h?.employeeTotals||{},employeeAccounts:h?.employeeAccounts||{},accountTotals:h?.accountTotals||{},total:Number(h?.total)||0,date:labelDate(selectedDate),dateISO:selectedDate,source:h?.source||'Supabase'}}else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:'',dateISO:'',source:''};renderAll();window.dispatchEvent(new CustomEvent('mimar:cloud-production-loaded'));setCloudState(`Online · ${dates.length} dia(s)`,'ok')}
 function openAuth(){const o=document.getElementById('auth-overlay');o.classList.add('open');o.setAttribute('aria-hidden','false');setTimeout(()=>document.getElementById('auth-email')?.focus(),0)}
 function closeAuth(){
   /* Em sistema fechado, o login só pode ser fechado depois de autenticar. */
@@ -5146,7 +5149,46 @@ function renderDailyComparisons(){
   }
   renderExpeditionDaily();
 }
-function renderProduction(){const useToday=prodView==='today',t=useToday?agg.today:agg.totals,e=useToday?agg.todayEmployees:agg.employees;document.getElementById('hero-label').textContent=useToday?'Produção de hoje':'Produção no período';document.getElementById('hero-date').textContent=useToday?new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'}):'';document.getElementById('hero-total').textContent=fmt(t.total);document.getElementById('hero-full').textContent=fmt(t.full);document.getElementById('hero-stock').textContent=fmt(t.stock);document.getElementById('hero-done').textContent=fmt(t.done);document.getElementById('rank-sub').textContent=useToday?'Quem mais produziu hoje':'Quem mais produziu no período';document.getElementById('prod-ranking').innerHTML=rankHTML(e);donut(agg.stockCats,'stock-donut','stock-total','stock-legend');const ep=Object.entries(agg.stockProd).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=ep[0]?.[1]||1;document.getElementById('stock-products').innerHTML=ep.length?ep.map(([n,v])=>`<div class="prod-row"><span>${n}</span><span class="val">${fmt(v)}</span><div class="bar"><div class="bar-stock" style="width:${v/mx*100}%"></div></div></div>`).join(''):'<div class="empty">Sem produtos em estoque.</div>';renderDailyComparisons()}
+function dashboardRange(view){
+ const now=new Date(),end=new Date(now.getFullYear(),now.getMonth(),now.getDate()),start=new Date(end);
+ if(view==='week'){const day=end.getDay(),back=day===0?6:day-1;start.setDate(end.getDate()-back);return{start,end,label:`${start.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} a ${end.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`}}
+ if(view==='month'){start.setDate(1);return{start,end,label:end.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}}
+ return{start:null,end:null,label:'Todo o histórico registrado'}
+}
+function inDashboardRange(iso,range){
+ if(!range.start)return true;
+ const d=dateObj(iso);return d>=range.start&&d<=range.end&&d.getDay()!==0
+}
+function aggregateDashboardRange(view){
+ const range=dashboardRange(view),employees={},t={total:0,full:0,stock:0,external:0};
+ for(const r of (cloudProductionRecords||[])){
+   if(!inDashboardRange(norm(r.data),range))continue;
+   const q=Number(r.quantidade)||0,name=norm(r.funcionario)||'Sem colaborador',tipo=strip(r.tipo);
+   employees[name]??={total:0,full:0,stock:0};employees[name].total+=q;t.total+=q;
+   if(tipo==='full'){employees[name].full+=q;t.full+=q}else if(tipo==='estoque'){employees[name].stock+=q;t.stock+=q}
+ }
+ for(const r of (cloudExternalRecords||[])){
+   if(!inDashboardRange(norm(r.data),range))continue;
+   t.external+=Number(r.quantidade)||0;
+ }
+ return{range,t,employees}
+}
+function renderProduction(){
+ const data=aggregateDashboardRange(prodView),t=data.t,e=data.employees;
+ const labels={week:'Produção da semana',month:'Produção do mês',general:'Produção geral'};
+ document.getElementById('hero-label').textContent=labels[prodView]||labels.week;
+ document.getElementById('hero-date').textContent=data.range.label;
+ document.getElementById('hero-total').textContent=fmt(t.total);
+ document.getElementById('hero-full').textContent=fmt(t.full);
+ document.getElementById('hero-stock').textContent=fmt(t.stock);
+ document.getElementById('hero-done').textContent=fmt(t.external);
+ document.getElementById('rank-sub').textContent=prodView==='week'?'Quem mais produziu nesta semana':prodView==='month'?'Quem mais produziu neste mês':'Ranking de todo o histórico';
+ document.getElementById('prod-ranking').innerHTML=rankHTML(e);
+ donut(agg.stockCats,'stock-donut','stock-total','stock-legend');
+ const ep=Object.entries(agg.stockProd).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=ep[0]?.[1]||1;
+ document.getElementById('stock-products').innerHTML=ep.length?ep.map(([n,v])=>`<div class="prod-row"><span>${n}</span><span class="val">${fmt(v)}</span><div class="bar"><div class="bar-stock" style="width:${v/mx*100}%"></div></div></div>`).join(''):'<div class="empty">Sem produtos em estoque.</div>';
+ renderDailyComparisons();
+}
 function cleanAccountName(h){return norm(h).replace(/^\d+\.\s*/,'').replace(/\s*\(Cl\)\s*$/i,'').replace(/\s*-\s*/g,' ')}
 function buildExp(headers,rows,source,dateIso){const emp={},acct={},employeeAccounts={};headers=headers.map(norm);rows.forEach(r=>{const name=norm(r[0]);if(!name)return;let sum=0;employeeAccounts[name]={};headers.slice(1).forEach((h,i)=>{let n=Number(String(r[i+1]??0).replace(',','.'));if(!Number.isFinite(n))n=0;sum+=n;acct[h]=(acct[h]||0)+n;if(n>0){const cn=cleanAccountName(h);employeeAccounts[name][cn]=(employeeAccounts[name][cn]||0)+n}});emp[name]=(emp[name]||0)+sum});const total=Object.values(emp).reduce((a,b)=>a+b,0);const iso=dateIso||expDateISOFromName(source);expData={headers,rows,employeeTotals:emp,employeeAccounts,accountTotals:acct,total,date:labelDate(iso),dateISO:iso,source};if(iso){expHistory[iso]={headers,employeeTotals:emp,employeeAccounts,accountTotals:acct,total,source,dateISO:iso};saveStore(EXP_HISTORY_KEY,expHistory);selectedDate=iso}refreshHistorySelect();renderAll()}
 function renderExpedition(){document.getElementById('exp-source').textContent=expData.source||'Nenhum arquivo diário carregado';document.getElementById('exp-total').textContent=fmt(expData.total);document.getElementById('exp-date').textContent=expData.dateISO?`Referência: ${labelDate(expData.dateISO)}`:'Data não identificada';document.getElementById('exp-people').textContent=Object.values(expData.employeeTotals).filter(v=>v>0).length;document.getElementById('exp-accounts').textContent=Object.values(expData.accountTotals||{}).filter(v=>v>0).length;document.getElementById('exp-ranking').innerHTML=rankHTML(expData.employeeTotals,'expedition');const ents=Object.entries(expData.accountTotals||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);document.getElementById('market-list').innerHTML=ents.length?ents.map(([n,v])=>`<div class="market-row"><span>${cleanAccountName(n)}</span><b>${fmt(v)}</b></div>`).join(''):'<div class="empty">Sem detalhamento de contas para este dia.</div>';document.getElementById('hero-exp').textContent=fmt(expData.total);renderDailyComparisons();document.getElementById('history-note').textContent=`Histórico registrado: ${Object.keys(expHistory).length} dia(s) de expedição · ${Object.keys(prodHistory).length} dia(s) com produção.`}
