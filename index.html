@@ -7808,14 +7808,8 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    });
  }
  window.mimarOperationalTeam={get:getTeam,save:saveTeam,refresh:refreshTeamSelects};
- function addButton(){
-   const sel=document.getElementById('full-launch-person');if(!sel||document.getElementById('full-team-add'))return;
-   const b=document.createElement('button');b.type='button';b.id='full-team-add';b.className='btn';b.style.cssText='margin-top:8px;width:max-content;padding:8px 12px;font-size:12px';
-   b.textContent='+ Adicionar colaborador';
-   b.onclick=()=>{const n=clean(prompt('Nome do novo colaborador:'));if(!n)return;const team=getTeam();if(!team.some(x=>x.toLowerCase()===n.toLowerCase()))team.push(n);saveTeam(team);sel.value=n};
-   sel.parentElement.appendChild(b);
- }
- const run=()=>{refreshTeamSelects();addButton()};
+ function addButton(){ /* cadastro de colaborador fica somente na Gestão */ }
+ const run=()=>{refreshTeamSelects()};
  setTimeout(run,500);window.addEventListener('mimar:system-login',()=>setTimeout(run,250));
 })();
 </script>
@@ -8064,34 +8058,6 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    w.document.open();w.document.write(doc);w.document.close();w.addEventListener('load',()=>setTimeout(()=>w.print(),150),{once:true});
  });
  window.mimarLoadNatalStock=load;
-})();
-</script>
-<style id="mimar-compact-team-card">
-.mimar-hidden-new-collaborator{display:none!important}
-</style>
-<script id="mimar-compact-team-card-script">
-(function(){
- function compactTeam(){
-   const rx=/^(?:\+?\s*)?(?:adicionar|novo|nova|cadastrar)\s+(?:novo\s+|nova\s+)?colaborador/i;
-   document.querySelectorAll('button,a').forEach(btn=>{
-     const txt=(btn.textContent||'').trim();
-     if(!rx.test(txt)) return;
-     let box=btn.closest('form');
-     if(!box){
-       let p=btn.parentElement;
-       while(p && p!==document.body){
-         const text=(p.innerText||'').trim();
-         if(text.length<500 && /colaborador/i.test(text)){box=p;break}
-         p=p.parentElement;
-       }
-     }
-     if(box) box.classList.add('mimar-hidden-new-collaborator');
-     else btn.classList.add('mimar-hidden-new-collaborator');
-   });
- }
- document.addEventListener('DOMContentLoaded',compactTeam);
- setTimeout(compactTeam,700);
- window.addEventListener('focus',compactTeam);
 })();
 </script>
 </body>
