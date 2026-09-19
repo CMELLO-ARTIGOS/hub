@@ -5386,6 +5386,9 @@ function mimarPrintStockCount(){
 
 
 
+
+
+
 </body></html>`;
   const w=window.open('','_blank','width=900,height=1000');
   if(!w){alert('O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.');return}
@@ -7321,7 +7324,7 @@ window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();if(R.profile)l
 </script>
 <script id="mimar-access-script-v1">
 (()=>{
-const PERM_PAGE={dashboard:'dashboard',card:'card-page',producao:'producao-controle',estoque:'estoque-controle',medidas:'medidas',rodizios:'rodizios',rotina:'minha-rotina',gestao:'gestao'};
+const PERM_PAGE={dashboard:'dashboard',card:'card-page',producao:'producao-controle',estoque:'estoque-controle',medidas:'medidas',rodizios:'rodizios',rotina:'minha-rotina',flex:'flex',gestao:'gestao'};
 window.mimarPermissions=[];window.mimarRole='';
 function accessSafe(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]))}
 function slugUser(v){return String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/\\s+/g,'.').replace(/[^a-z0-9._-]/g,'')}
@@ -7695,6 +7698,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 ['medidas','Medidas','Consultar medidas, peso e cubagem dos produtos.'],
 ['rodizios','Rodízios','Somente visualizar escalas e rodízios. Alterações continuam exclusivas do administrador.'],
 ['rotina','Minha Rotina','Visualizar e concluir os próprios afazeres e checklists.'],
+['flex','Flex','Acessar o Flex, realizar lançamentos, consultar histórico e ajustar ocorrências da operação Flex.'],
 ['gestao','Gestão','Administrar colaboradores, acessos, permissões e configurações. Exclusivo para administradores.']
 ];const presets={colaborador:['dashboard','card','producao','estoque','rotina'],lider:['dashboard','card','producao','estoque','medidas','rodizios','rotina'],admin:defs.map(x=>x[0])};let targetId='';const modal=document.getElementById('permission-dashboard'),grid=document.getElementById('perm-grid'),role=document.getElementById('perm-role');const draw=s=>grid.innerHTML=defs.map(([k,n,d])=>`<label class="perm-item"><span><b>${n}</b><small>${d}</small></span><input type="checkbox" data-perm="${k}" ${s.includes(k)?'checked':''}></label>`).join('');window.openPermissionDashboard=(tr,id)=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem alterar permissões.');return;}targetId=id;const nome=tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=(tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';const accessUser=window.mimarAccessUsersById?.get(String(id));const perms=Array.isArray(accessUser?.permissoes)?accessUser.permissoes:(tr.children[3]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);document.getElementById('perm-title').textContent=`Permissões de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(perms.length?perms:presets[perfil]);modal.classList.add('show')};const close=()=>modal.classList.remove('show');role.onchange=()=>{const checked=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);draw(checked.filter(x=>role.value==='admin'||x!=='gestao'));};document.getElementById('perm-x').onclick=close;document.getElementById('perm-cancel').onclick=close;document.getElementById('perm-save').onclick=async()=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem salvar permissões.');return;}const btn=document.getElementById('perm-save');let perms=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);if(role.value!=='admin')perms=perms.filter(x=>x!=='gestao');try{btn.disabled=true;btn.textContent='Salvando...';await window.mimarInvokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});const check=await window.mimarInvokeAccess({action:'list'});const saved=(check.users||[]).find(u=>String(u.id)===String(targetId));const savedPerms=Array.isArray(saved?.permissoes)?saved.permissoes:[];const same=perms.length===savedPerms.length&&perms.every(p=>savedPerms.includes(p));if(!saved||saved.perfil!==role.value||!same)throw new Error('O Supabase não confirmou as permissões selecionadas.');close();window.mimarAccessUsersById=new Map((check.users||[]).map(u=>[String(u.id),u]));await window.mimarLoadAccess();window.mimarSetAccessStatus?.('Permissões salvas e confirmadas no Supabase.')}catch(e){alert('Não foi possível salvar: '+(e?.message||e))}finally{btn.disabled=false;btn.textContent='Salvar permissões'}}})();</script>
 <script id="mimar-operational-team-v1">
@@ -7848,7 +7852,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 </style>
 <script id="mimar-permission-ui-guard-v3">
 (function(){
- const ALL=['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao'];
+ const ALL=['dashboard','card','producao','estoque','medidas','rodizios','rotina','flex','gestao'];
  function normalize(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
  function permissionKey(el){
    const raw=normalize([el?.dataset?.page,el?.dataset?.target,el?.dataset?.tab,el?.getAttribute?.('href'),el?.getAttribute?.('aria-controls'),el?.textContent].filter(Boolean).join(' '));
@@ -7859,6 +7863,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    if(/medidas|cubagem/.test(raw))return'medidas';
    if(/rodizios|rodizio/.test(raw))return'rodizios';
    if(/minha rotina|rotina/.test(raw))return'rotina';
+   if(/flex/.test(raw))return'flex';
    if(/gestao|administracao/.test(raw))return'gestao';
    return null;
  }
@@ -7952,7 +7957,10 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    </style></head><body><div class="head"><div class="top"><div><h1>Mimar · Contagem de Estoque de Natal</h1><div class="sub">Conferência física dos produtos sazonais.</div></div><div class="stamp"><b>Impresso:</b> ${date} · ${time}</div></div></div>
    <div class="meta"><div><b>COLABORADOR:</b> ______________________________________________</div><div><b>DATA:</b> ____ / ____ / ______</div></div>
    <div class="cols"><div>${table(make(rows.slice(0,half),0))}</div><div>${table(make(rows.slice(half),half))}</div></div>
-   <div class="foot"><span>Total de produtos: ${rows.length}</span><span>SIST. = quantidade registrada no sistema.</span></div></body></html>`;
+   <div class="foot"><span>Total de produtos: ${rows.length}</span><span>SIST. = quantidade registrada no sistema.</span></div>
+
+
+</body></html>`;
    const w=window.open('','_blank','width=900,height=1000');if(!w){alert('Libere pop-ups para imprimir.');return}
    w.document.open();w.document.write(doc);w.document.close();w.addEventListener('load',()=>setTimeout(()=>w.print(),150),{once:true});
  });
@@ -8314,7 +8322,30 @@ E('flex-refresh').onclick=load;E('flex-date').onchange=load;document.addEventLis
 #gestao-operator-log{display:none!important}#gestao-operator-log.gestao-clean-active{display:block!important}
 #gestao-ponto-panel{display:none!important}#gestao-ponto-panel.gestao-clean-active{display:block!important}
 @media(max-width:900px){#gestao-area-intro{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){#gestao-area-intro{grid-template-columns:1fr}}
-</style></body>
+</style>
+
+
+
+<style id="cmello-flex-permission-integrated-20260919">
+#gestao-area-intro button[data-clean="flex"],#gestao-subtabs button[data-gestao-tab="flex"]{display:none!important}
+#flex .flex-archive{display:block!important;margin-top:14px!important}
+#flex .flex-archive-item{pointer-events:auto!important;cursor:pointer!important}
+</style>
+<script id="cmello-flex-permission-integrated-20260919-script">
+(function(){
+ function integrateFlex(){
+   const page=document.getElementById('flex');
+   const gestao=document.getElementById('gestao');
+   if(!page)return;
+   const archive=(gestao&&gestao.querySelector('.flex-archive')) || document.querySelector('#gestao-tab-flex .flex-archive');
+   if(archive && archive.parentElement!==page) page.appendChild(archive);
+   document.querySelectorAll('#gestao-area-intro button[data-clean="flex"],#gestao-subtabs button[data-gestao-tab="flex"]').forEach(x=>x.remove());
+ }
+ document.addEventListener('DOMContentLoaded',()=>setTimeout(integrateFlex,0));
+ window.addEventListener('load',integrateFlex);
+})();
+</script>
+</body>
 </html>
 <style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}
 /* ===== GESTÃO 3.0 · LAYOUT PROFISSIONAL 17/09/2026 ===== */
@@ -8453,7 +8484,7 @@ body:not(:has(#gestao.active)) .pickup-strip{display:block!important}
    let w=$('gestao-area-intro');
    if(!w){
      w=document.createElement('div'); w.id='gestao-area-intro'; w.className='gestao-area-intro';
-     w.innerHTML=`<button type="button" data-clean="indicators"><small>ANÁLISE</small><b>Indicadores</b><span>Resumo operacional e qualidade dos dados.</span></button><button type="button" data-clean="collaborators"><small>EQUIPE</small><b>Colaboradores</b><span>Acessos, perfis e permissões.</span></button><button type="button" data-clean="import"><small>DADOS</small><b>Importar dados</b><span>Produção e Expedição.</span></button><button type="button" data-clean="backup"><small>SEGURANÇA</small><b>Backup</b><span>Exportar ou restaurar histórico.</span></button><button type="button" data-clean="logs"><small>HISTÓRICO</small><b>Auditoria / Histórico</b><span>Atividades registradas no sistema.</span></button><button type="button" data-clean="flex"><small>FLEX</small><b>Lançamentos Flex</b><span>Histórico e fechamentos Flex.</span></button>`;
+     w.innerHTML=`<button type="button" data-clean="indicators"><small>ANÁLISE</small><b>Indicadores</b><span>Resumo operacional e qualidade dos dados.</span></button><button type="button" data-clean="collaborators"><small>EQUIPE</small><b>Colaboradores</b><span>Acessos, perfis e permissões.</span></button><button type="button" data-clean="import"><small>DADOS</small><b>Importar dados</b><span>Produção e Expedição.</span></button><button type="button" data-clean="backup"><small>SEGURANÇA</small><b>Backup</b><span>Exportar ou restaurar histórico.</span></button><button type="button" data-clean="logs"><small>HISTÓRICO</small><b>Auditoria / Histórico</b><span>Atividades registradas no sistema.</span></button>`;
      const h=g.querySelector('.page-heading'); (h||g.firstElementChild).insertAdjacentElement('afterend',w);
    }
    return w;
