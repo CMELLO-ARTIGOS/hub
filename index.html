@@ -4219,9 +4219,10 @@ body:has(#gestao.active) .pickup-strip{display:none!important;}
     </div>
     <form class="production-form" id="full-launch-form">
       <input type="hidden" id="full-launch-id">
+      <label class="wide"><span>Data da produção</span><input id="full-launch-date" type="date" required></label>
       <label class="wide"><span>Colaborador</span><select id="full-launch-person" required><option value="">Selecione</option><option>Thiago</option><option>Fagner</option><option>Leonardo</option><option>Rafael</option><option>Bryan</option><option>Elisabete</option><option>Beatriz</option><option>Arthur</option><option>Fabiola</option></select></label>
       <label class="wide"><span>Quantidade produzida</span><input id="full-launch-qty" required type="number" min="1" placeholder="Ex.: 120"></label>
-      <div class="employee-launch-hint wide">A data e o horário são registrados automaticamente no momento do lançamento.</div>
+      <div class="employee-launch-hint wide">Selecione o dia em que a produção foi realmente feita. O horário do lançamento continua registrado automaticamente.</div>
       <div class="production-form-actions"><button class="btn btn-dark" data-production-close="full-launch-modal" type="button">Cancelar</button><button class="btn btn-green" type="submit">Registrar produção</button></div>
     </form>
   </div>
@@ -6433,6 +6434,10 @@ const PRODUCTION_TEST_MODE=false;
   }
 
   function openModal(id){
+    if(id==='full-launch-modal'){
+      const d=document.getElementById('full-launch-date');
+      if(d){d.value=todayISO();d.max=todayISO();}
+    }
     const el=document.getElementById(id);if(el)el.classList.add('show');
   }
   function closeModal(id){
@@ -6557,7 +6562,8 @@ const PRODUCTION_TEST_MODE=false;
     const p=fullData.find(x=>x.id===document.getElementById('full-launch-id').value);if(!p)return;
     const person=document.getElementById('full-launch-person').value;
     const qty=num(document.getElementById('full-launch-qty').value);
-    const now=new Date(),date=todayISO(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const date=document.getElementById('full-launch-date').value||todayISO();
+    const now=new Date(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent='Salvando...'}
     try{
       await saveProductionCloud({
