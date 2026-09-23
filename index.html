@@ -5124,9 +5124,17 @@ async function loadStock(){
   if(error){if(st){st.textContent='Tabela não configurada';st.className='status-pill status-warn'};console.error('Estoque:',error);stockRecords=[];renderStock();return}
   stockRecords=data||[];if(st){st.textContent='Sincronizado';st.className='status-pill status-ok'}renderStock();renderStockAudit()
 }
-function renderStock(){const body=document.getElementById('stock-table-body');if(!body)return;const section=document.getElementById('estoque-controle'),head=document.getElementById('stock-table-head'),toggle=document.getElementById('stock-edit-toggle'),title=document.getElementById('stock-title'),subtitle=document.getElementById('stock-subtitle');if(section)section.classList.toggle('stock-edit-mode',stockEditMode);if(toggle)toggle.textContent=stockEditMode?'← Voltar para consulta':'✎ Alterar estoque';if(title)title.textContent=stockEditMode?'Alterar estoque':'Estoque';if(subtitle)subtitle.textContent=stockEditMode?'Cadastre produtos, altere quantidades, volumes e sinalizações.':'Consulte e pesquise os produtos disponíveis.';const term=strip(document.getElementById('stock-search')?.value||''),filter=document.getElementById('stock-filter')?.value||'todos';document.querySelectorAll('[data-stock-summary-filter]').forEach(el=>el.classList.toggle('active',el.dataset.stockSummaryFilter===filter));const rows=stockRecords
+function renderStock(){
+ const body=document.getElementById('stock-table-body');if(!body)return;
+ // Não reconstrói a tabela enquanto o usuário está digitando.
+ // Reconstruir o innerHTML remove o foco do input e impede a edição.
+ const active=document.activeElement;
+ if(stockEditMode && active && body.contains(active) &&
+    (active.matches('input[data-role="product"]')||active.matches('input[data-role="qty"]')||active.matches('input[data-role="add"]'))){
+   return;
+ }const section=document.getElementById('estoque-controle'),head=document.getElementById('stock-table-head'),toggle=document.getElementById('stock-edit-toggle'),title=document.getElementById('stock-title'),subtitle=document.getElementById('stock-subtitle');if(section)section.classList.toggle('stock-edit-mode',stockEditMode);if(toggle)toggle.textContent=stockEditMode?'← Voltar para consulta':'✎ Alterar estoque';if(title)title.textContent=stockEditMode?'Alterar estoque':'Estoque';if(subtitle)subtitle.textContent=stockEditMode?'Cadastre produtos, altere quantidades, volumes e sinalizações.':'Consulte e pesquise os produtos disponíveis.';const term=strip(document.getElementById('stock-search')?.value||''),filter=document.getElementById('stock-filter')?.value||'todos';document.querySelectorAll('[data-stock-summary-filter]').forEach(el=>el.classList.toggle('active',el.dataset.stockSummaryFilter===filter));const rows=stockRecords
  .filter(r=>(!term||strip(r.produto).includes(term))&&(filter==='todos'||r.urgencia===filter))
- .sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{sensitivity:'base',numeric:true}));document.getElementById('stock-count').textContent=fmt(stockRecords.length);document.getElementById('stock-qty-total').textContent=fmt(stockRecords.reduce((s,r)=>s+(Number(r.quantidade)||0),0));document.getElementById('stock-attention-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='atencao').length);document.getElementById('stock-emergency-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='emergencia').length);if(stockEditMode){if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade atual</th><th>Adicionar ao estoque</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th><th>Ações</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="8" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr data-stock-id="${r.id}"><td><input class="stock-product-input" data-role="product" type="text" value="${stockSafe(r.produto)}"></td><td><input class="stock-qty-input" data-role="qty" type="number" min="0" step="1" value="${Number(r.quantidade)||0}"></td><td><div class="stock-quick-add"><input class="stock-add-input" data-role="add" type="number" min="1" step="1" placeholder="+ qtd"><button class="btn btn-green stock-add-btn" data-action="addqty" type="button">＋ Somar</button></div></td><td><select class="history-select" data-role="volume"><option value="unidade" ${(r.volume||'unidade')==='unidade'?'selected':''}>Unidade</option><option value="fardo" ${r.volume==='fardo'?'selected':''}>Fardo</option><option value="caixa_master" ${r.volume==='caixa_master'?'selected':''}>Caixa Master</option></select></td><td><select class="history-select" data-role="urgency"><option value="normal" ${r.urgencia==='normal'?'selected':''}>🟢 Normal</option><option value="atencao" ${r.urgencia==='atencao'?'selected':''}>🟡 Atenção</option><option value="emergencia" ${r.urgencia==='emergencia'?'selected':''}>🔴 Emergência</option></select></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterRecordHTML(r)}</td><td><div class="stock-actions"><button class="btn btn-green" data-action="save">Salvar</button>${isAdmin?'<button class="btn btn-dark" data-action="delete" title="Excluir">Excluir</button>':''}</div></td></tr>`).join('')}else{if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="6" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><b>${fmt(Number(r.quantidade)||0)}</b></td><td>${volumeLabel(r.volume)}</td><td><span class="urgency ${r.urgencia||'normal'}"><i class="urgency-dot"></i>${urgencyLabel(r.urgencia)}</span></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterRecordHTML(r)}</td></tr>`).join('')}}
+ .sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{sensitivity:'base',numeric:true}));document.getElementById('stock-count').textContent=fmt(stockRecords.length);document.getElementById('stock-qty-total').textContent=fmt(stockRecords.reduce((s,r)=>s+(Number(r.quantidade)||0),0));document.getElementById('stock-attention-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='atencao').length);document.getElementById('stock-emergency-count').textContent=fmt(stockRecords.filter(r=>r.urgencia==='emergencia').length);if(stockEditMode){if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade atual</th><th>Adicionar ao estoque</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th><th>Ações</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="8" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr data-stock-id="${r.id}"><td><input class="stock-product-input" data-role="product" type="text" value="${stockSafe(r.produto)}"></td><td><input class="stock-qty-input" data-role="qty" type="text" inputmode="numeric" autocomplete="off" value="${Number(r.quantidade)||0}"></td><td><div class="stock-quick-add"><input class="stock-add-input" data-role="add" type="text" inputmode="numeric" autocomplete="off" placeholder="+ qtd"><button class="btn btn-green stock-add-btn" data-action="addqty" type="button">＋ Somar</button></div></td><td><select class="history-select" data-role="volume"><option value="unidade" ${(r.volume||'unidade')==='unidade'?'selected':''}>Unidade</option><option value="fardo" ${r.volume==='fardo'?'selected':''}>Fardo</option><option value="caixa_master" ${r.volume==='caixa_master'?'selected':''}>Caixa Master</option></select></td><td><select class="history-select" data-role="urgency"><option value="normal" ${r.urgencia==='normal'?'selected':''}>🟢 Normal</option><option value="atencao" ${r.urgencia==='atencao'?'selected':''}>🟡 Atenção</option><option value="emergencia" ${r.urgencia==='emergencia'?'selected':''}>🔴 Emergência</option></select></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterRecordHTML(r)}</td><td><div class="stock-actions"><button class="btn btn-green" data-action="save">Salvar</button>${isAdmin?'<button class="btn btn-dark" data-action="delete" title="Excluir">Excluir</button>':''}</div></td></tr>`).join('')}else{if(head)head.innerHTML='<tr><th>Produto</th><th>Quantidade</th><th>Volume</th><th>Sinalização</th><th>Atualizado</th><th>Última alteração por</th></tr>';if(!rows.length){body.innerHTML='<tr><td colspan="6" class="stock-empty">Nenhum produto encontrado.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr><td><span class="stock-product">${stockSafe(r.produto)}</span></td><td><b>${fmt(Number(r.quantidade)||0)}</b></td><td>${volumeLabel(r.volume)}</td><td><span class="urgency ${r.urgencia||'normal'}"><i class="urgency-dot"></i>${urgencyLabel(r.urgencia)}</span></td><td>${stockDate(r.atualizado_em)}</td><td>${updaterRecordHTML(r)}</td></tr>`).join('')}}
 async function addStockProduct(produto,quantidade,volume,urgencia){
   const owner=requireStockOwner(),now=new Date(),payload={produto:produto.trim(),quantidade:Math.max(0,Math.round(Number(quantidade)||0)),volume,urgencia,atualizado_em:now.toISOString(),atualizado_por:owner};
   let {data,error}=await cloud.from('estoque_controle').insert(payload).select('id').single();
@@ -5406,7 +5414,11 @@ function refreshHistorySelect(){
   const btn=document.getElementById('download-card');if(btn)btn.disabled=!dates.length
 }
 function loadHistoryDate(iso){selectedDate=iso;const h=expHistory[iso];if(h)expData={headers:h.headers||[],rows:[],employeeTotals:h.employeeTotals||{},employeeAccounts:h.employeeAccounts||{},accountTotals:h.accountTotals||{},total:Number(h.total)||0,date:labelDate(iso),dateISO:iso,source:h.source||'Histórico salvo'};else expData={headers:[],rows:[],employeeTotals:{},employeeAccounts:{},accountTotals:{},total:0,date:labelDate(iso),dateISO:iso,source:'Sem arquivo de expedição registrado neste dia'};renderAll();refreshHistorySelect()}
-function renderAll(){if(agg)renderProduction();renderExpedition();refreshHistorySelect();renderCard();renderProductionMix();renderManagement();renderImportCenter();renderStock()}
+function renderAll(){
+ if(agg)renderProduction();renderExpedition();refreshHistorySelect();renderCard();renderProductionMix();renderManagement();renderImportCenter();
+ const a=document.activeElement,b=document.getElementById('stock-table-body');
+ if(!(stockEditMode&&a&&b?.contains(a)&&a.matches('input[data-role="product"],input[data-role="qty"],input[data-role="add"]')))renderStock();
+}
 
 function renderProductionMix(){
   const iso=selectedDate||expData.dateISO;
@@ -5530,8 +5542,9 @@ async function mimarAutoSaveStockRow(tr){
     if(saveBtn&&document.body.contains(saveBtn)){saveBtn.disabled=false;saveBtn.textContent=oldText||'Salvar'}
   }
 }
+// Edição manual: não recarregar a linha enquanto o usuário está digitando.
 document.getElementById('stock-table-body').addEventListener('change',e=>{
-  const field=e.target.closest('[data-role="product"],[data-role="qty"],[data-role="volume"],[data-role="urgency"]');
+  const field=e.target.closest('[data-role="volume"],[data-role="urgency"]');
   if(!field)return;
   const tr=field.closest('tr[data-stock-id]');
   void mimarAutoSaveStockRow(tr);
@@ -8163,31 +8176,6 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 .stock-search-help{font-size:10px;color:var(--muted);margin-top:5px}
 </style>
 
-<style id="stock-number-visibility-fix">
-#estoque input.stock-qty-input,
-#estoque input.stock-add-input,
-#estoque input.stock-product-input{
-  color:#344054!important;
-  caret-color:#101828!important;
-  cursor:text!important;
-  background:#fff!important;
-}
-#estoque input.stock-qty-input:hover,
-#estoque input.stock-add-input:hover,
-#estoque input.stock-product-input:hover{
-  color:#101828!important;
-  caret-color:#101828!important;
-  cursor:text!important;
-}
-#estoque input[type="number"]{
-  color-scheme:light;
-}
-#estoque input[type="number"]::-webkit-inner-spin-button,
-#estoque input[type="number"]::-webkit-outer-spin-button{
-  opacity:1;
-  cursor:pointer;
-}
-</style>
 </head><body><div class="head"><div class="top"><div><h1>Mimar · Contagem de Estoque de Natal</h1><div class="sub">Conferência física dos produtos sazonais.</div></div><div class="stamp"><b>Impresso:</b> ${date} · ${time}</div></div></div>
    <div class="meta"><div><b>COLABORADOR:</b> ______________________________________________</div><div><b>DATA:</b> ____ / ____ / ______</div></div>
    <div class="cols"><div>${table(make(rows.slice(0,half),0))}</div><div>${table(make(rows.slice(half),half))}</div></div>
@@ -8784,6 +8772,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()});
 })();
 </script>
+
 
 
 
