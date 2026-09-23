@@ -8162,6 +8162,32 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 .stock-add-btn{white-space:nowrap}
 .stock-search-help{font-size:10px;color:var(--muted);margin-top:5px}
 </style>
+
+<style id="stock-number-visibility-fix">
+#estoque input.stock-qty-input,
+#estoque input.stock-add-input,
+#estoque input.stock-product-input{
+  color:#344054!important;
+  caret-color:#101828!important;
+  cursor:text!important;
+  background:#fff!important;
+}
+#estoque input.stock-qty-input:hover,
+#estoque input.stock-add-input:hover,
+#estoque input.stock-product-input:hover{
+  color:#101828!important;
+  caret-color:#101828!important;
+  cursor:text!important;
+}
+#estoque input[type="number"]{
+  color-scheme:light;
+}
+#estoque input[type="number"]::-webkit-inner-spin-button,
+#estoque input[type="number"]::-webkit-outer-spin-button{
+  opacity:1;
+  cursor:pointer;
+}
+</style>
 </head><body><div class="head"><div class="top"><div><h1>Mimar · Contagem de Estoque de Natal</h1><div class="sub">Conferência física dos produtos sazonais.</div></div><div class="stamp"><b>Impresso:</b> ${date} · ${time}</div></div></div>
    <div class="meta"><div><b>COLABORADOR:</b> ______________________________________________</div><div><b>DATA:</b> ____ / ____ / ______</div></div>
    <div class="cols"><div>${table(make(rows.slice(0,half),0))}</div><div>${table(make(rows.slice(half),half))}</div></div>
