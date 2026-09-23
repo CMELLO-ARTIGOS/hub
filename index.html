@@ -4461,6 +4461,37 @@ body.user-logged-in header [data-action="logout"]{
 /* Cartões antigos das tentativas anteriores continuam desativados */
 #calcSidebarUser,#calcSideAccess{display:none!important}
 </style>
+
+<style id="remove-top-access-global">
+/* Acesso já está no painel lateral inferior */
+header .user-pill,
+header .logout-btn,
+header [data-user-status],
+header [data-action="logout"],
+header .online-pill,
+header .session-pill,
+header .user-session,
+header .top-actions{
+  display:none!important;
+}
+
+/* Bate-ponto permanece oculto até ser oficialmente liberado */
+header #btnTimeClock,
+header [data-action="timeclock"],
+header [data-action="bate-ponto"],
+header .btn-timeclock,
+header .bate-ponto-btn,
+header .calc-hide-timeclock{
+  display:none!important;
+}
+</style>
+
+<style id="calculator-permission-model-v1">
+/* Calculadora Medida agora segue a permissão individual da Gestão.
+   Não existe mais regra fixa "colaborador = somente calculadora". */
+body.calc-colab-only .tabs .tab{display:flex!important}
+body.calc-colab-only .tabs .tab.mimar-permission-denied{display:none!important}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -5898,7 +5929,7 @@ window.parent.postMessage({type:&#x27;cmello-calculator-ready&#x27;},&#x27;*&#x2
 <label>Perfil<select id="access-role"><option value="colaborador">Colaborador</option><option value="lider">Líder</option><option value="admin">Administrador</option></select></label>
 </div>
 <div class="access-perms" id="access-perms">
-<label><input checked="" type="checkbox" value="dashboard"/> Visão Geral</label><label><input checked="" type="checkbox" value="card"/> Card do Dia</label><label><input checked="" type="checkbox" value="producao"/> Produção</label><label><input checked="" type="checkbox" value="estoque"/> Estoque</label><label><input type="checkbox" value="medidas"/> Medidas</label><label><input type="checkbox" value="rodizios"/> Rodízios</label><label><input checked="" type="checkbox" value="rotina"/> Minha Rotina</label><label><input type="checkbox" value="erros"/> Erros</label><label><input type="checkbox" value="gestao"/> Gestão</label>
+<label><input type="checkbox" value="dashboard"/> Visão Geral</label><label><input type="checkbox" value="card"/> Card do Dia</label><label><input type="checkbox" value="producao"/> Produção</label><label><input type="checkbox" value="estoque"/> Estoque</label><label><input checked="" type="checkbox" value="calculadora"/> Calculadora Medida</label><label><input type="checkbox" value="medidas"/> Medidas</label><label><input type="checkbox" value="rodizios"/> Rodízios</label><label><input checked="" type="checkbox" value="rotina"/> Minha Rotina</label><label><input type="checkbox" value="erros"/> Erros</label><label><input type="checkbox" value="gestao"/> Gestão</label>
 </div>
 <div class="access-modal-actions"><button class="btn btn-dark" data-access-close="" type="button">Cancelar</button><button class="btn btn-orange" id="access-create" type="button">＋ Criar acesso</button></div>
 </div>
@@ -9377,7 +9408,7 @@ window.addEventListener('pageshow',()=>{refreshRoutineFromCloud();if(R.profile)l
 </script>
 <script id="mimar-access-script-v1">
 (()=>{
-const PERM_PAGE={dashboard:'dashboard',card:'card-page',producao:'producao-controle',estoque:'estoque-controle',medidas:'medidas',rodizios:'rodizios',rotina:'minha-rotina',flex:'flex',erros:'erros',gestao:'gestao'};
+const PERM_PAGE={dashboard:'dashboard',card:'card-page',producao:'producao-controle',estoque:'estoque-controle',calculadora:'calculadora-medida',medidas:'medidas',rodizios:'rodizios',rotina:'minha-rotina',flex:'flex',erros:'erros',gestao:'gestao'};
 window.mimarPermissions=[];window.mimarRole='';
 function accessSafe(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]))}
 function slugUser(v){return String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/\\s+/g,'.').replace(/[^a-z0-9._-]/g,'')}
@@ -9412,10 +9443,10 @@ async function provisionInitialTeam(){
     const usuario=slugUser(m.nome);
     const existing=users.find(u=>String(u.nome||'').toLowerCase()===m.nome.toLowerCase() || String(u.usuario||'').toLowerCase()===usuario);
     const perms=m.perfil==='admin'
-      ?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']
+      ?['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina','flex','erros','gestao']
       :m.perfil==='lider'
-        ?['dashboard','card','producao','estoque','medidas','rodizios','rotina']
-        :['dashboard','card','producao','estoque','rotina'];
+        ?['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina']
+        :['calculadora'];
     if(existing){
       // Acesso já existe: nunca sobrescrever perfil/permissões definidos pela Gestão.
       continue;
@@ -9433,7 +9464,7 @@ async function provisionInitialTeam(){
 
 document.getElementById('access-name')?.addEventListener('input',e=>{const u=document.getElementById('access-user');if(u&&!u.dataset.manual)u.value=slugUser(e.target.value)});
 document.getElementById('access-user')?.addEventListener('input',e=>e.target.dataset.manual='1');
-document.getElementById('access-role')?.addEventListener('change',e=>{if(e.target.value==='lider'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao'].includes(x.value))}});
+document.getElementById('access-role')?.addEventListener('change',e=>{if(e.target.value==='lider'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina'].includes(x.value))}else if(e.target.value==='colaborador'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=x.value==='calculadora')}else if(e.target.value==='admin'){document.querySelectorAll('#access-perms input').forEach(x=>x.checked=true)}});
 document.getElementById('access-create')?.addEventListener('click',async()=>{const name=document.getElementById('access-name').value.trim(),user=slugUser(document.getElementById('access-user').value),password=document.getElementById('access-password').value,role=document.getElementById('access-role').value;if(!name||!user||password.length<8)return setStatus('Preencha nome, usuário e uma senha com pelo menos 8 caracteres.',true);try{setStatus('Criando acesso...');await createOne(name,user,password,role,selectedPerms());document.getElementById('access-password').value='';document.getElementById('access-create-modal')?.setAttribute('hidden','');await loadAccess()}catch(e){setStatus(e.message,true)}});
 document.getElementById('access-bulk-create')?.addEventListener('click',async()=>{const names=document.getElementById('access-bulk-names').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);if(!names.length)return;const btn=document.getElementById('access-bulk-create');btn.disabled=true;let ok=0,fail=[];for(const name of names){const first=name.split(/\\s+/)[0];const role=/^elisabete$/i.test(first)?'lider':'colaborador';const perms=role==='lider'?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']:['dashboard','card','producao','estoque','rotina'];try{await createOne(name,slugUser(first),first+'1234@',role,perms);ok++}catch(e){fail.push(name+': '+e.message)}}btn.disabled=false;setStatus(`${ok} criado(s).${fail.length?' Falhas: '+fail.join(' | '):''}`,!!fail.length);await loadAccess()});
 document.getElementById('access-refresh')?.addEventListener('click',loadAccess);
@@ -9456,7 +9487,7 @@ document.getElementById('access-body')?.addEventListener('click',async e=>{
   await loadAccess();
  }catch(err){setStatus(err.message,true)}
 });
-async function loadOwnAccess(){try{const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return;const {data}=await cloud.from('colaboradores').select('perfil,permissoes,ativo').eq('id',session.user.id).maybeSingle();window.mimarRole=data?.perfil||'';window.mimarPermissions=Array.isArray(data?.permissoes)?data.permissoes:[];if(window.isAdmin)return;document.querySelectorAll('.tab[data-page]').forEach(tab=>{const key=Object.keys(PERM_PAGE).find(k=>PERM_PAGE[k]===tab.dataset.page);if(key&&key!=='dashboard')tab.style.display=window.mimarPermissions.includes(key)?'flex':'none'})}catch(e){console.warn('Permissões:',e)}}
+async function loadOwnAccess(){try{const {data:{session}}=await cloud.auth.getSession();if(!session?.user)return;const {data}=await cloud.from('colaboradores').select('perfil,permissoes,ativo').eq('id',session.user.id).maybeSingle();window.mimarRole=data?.perfil||'';window.mimarPermissions=Array.isArray(data?.permissoes)?data.permissoes:[];if(window.isAdmin)return;document.querySelectorAll('.tab[data-page]').forEach(tab=>{const key=Object.keys(PERM_PAGE).find(k=>PERM_PAGE[k]===tab.dataset.page);if(key)tab.style.display=window.mimarPermissions.includes(key)?'flex':'none'});window.mimarApplyPermissions?.()}catch(e){console.warn('Permissões:',e)}}
 window.addEventListener('mimar:system-login',()=>setTimeout(async()=>{loadOwnAccess();if(window.isAdmin||document.body.classList.contains('admin-mode')){await provisionInitialTeam();await loadAccess()}},250));window.addEventListener('load',()=>setTimeout(async()=>{loadOwnAccess();if(document.body.classList.contains('admin-mode')){await provisionInitialTeam();await loadAccess()}},900));
 })();
 </script>\n
@@ -9742,19 +9773,20 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 </script>
 <style id="permission-dashboard-style">
 #permission-dashboard{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:12000;display:none;align-items:center;justify-content:center;padding:22px}#permission-dashboard.show{display:flex}.perm-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 28px 80px rgba(15,23,42,.24);padding:24px}.perm-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.perm-head h3{margin:0;font-size:24px}.perm-head p{margin:5px 0 0;color:#667085}.perm-close{border:0;background:#f2f4f7;border-radius:12px;width:40px;height:40px;font-size:20px;cursor:pointer}.perm-profile{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;background:#f8fafc;border:1px solid #e4e7ec;border-radius:16px;margin-bottom:16px}.perm-profile label{font-size:12px;font-weight:800;color:#475467}.perm-profile input,.perm-profile select{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid #d0d5dd;border-radius:10px;background:white}.perm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.perm-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4e7ec;border-radius:14px;padding:13px 14px}.perm-item b{font-size:14px}.perm-item small{display:block;color:#667085;margin-top:2px}.perm-item input{width:20px;height:20px;accent-color:#ff5a2a}.perm-note{margin-top:14px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:12px;color:#7c2d12}.perm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.perm-actions button{padding:11px 18px;border-radius:11px;border:1px solid #d0d5dd;font-weight:800;cursor:pointer}.perm-save{background:#ff5a2a!important;color:#fff;border-color:#ff5a2a!important}@media(max-width:650px){.perm-grid,.perm-profile{grid-template-columns:1fr}}
-</style><div aria-hidden="true" id="permission-dashboard"><div class="perm-card"><div class="perm-head"><div><h3 id="perm-title">Permissões</h3><p>Marque as áreas que este acesso poderá utilizar.</p></div><button class="perm-close" id="perm-x" type="button">×</button></div><div class="perm-profile"><label>Colaborador<input disabled="" id="perm-user-name"/></label><label>Perfil<select id="perm-role"><option value="colaborador">Colaborador</option><option value="lider">Liderança</option><option value="admin">Administrador</option></select></label></div><div class="perm-grid" id="perm-grid"></div><div class="perm-note"><b>Controle de acesso:</b> você pode voltar aqui e alterar essas permissões quando quiser. Gestão fica disponível somente para perfil Administrador.</div><div class="perm-actions"><button id="perm-cancel" type="button">Cancelar</button><button class="perm-save" id="perm-save" type="button">Salvar permissões</button></div></div></div>
+</style><div aria-hidden="true" id="permission-dashboard"><div class="perm-card"><div class="perm-head"><div><h3 id="perm-title">Permissões</h3><p>Marque as áreas que este acesso poderá utilizar.</p></div><button class="perm-close" id="perm-x" type="button">×</button></div><div class="perm-profile"><label>Colaborador<input disabled="" id="perm-user-name"/></label><label>Perfil<select id="perm-role"><option value="colaborador">Colaborador</option><option value="lider">Liderança</option><option value="admin">Administrador</option></select></label></div><div class="perm-grid" id="perm-grid"></div><div class="perm-note"><b>Controle de acesso:</b> Calculadora Medida é uma permissão independente. Você pode liberar outras páginas para cada colaborador quando quiser. Gestão fica disponível somente para perfil Administrador.</div><div class="perm-actions"><button id="perm-cancel" type="button">Cancelar</button><button class="perm-save" id="perm-save" type="button">Salvar permissões</button></div></div></div>
 <script id="permission-dashboard-script">(()=>{const defs=[
 ['dashboard','Visão Geral','Visualizar indicadores, produção, coletas e informações gerais do painel.'],
 ['card','Card do Dia','Visualizar e gerar o resumo operacional do dia conforme os dados liberados.'],
 ['producao','Produção','Visualizar e registrar produção de Full, produção de estoque e pedidos externos.'],
 ['estoque','Estoque','Consultar produtos, quantidades e registrar alterações operacionais de estoque.'],
-['medidas','Medidas','Consultar medidas, peso e cubagem dos produtos.'],
+['calculadora','Calculadora Medida','Permissão independente. Colaboradores começam somente com esta página; libere as demais conforme necessário.'],
+['medidas','Medidas','Consultar e administrar as medidas, peso e cubagem cadastradas dos produtos.'],
 ['rodizios','Rodízios','Somente visualizar escalas e rodízios. Alterações continuam exclusivas do administrador.'],
 ['rotina','Minha Rotina','Visualizar e concluir os próprios afazeres e checklists.'],
 ['flex','Flex','Acessar o Flex, realizar lançamentos, consultar histórico e ajustar ocorrências da operação Flex.'],
 ['erros','Erros','Visualizar, importar, revisar e vincular ocorrências operacionais aos colaboradores.'],
 ['gestao','Gestão','Administrar colaboradores, acessos, permissões e configurações. Exclusivo para administradores.']
-];const presets={colaborador:['dashboard','card','producao','estoque','rotina'],lider:['dashboard','card','producao','estoque','medidas','rodizios','rotina'],admin:defs.map(x=>x[0])};let targetId='';const modal=document.getElementById('permission-dashboard'),grid=document.getElementById('perm-grid'),role=document.getElementById('perm-role');const draw=s=>grid.innerHTML=defs.map(([k,n,d])=>`<label class="perm-item"><span><b>${n}</b><small>${d}</small></span><input type="checkbox" data-perm="${k}" ${s.includes(k)?'checked':''}></label>`).join('');window.openPermissionDashboard=(tr,id)=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem alterar permissões.');return;}targetId=id;const nome=tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=(tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';const accessUser=window.mimarAccessUsersById?.get(String(id));const perms=Array.isArray(accessUser?.permissoes)?accessUser.permissoes:(tr.children[3]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);document.getElementById('perm-title').textContent=`Permissões de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(perms.length?perms:presets[perfil]);modal.classList.add('show')};const close=()=>modal.classList.remove('show');role.onchange=()=>{const checked=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);draw(checked.filter(x=>role.value==='admin'||x!=='gestao'));};document.getElementById('perm-x').onclick=close;document.getElementById('perm-cancel').onclick=close;document.getElementById('perm-save').onclick=async()=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem salvar permissões.');return;}const btn=document.getElementById('perm-save');let perms=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);if(role.value!=='admin')perms=perms.filter(x=>x!=='gestao');try{btn.disabled=true;btn.textContent='Salvando...';await window.mimarInvokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});const check=await window.mimarInvokeAccess({action:'list'});const saved=(check.users||[]).find(u=>String(u.id)===String(targetId));const savedPerms=Array.isArray(saved?.permissoes)?saved.permissoes:[];const same=perms.length===savedPerms.length&&perms.every(p=>savedPerms.includes(p));if(!saved||saved.perfil!==role.value||!same)throw new Error('O Supabase não confirmou as permissões selecionadas.');close();window.mimarAccessUsersById=new Map((check.users||[]).map(u=>[String(u.id),u]));await window.mimarLoadAccess();window.mimarSetAccessStatus?.('Permissões salvas e confirmadas no Supabase.')}catch(e){alert('Não foi possível salvar: '+(e?.message||e))}finally{btn.disabled=false;btn.textContent='Salvar permissões'}}})();</script>
+];const presets={colaborador:['calculadora'],lider:['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina'],admin:defs.map(x=>x[0])};let targetId='';const modal=document.getElementById('permission-dashboard'),grid=document.getElementById('perm-grid'),role=document.getElementById('perm-role');const draw=s=>grid.innerHTML=defs.map(([k,n,d])=>`<label class="perm-item"><span><b>${n}</b><small>${d}</small></span><input type="checkbox" data-perm="${k}" ${s.includes(k)?'checked':''}></label>`).join('');window.openPermissionDashboard=(tr,id)=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem alterar permissões.');return;}targetId=id;const nome=tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=(tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';const accessUser=window.mimarAccessUsersById?.get(String(id));const perms=Array.isArray(accessUser?.permissoes)?accessUser.permissoes:(tr.children[3]?.textContent||'').split(',').map(x=>x.trim()).filter(Boolean);document.getElementById('perm-title').textContent=`Permissões de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(perms.length?perms:presets[perfil]);modal.classList.add('show')};const close=()=>modal.classList.remove('show');role.onchange=()=>{const checked=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);draw(checked.filter(x=>role.value==='admin'||x!=='gestao'));};document.getElementById('perm-x').onclick=close;document.getElementById('perm-cancel').onclick=close;document.getElementById('perm-save').onclick=async()=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem salvar permissões.');return;}const btn=document.getElementById('perm-save');let perms=[...grid.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm);if(role.value!=='admin')perms=perms.filter(x=>x!=='gestao');try{btn.disabled=true;btn.textContent='Salvando...';await window.mimarInvokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});const check=await window.mimarInvokeAccess({action:'list'});const saved=(check.users||[]).find(u=>String(u.id)===String(targetId));const savedPerms=Array.isArray(saved?.permissoes)?saved.permissoes:[];const same=perms.length===savedPerms.length&&perms.every(p=>savedPerms.includes(p));if(!saved||saved.perfil!==role.value||!same)throw new Error('O Supabase não confirmou as permissões selecionadas.');close();window.mimarAccessUsersById=new Map((check.users||[]).map(u=>[String(u.id),u]));await window.mimarLoadAccess();window.mimarSetAccessStatus?.('Permissões salvas e confirmadas no Supabase.')}catch(e){alert('Não foi possível salvar: '+(e?.message||e))}finally{btn.disabled=false;btn.textContent='Salvar permissões'}}})();</script>
 <script id="mimar-operational-team-v1">
 (()=>{
  const KEY='mimar_operational_team_v1';
@@ -9906,7 +9938,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
 </style>
 <script id="mimar-permission-ui-guard-v3">
 (function(){
- const ALL=['dashboard','card','producao','estoque','medidas','rodizios','rotina','flex','gestao'];
+ const ALL=['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina','flex','erros','gestao'];
  function normalize(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
  function permissionKey(el){
    const raw=normalize([el?.dataset?.page,el?.dataset?.target,el?.dataset?.tab,el?.getAttribute?.('href'),el?.getAttribute?.('aria-controls'),el?.textContent].filter(Boolean).join(' '));
@@ -9914,6 +9946,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    if(/card do dia|card/.test(raw))return'card';
    if(/producao/.test(raw))return'producao';
    if(/estoque/.test(raw))return'estoque';
+   if(/calculadora medida/.test(raw)||/calculadora-medida/.test(raw))return'calculadora';
    if(/medidas|cubagem/.test(raw))return'medidas';
    if(/rodizios|rodizio/.test(raw))return'rodizios';
    if(/minha rotina|rotina/.test(raw))return'rotina';
@@ -10623,10 +10656,15 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
  function open(){const t=document.querySelector('.tab[data-page="calculadora-medida"]');if(t)t.click();setTimeout(send,100)}
  function apply(){
    const logged=document.body.classList.contains('user-logged-in');
-   const role=String(window.mimarRole||'').toLowerCase();
-   const colab=logged&&role==='colaborador';
-   document.body.classList.toggle('calc-colab-only',colab);
-   if(colab)open();
+   document.body.classList.remove('calc-colab-only');
+   if(!logged)return;
+   const perms=Array.isArray(window.mimarCurrentPermissions)&&window.mimarCurrentPermissions.length
+     ?window.mimarCurrentPermissions
+     :(Array.isArray(window.mimarPermissions)?window.mimarPermissions:[]);
+   const canCalc=window.isAdmin||perms.includes('calculadora');
+   const visible=[...document.querySelectorAll('.tab[data-page]')].filter(t=>getComputedStyle(t).display!=='none'&&!t.classList.contains('mimar-permission-denied'));
+   const onlyCalc=visible.length===1&&visible[0].dataset.page==='calculadora-medida';
+   if(canCalc&&(onlyCalc||String(window.mimarRole||'').toLowerCase()==='colaborador'))open();
  }
  window.addEventListener('message',e=>{if(e.data&&e.data.type==='cmello-calculator-ready')send()});
  window.addEventListener('mimar:system-login',()=>setTimeout(()=>{apply();send()},150));
@@ -10968,6 +11006,62 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
  window.addEventListener('load',()=>setTimeout(installAndSync,100));
  window.addEventListener('mimar:system-login',()=>setTimeout(installAndSync,180));
  document.addEventListener('click',()=>setTimeout(installAndSync,20));
+})();
+</script>
+
+<script id="remove-top-access-global-runtime">
+(function(){
+ function cleanTop(){
+   const h=document.querySelector('header');
+   if(!h)return;
+   h.querySelectorAll('button,a,div,span').forEach(el=>{
+     const t=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+     if(
+       (t.includes('online') && /dia/.test(t)) ||
+       t.includes('bate-ponto') ||
+       (t.includes('sair') && (t.includes('administrador') || t.includes('bryan')))
+     ){
+       el.style.display='none';
+     }
+   });
+ }
+ window.addEventListener('load',()=>setTimeout(cleanTop,100));
+ window.addEventListener('mimar:system-login',()=>setTimeout(cleanTop,180));
+ document.addEventListener('click',()=>setTimeout(cleanTop,20));
+})();
+</script>
+
+<script id="calculator-permission-rollout-v2">
+(function(){
+  const CALC_ONLY=['calculadora'];
+
+  function isCollaboratorRole(role){
+    return String(role||'').trim().toLowerCase()==='colaborador';
+  }
+
+  /* New collaborator accounts start with Calculator only. */
+  window.mimarDefaultPermissionsForRole=function(role){
+    const r=String(role||'').trim().toLowerCase();
+    if(r==='admin'||r==='administrador') return ['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina','flex','erros','gestao'];
+    if(r==='lider'||r==='líder') return ['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina'];
+    return CALC_ONLY.slice();
+  };
+
+  /* When the logged-in user is a collaborator, Calculator is the only default
+     until Gestão grants more permissions. This does not affect admin/lider. */
+  window.addEventListener('mimar:system-login',function(){
+    setTimeout(function(){
+      const role=String(window.mimarRole||'').toLowerCase();
+      if(!isCollaboratorRole(role)) return;
+
+      const current=Array.isArray(window.mimarPermissions)?window.mimarPermissions:[];
+      if(!current.length){
+        window.mimarPermissions=CALC_ONLY.slice();
+        window.mimarCurrentPermissions=CALC_ONLY.slice();
+        window.mimarApplyPermissions?.();
+      }
+    },220);
+  });
 })();
 </script>
 </body>
