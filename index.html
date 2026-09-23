@@ -9951,6 +9951,7 @@ footer{border-top:1px solid #e7e2de!important;color:#8a8f98!important;margin-top
    if(/rodizios|rodizio/.test(raw))return'rodizios';
    if(/minha rotina|rotina/.test(raw))return'rotina';
    if(/flex/.test(raw))return'flex';
+   if(/erros|erro operacional|ocorrencias operacionais/.test(raw))return'erros';
    if(/gestao|administracao/.test(raw))return'gestao';
    return null;
  }
@@ -11062,6 +11063,52 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
       }
     },220);
   });
+})();
+</script>
+
+<style id="erros-permission-hard-guard">
+body:not([data-mimar-profile="admin"]) #erros.mimar-page-permission-denied{
+  display:none!important;
+}
+</style>
+<script id="erros-permission-hard-guard-runtime">
+(function(){
+ function enforceErrosPermission(){
+   const page=document.getElementById('erros');
+   const tab=document.querySelector('.tab[data-page="erros"]');
+   if(!page)return;
+
+   const isAdmin=String(document.body.dataset.mimarProfile||window.mimarRole||'').toLowerCase()==='admin' || !!window.isAdmin;
+   const allowed=isAdmin || (Array.isArray(window.mimarCurrentPermissions) && window.mimarCurrentPermissions.includes('erros'));
+
+   page.classList.toggle('mimar-page-permission-denied',!allowed);
+   if(tab){
+     tab.classList.toggle('mimar-permission-denied',!allowed);
+     tab.setAttribute('aria-hidden',allowed?'false':'true');
+   }
+
+   if(!allowed && page.classList.contains('active')){
+     const first=[...document.querySelectorAll('.tab[data-page]')].find(el=>{
+       return !el.classList.contains('mimar-permission-denied') && getComputedStyle(el).display!=='none';
+     });
+     first?.click();
+   }
+ }
+ const original=window.mimarApplyPermissions;
+ window.mimarApplyPermissions=async function(){
+   if(typeof original==='function') await original();
+   enforceErrosPermission();
+ };
+ window.addEventListener('mimar:system-login',()=>setTimeout(enforceErrosPermission,140));
+ window.addEventListener('focus',enforceErrosPermission);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceErrosPermission()});
+ document.addEventListener('click',e=>{
+   const target=e.target.closest?.('.tab[data-page="erros"]');
+   if(target && target.classList.contains('mimar-permission-denied')){
+     e.preventDefault();e.stopImmediatePropagation();
+   }
+ },true);
+ setTimeout(enforceErrosPermission,400);
 })();
 </script>
 </body>
