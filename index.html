@@ -7023,7 +7023,17 @@ async function saveStockRow(id,quantidade,volume,urgencia,produto){
   if(String(produto||'').trim())payload.produto=String(produto).trim();
   let {error}=await cloud.from('estoque_controle').update(payload).eq('id',id);
   if(error&&String(error.message||'').toLowerCase().includes('atualizado_por'))({error}=await cloud.from('estoque_controle').update({quantidade:payload.quantidade,volume,urgencia,produto:payload.produto,atualizado_em:payload.atualizado_em}).eq('id',id));
-  if(error)throw error;registerStockAudit(id,owner,now);await loadStock()
+  if(error)throw error;
+  registerStockAudit(id,owner,now);
+  const rec=stockRecords.find(r=>String(r.id)===String(id));
+  if(rec){
+    rec.quantidade=payload.quantidade;rec.volume=volume;rec.urgencia=urgencia;
+    if(payload.produto)rec.produto=payload.produto;
+    rec.atualizado_em=payload.atualizado_em;rec.atualizado_por=owner;
+  }
+  const active=document.activeElement;
+  const editingNow=!!active?.closest?.('#estoque-controle input,#estoque-controle textarea,#estoque-controle select');
+  if(!editingNow)await loadStock();else renderStockAudit();
 }
 async function deleteStockRow(id){requireAdmin();const {error}=await cloud.from('estoque_controle').delete().eq('id',id);if(error)throw error;await loadStock()}
 
@@ -10329,28 +10339,36 @@ E('flex-refresh').onclick=load;E('flex-date').onchange=load;document.addEventLis
 <script id="estoque-ordem-alfabetica-fixa-20260919">
 (function(){
  const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/^\s*\d+\.\s*/,'').trim();
-
- function ordenar(){
-   const page=document.getElementById('estoque-controle')||document.getElementById('estoque');
-   if(!page)return;
-   page.querySelectorAll('table tbody').forEach(tb=>{
-     if(tb.closest('#estoque-natal-panel,#estoqueNatalPanel,[data-stock="natal"],.estoque-natal'))return;
-     const rows=[...tb.querySelectorAll(':scope > tr')];
-     if(rows.length<2)return;
-     rows.sort((a,b)=>{
-       const A=norm(a.querySelector('td')?.textContent),B=norm(b.querySelector('td')?.textContent);
-       return A.localeCompare(B,'pt-BR',{numeric:true,sensitivity:'base'});
-     });
-     rows.forEach(r=>tb.appendChild(r));
-   });
+ let sorting=false,timer=null;
+ function editing(){
+   const p=document.getElementById('estoque-controle')||document.getElementById('estoque'),a=document.activeElement;
+   return !!(p&&a&&p.contains(a)&&a.matches('input,textarea,select,[contenteditable="true"]'));
  }
- let t;const run=()=>{clearTimeout(t);t=setTimeout(ordenar,50)};
+ function ordenar(){
+   if(sorting||editing())return;
+   const page=document.getElementById('estoque-controle')||document.getElementById('estoque');if(!page)return;
+   sorting=true;
+   try{
+     page.querySelectorAll('table tbody').forEach(tb=>{
+       if(tb.closest('#estoque-natal-panel,#estoqueNatalPanel,[data-stock="natal"],.estoque-natal'))return;
+       const current=[...tb.querySelectorAll(':scope > tr')];if(current.length<2)return;
+       const sorted=[...current].sort((a,b)=>norm(a.querySelector('td')?.textContent).localeCompare(norm(b.querySelector('td')?.textContent),'pt-BR',{numeric:true,sensitivity:'base'}));
+       if(sorted.some((r,i)=>r!==current[i]))sorted.forEach(r=>tb.appendChild(r));
+     });
+   }finally{sorting=false}
+ }
+ function schedule(){clearTimeout(timer);timer=setTimeout(()=>{if(!editing())ordenar()},120)}
  document.addEventListener('DOMContentLoaded',()=>setTimeout(ordenar,1300));
- window.addEventListener('focus',ordenar);
- document.addEventListener('click',e=>{if(e.target.closest('#estoque-controle,[data-page="estoque"],[data-page="estoque-controle"]'))setTimeout(ordenar,180)});
+ window.addEventListener('focus',()=>{if(!editing())ordenar()});
+ document.addEventListener('click',e=>{
+   if(e.target.closest('#estoque-controle,[data-page="estoque"],[data-page="estoque-controle"]')&&!e.target.closest('input,textarea,select,[contenteditable="true"]'))setTimeout(ordenar,180)
+ });
  document.addEventListener('DOMContentLoaded',()=>{
-   const p=document.getElementById('estoque-controle')||document.getElementById('estoque');
-   if(p)new MutationObserver(run).observe(p,{childList:true,subtree:true});
+   const p=document.getElementById('estoque-controle')||document.getElementById('estoque');if(!p)return;
+   new MutationObserver(m=>{
+     if(sorting||editing())return;
+     if(m.some(x=>x.type==='childList'&&(x.addedNodes.length||x.removedNodes.length)))schedule()
+   }).observe(p,{childList:true,subtree:true});
  });
  window.mimarOrdenarEstoque=ordenar;
 })();
@@ -10844,7 +10862,7 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
  window.addEventListener('load',()=>setTimeout(sync,80));
  window.addEventListener('resize',sync);
  window.addEventListener('mimar:system-login',()=>setTimeout(sync,150));
- document.addEventListener('click',()=>setTimeout(sync,0));
+ document.addEventListener('click',()=>{if(!window.__mimarStockEditing?.())setTimeout(sync,0)});
  window.addEventListener('DOMContentLoaded',()=>{
    const p=document.getElementById('calculadora-medida');
    if(p)new MutationObserver(sync).observe(p,{attributes:true,attributeFilter:['class']});
@@ -10917,7 +10935,7 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
  }
  window.addEventListener('load',()=>setTimeout(sync,80));
  window.addEventListener('mimar:system-login',()=>setTimeout(sync,180));
- document.addEventListener('click',()=>setTimeout(sync,0));
+ document.addEventListener('click',()=>{if(!window.__mimarStockEditing?.())setTimeout(sync,0)});
  window.addEventListener('resize',sync);
  window.addEventListener('DOMContentLoaded',()=>{
    const p=document.getElementById('calculadora-medida');
@@ -11006,7 +11024,7 @@ window.addEventListener('cmello-measures-updated',()=>{calculate();renderList()}
  }
  window.addEventListener('load',()=>setTimeout(installAndSync,100));
  window.addEventListener('mimar:system-login',()=>setTimeout(installAndSync,180));
- document.addEventListener('click',()=>setTimeout(installAndSync,20));
+ document.addEventListener('click',()=>{if(!window.__mimarStockEditing?.())setTimeout(installAndSync,20)});
 })();
 </script>
 
@@ -11111,6 +11129,7 @@ body:not([data-mimar-profile="admin"]) #erros.mimar-page-permission-denied{
  setTimeout(enforceErrosPermission,400);
 })();
 </script>
+
 </body>
 </html>
 <style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}
