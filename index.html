@@ -5756,10 +5756,10 @@ window.parent.postMessage({type:'cmello-calculator-ready'},'*');
 <div>
 <span class="rotation-mini-eyebrow">RODÍZIO DIÁRIO</span>
 <h2>🪣 Baldes — semana atual</h2>
-<p>Um responsável diferente por dia, de segunda a sábado.</p>
+<p>Escala semanal dos baldes. O responsável de cada dia pode ser ajustado conforme a necessidade.</p>
 </div>
 <div class="rotation-actions">
-<button class="btn btn-dark admin-only" id="bucket-saturday-sequence-open" type="button">↻ Sequência dos sábados</button>
+
 <button class="btn btn-orange admin-only" id="bucket-week-edit" type="button">✎ Editar semana</button>
 </div>
 </div>
@@ -7724,10 +7724,8 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     const today=new Date().getDay();
     grid.innerHTML=dayDefs.map(d=>{
       const isToday=today===d.dow;
-      const person=d.key==='sat'?saturdayPerson(0):(bucketWeek[d.key]||'Definir');
-      const extra=d.key==='sat'
-        ? `<div class="day-sub">${isToday?'Responsável pelos baldes hoje':'Sábado automático · próximo: '+esc(saturdayPerson(1))}</div>`
-        : `<div class="day-sub">${isToday?'Responsável pelos baldes hoje':'Responsável do dia'}</div>`;
+      const person=bucketWeek[d.key]||'Definir';
+      const extra=`<div class="day-sub">${isToday?'Responsável pelos baldes hoje':'Responsável do dia'}</div>`;
       return `<article class="bucket-day ${isToday?'today':''}">
         <div>
           <div class="day-name">${esc(d.name)}</div>
@@ -7743,7 +7741,7 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
     const def=dayDefs.find(x=>x.dow===today);
     if(msg){
       if(def){
-        const person=def.key==='sat'?saturdayPerson(0):(bucketWeek[def.key]||'ainda não definido');
+        const person=bucketWeek[def.key]||'ainda não definido';
         msg.innerHTML=`🪣 <b>Hoje:</b> ${esc(person)} está como responsável pelos baldes.`;
       }else{
         msg.innerHTML=`🪣 Hoje é domingo. O próximo rodízio começa na segunda-feira com <b>${esc(bucketWeek.mon||'responsável a definir')}</b>.`;
@@ -7817,23 +7815,17 @@ document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{
   function renderBucketEditor(){
     const box=document.getElementById('bucket-edit-week-grid'); if(!box)return;
     const people=bucketPeople();
-    const regularDays=dayDefs.filter(d=>d.key!=='sat');
-    box.innerHTML=regularDays.map(d=>`
-      <div class="bucket-edit-day">
+    box.innerHTML=dayDefs.map(d=>{
+      const current=bucketWeek[d.key]||'';
+      return `<div class="bucket-edit-day">
         <label>${esc(d.name)}</label>
         <select data-bucket-day="${d.key}">
-          ${people.map(n=>`<option value="${esc(n)}" ${bucketWeek[d.key]===n?'selected':''}>${esc(n)}</option>`).join('')}
-          ${bucketWeek[d.key] && !people.includes(bucketWeek[d.key])?`<option selected>${esc(bucketWeek[d.key])}</option>`:''}
+          ${people.map(n=>`<option value="${esc(n)}" ${current===n?'selected':''}>${esc(n)}</option>`).join('')}
+          ${current && !people.includes(current)?`<option value="${esc(current)}" selected>${esc(current)}</option>`:''}
         </select>
-      </div>`).join('')+`
-      <div class="bucket-edit-day">
-        <label>Sábado</label>
-        <div style="padding:9px 10px;border:1px dashed #dcd5d0;border-radius:9px;background:#faf9f8;color:#6e787e;font-size:9px;font-weight:800">
-          Automático pela sequência · esta semana: <b>${esc(saturdayPerson(0))}</b>
-        </div>
       </div>`;
+    }).join('');
   }
-
   function renderSaturdayEditor(){
     const list=document.getElementById('saturday-sequence-list');
     const currentSel=document.getElementById('saturday-current-person');
