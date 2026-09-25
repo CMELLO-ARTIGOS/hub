@@ -5836,7 +5836,7 @@ window.parent.postMessage({type:'cmello-calculator-ready'},'*');
 <div class="routine-login-card" id="routine-login-card"><h2>Conta não conectada</h2><p>Use o botão <b>Entrar no sistema</b> no topo da página. A Minha Rotina será identificada automaticamente pelo mesmo acesso.</p></div>
 <div id="routine-content" style="display:none">
 <div class="routine-grid">
-<div class="routine-step" id="routine-exp-step"><div aria-hidden="true" class="routine-check-marker">1</div><div class="routine-step-content"><div class="routine-step-head"><h3>Expedição</h3><span class="routine-status" id="routine-exp-status">Pendente</span></div><p>Selecione a conta ou atividade atual.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div><div class="routine-timer" id="routine-exp-timer"><span class="routine-timer-dot"></span><span>00:00:00</span></div></div></div>
+<div class="routine-step" id="routine-exp-step"><div aria-hidden="true" class="routine-check-marker">1</div><div class="routine-step-content"><div class="routine-step-head"><h3>Expedição</h3><span class="routine-status" id="routine-exp-status">Pendente</span></div><p>Selecione a conta ou atividade atual.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div><div class="routine-timer" id="routine-exp-timer"><span class="routine-timer-dot"></span><span>00:00:00</span></div><div id="routine-exp-history" style="margin-top:12px"></div></div></div>
 <div class="routine-step full" id="routine-tasks-step"><div aria-hidden="true" class="routine-check-marker">2</div><div class="routine-step-content"><div class="routine-step-head"><h3>Tarefas do Líder</h3><span class="routine-status">Após expedição</span></div><p>Próximos afazeres direcionados pelo líder.</p><div class="task-list" id="routine-task-list"></div></div></div>
 <div class="routine-step" id="routine-clean-step"><div aria-hidden="true" class="routine-check-marker">3</div><div class="routine-step-content"><div class="routine-step-head"><h3>Organização e Limpeza</h3><span class="routine-status" id="routine-clean-status">16:00</span></div><p class="routine-clean-note">Organize sua bancada e realize a limpeza do setor antes de encerrar o dia.</p><div class="routine-actions"><button class="btn btn-green" id="routine-clean-done" type="button">✓ Concluir organização</button></div><div class="task-meta" id="routine-clean-time-done"></div></div></div>
 </div>
@@ -9121,7 +9121,7 @@ function render(){
 </script>
 <script id="rotina-contas-v13-script">
 (()=>{
-const R={profile:null,day:null,tasks:[],profiles:[],hydrating:false};
+const R={profile:null,day:null,tasks:[],sessions:[],profiles:[],hydrating:false};
 const CACHE_PREFIX='mimar_rotina_cache_v5';
 function cacheKey(){return R.profile?.id?`${CACHE_PREFIX}:${R.profile.id}:${today()}`:null}
 function saveRoutineCache(){const k=cacheKey();if(!k)return;try{localStorage.setItem(k,JSON.stringify({day:R.day||null,savedAt:Date.now()}))}catch{}}
@@ -9153,6 +9153,12 @@ async function getProfile(){
   return null;
 }
 async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data;saveRoutineCache()}
+async function loadExpSessions(){
+  if(!R.profile){R.sessions=[];return}
+  const q=await cloud.from('rotina_expedicao_sessoes').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('inicio',{ascending:true});
+  if(q.error){console.error('Falha ao carregar sessões de expedição:',q.error);R.sessions=[];return}
+  R.sessions=q.data||[];
+}
 async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('created_at',{ascending:true});if(q.error){console.error('Falha ao carregar tarefas do líder:',q.error);throw q.error}R.tasks=q.data||[];saveRoutineCache()}
 function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
 function render(){
@@ -9166,16 +9172,25 @@ function render(){
   $('routine-welcome').textContent=hasRoutine?`Olá, ${R.profile.nome}. Esta é sua rotina de hoje.`:(connected&&isAdmin?'Olá, Administrador. Utilize o Painel do Líder para acompanhar e direcionar a equipe.':connected?'Sua conta está conectada. O perfil de colaborador ainda não foi localizado.':'Entre no sistema pelo botão no topo para carregar automaticamente sua rotina.');
   if(!hasRoutine)return;
   const d=R.day||{};
-  state($('routine-exp-step'),d.expedicao_status);
-  $('routine-exp-status').textContent=d.expedicao_status==='concluido'?'✓ Concluído':d.expedicao_status==='andamento'?'Em andamento':'Pendente';
-  $('routine-exp-status').className='routine-status '+(d.expedicao_status==='concluido'?'done':d.expedicao_status==='andamento'?'active':'');
-  if(d.expedicao_conta)$('routine-exp-account').value=d.expedicao_conta;
-  $('routine-exp-time').textContent=d.expedicao_inicio?`Início ${fmtTime(d.expedicao_inicio)}${d.expedicao_fim?' · conclusão '+fmtTime(d.expedicao_fim):''}`:'';
-  setTimer('routine-exp-timer',d.expedicao_inicio,d.expedicao_fim,d.expedicao_status);
+  const sessions=R.sessions||[];
+  const activeSession=sessions.find(x=>x.status==='andamento'&&!x.fim)||null;
+  const completedSessions=sessions.filter(x=>x.status==='concluido'||x.fim);
+  const latestSession=activeSession||sessions[sessions.length-1]||null;
+  const expStatus=activeSession?'andamento':(completedSessions.length?'concluido':'pendente');
+  state($('routine-exp-step'),expStatus);
+  $('routine-exp-status').textContent=activeSession?'Em andamento':completedSessions.length?'✓ '+completedSessions.length+' concluída'+(completedSessions.length===1?'':'s'):'Pendente';
+  $('routine-exp-status').className='routine-status '+(completedSessions.length&&!activeSession?'done':activeSession?'active':'');
+  if(latestSession?.conta)$('routine-exp-account').value=latestSession.conta;
+  $('routine-exp-time').textContent=activeSession?`Início ${fmtTime(activeSession.inicio)}`:(latestSession?`Última conclusão ${fmtTime(latestSession.fim)}`:'');
+  setTimer('routine-exp-timer',activeSession?.inicio||null,activeSession?.fim||null,activeSession?'andamento':(latestSession?'concluido':'pendente'));
   const expStart=$('routine-exp-start'),expDone=$('routine-exp-done'),expSelect=$('routine-exp-account');
-  if(expStart){expStart.style.display=d.expedicao_status==='pendente'||!d.expedicao_status?'':'none';expStart.disabled=d.expedicao_status==='concluido'}
-  if(expDone){expDone.style.display=d.expedicao_status==='andamento'?'':'none'}
-  if(expSelect)expSelect.disabled=d.expedicao_status==='concluido';
+  if(expStart){expStart.style.display=activeSession?'none':'';expStart.disabled=!!activeSession;expStart.textContent=completedSessions.length?'＋ Iniciar outra conta':'Iniciar'}
+  if(expDone){expDone.style.display=activeSession?'':'none'}
+  if(expSelect)expSelect.disabled=!!activeSession;
+  const expHistory=$('routine-exp-history');
+  if(expHistory)expHistory.innerHTML=completedSessions.length
+    ? `<div style="font-size:12px;font-weight:800;color:#667085;margin-bottom:6px">CONTAS FINALIZADAS HOJE</div>`+completedSessions.map(x=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #edf0f3;font-size:13px"><b>${escapeHtml(x.conta)}</b><span style="color:#667085">${fmtTime(x.inicio)} → ${fmtTime(x.fim)}</span></div>`).join('')
+    : '';
 
   // Organização e Limpeza é um check simples das 16:00: sem iniciar e sem cronômetro.
   // Conclusões antigas feitas antes das 16:00 não contam para o checklist do fechamento.
@@ -9202,8 +9217,10 @@ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;',
 function timelineEvents(day,tasks){
   const ev=[];
   const push=(time,title,detail='',kind='')=>{if(time)ev.push({time,title,detail,kind})};
-  if(day?.expedicao_inicio)push(day.expedicao_inicio,'Iniciou Expedição',day.expedicao_conta||'','');
-  if(day?.expedicao_fim)push(day.expedicao_fim,'Expedição concluída',day.expedicao_conta||'','done');
+  for(const x of (R.sessions||[])){
+    if(x.inicio)push(x.inicio,'Iniciou Expedição',x.conta||'','');
+    if(x.fim)push(x.fim,'Expedição concluída',x.conta||'','done');
+  }
   for(const t of (tasks||[])){
     if(t.created_at)push(t.created_at,'Tarefa atribuída pelo Líder',t.descricao||'','');
     if(t.iniciado_em)push(t.iniciado_em,'Iniciou tarefa',t.descricao||'','');
@@ -9291,6 +9308,7 @@ async function refreshRoutineFromCloud(){
   try{
     const d=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();
     if(!d.error && d.data && !routineDaySaving && (!R.day || newerOrEqual(d.data,R.day))){R.day=d.data;saveRoutineCache();}
+    await loadExpSessions();
     await loadTasks();
     render();
   }catch(e){console.warn('Atualização da rotina:',e)}
@@ -9310,8 +9328,23 @@ async function boot(){
     try{await renderLeader()}catch(e){console.warn('Painel do líder:',e)}
   }catch(e){console.error('Rotina:',e);render()}
 }
-$('routine-exp-start')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:null})});
-$('routine-exp-done')?.addEventListener('click',async()=>{const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');await updateDay({expedicao_status:'concluido',expedicao_conta:conta,expedicao_inicio:R.day?.expedicao_inicio||now(),expedicao_fim:now()})});
+$('routine-exp-start')?.addEventListener('click',async()=>{
+  const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');
+  if((R.sessions||[]).some(x=>x.status==='andamento'&&!x.fim))return alert('Conclua a conta atual antes de iniciar outra.');
+  const stamp=now();
+  const q=await cloud.from('rotina_expedicao_sessoes').insert({colaborador_id:R.profile.id,data:today(),conta,inicio:stamp,status:'andamento'}).select().single();
+  if(q.error)return alert('Não foi possível iniciar a expedição: '+q.error.message);
+  await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:stamp,expedicao_fim:null});
+  await loadExpSessions();render();
+});
+$('routine-exp-done')?.addEventListener('click',async()=>{
+  const active=(R.sessions||[]).find(x=>x.status==='andamento'&&!x.fim);if(!active)return;
+  const stamp=now();
+  const q=await cloud.from('rotina_expedicao_sessoes').update({status:'concluido',fim:stamp,updated_at:stamp}).eq('id',active.id).eq('colaborador_id',R.profile.id).select().single();
+  if(q.error)return alert('Não foi possível concluir a expedição: '+q.error.message);
+  await updateDay({expedicao_status:'concluido',expedicao_conta:active.conta,expedicao_inicio:active.inicio,expedicao_fim:stamp});
+  await loadExpSessions();render();
+});
 $('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
 $('routine-task-list')?.addEventListener('click',async e=>{
   const b=e.target.closest('[data-id]');if(!b)return;
@@ -9363,12 +9396,26 @@ $('routine-task-list')?.addEventListener('click',async e=>{
     if(document.body.contains(b)){b.disabled=false;b.textContent=oldText}
   }
 });
-async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];$('leader-collab').innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;else if(R.profile?.id&&R.profiles.some(x=>String(x.id)===String(R.profile.id)))tls.value=R.profile.id;else if(R.profiles.length===1)tls.value=R.profiles[0].id;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver rotina"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>';const selectedCid=$('leader-timeline-collab')?.value;if(selectedCid){const selectedDate=$('leader-timeline-date')?.value||today();if(window.__mimarLeaderLoadedKey!==selectedCid+'|'+selectedDate){window.__mimarLeaderLoadedKey=selectedCid+'|'+selectedDate;showLeaderTimeline(selectedCid,selectedDate).catch(console.warn);}}}
+async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];
+const leaderSel=$('leader-collab');
+const leaderPrev=leaderSel?.value||'';
+if(leaderSel){
+  leaderSel.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');
+  if(leaderPrev && R.profiles.some(x=>String(x.id)===String(leaderPrev))) leaderSel.value=leaderPrev;
+}
+const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;else if(R.profile?.id&&R.profiles.some(x=>String(x.id)===String(R.profile.id)))tls.value=R.profile.id;else if(R.profiles.length===1)tls.value=R.profiles[0].id;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver rotina"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>';const selectedCid=$('leader-timeline-collab')?.value;if(selectedCid){const selectedDate=$('leader-timeline-date')?.value||today();if(window.__mimarLeaderLoadedKey!==selectedCid+'|'+selectedDate){window.__mimarLeaderLoadedKey=selectedCid+'|'+selectedDate;showLeaderTimeline(selectedCid,selectedDate).catch(console.warn);}}}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('leader-timeline-collab')?.addEventListener('change',()=>{window.__mimarLeaderLoadedKey='';showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today())});
 $('leader-timeline-date')?.addEventListener('change',()=>{window.__mimarLeaderLoadedKey='';const cid=$('leader-timeline-collab')?.value;if(cid)showLeaderTimeline(cid,$('leader-timeline-date')?.value||today())});
 $('routine-team-status')?.addEventListener('click',e=>{const c=e.target.closest('[data-timeline-collab]');if(!c)return;const sel=$('leader-timeline-collab'),dt=$('leader-timeline-date');if(sel)sel.value=c.dataset.timelineCollab;if(dt&&!dt.value)dt.value=today();showLeaderTimeline(c.dataset.timelineCollab,dt?.value||today());});
 $('leader-task-add')?.addEventListener('click',async()=>{if(!isAdmin)return alert('Somente o líder/administrador pode atribuir tarefas.');const cid=$('leader-collab').value,desc=$('leader-task').value.trim();if(!cid||!desc)return alert('Selecione o colaborador e descreva a tarefa.');const q=await cloud.from('tarefas_lider').insert({colaborador_id:cid,data:today(),descricao:desc,status:'pendente'});if(q.error)return alert(q.error.message);$('leader-task').value='';await renderLeader();if(R.profile?.id===cid){await loadTasks();render()}});
+try{
+  cloud.channel('cmello-expedicao-sessoes-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'rotina_expedicao_sessoes'},async payload=>{
+      const row=payload.new||payload.old||{};
+      if(R.profile && row.colaborador_id===R.profile.id && (!row.data||row.data===today())){await loadExpSessions();render();}
+    }).subscribe();
+}catch(e){console.warn('Realtime expedição:',e)}
 // Atualiza a rotina imediatamente quando a liderança enviar/alterar uma tarefa.
 try{
   cloud.channel('mimar-rotina-live')
