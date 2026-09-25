@@ -5616,23 +5616,34 @@ function render(){let t=norm(q.value.trim());if(!t){sugs.classList.remove('open'
 let packageItems=[];
 function qtyValue(){let v=parseInt(qty.value,10);return Number.isFinite(v)&amp;&amp;v&gt;0?v:1}
 function packageWeight(){return packageItems.reduce((sum,x)=&gt;sum+(Number(x.product.p)||0)*x.qty,0)}
+function packageDimensions(){
+ if(!packageItems.length)return null;
+ // Regra do pacote: soma a largura de cada unidade e conserva o maior comprimento/altura.
+ return packageItems.reduce((d,x)=&gt;({
+   w:d.w+(Number(x.product.w)||0)*x.qty,
+   l:Math.max(d.l,Number(x.product.l)||0),
+   h:Math.max(d.h,Number(x.product.h)||0)
+ }),{w:0,l:0,h:0});
+}
 function renderPackage(){let total=packageItems.reduce((a,x)=&gt;a+x.qty,0);packageCount.textContent=`${packageItems.length} SKU${packageItems.length===1?'':'s'} • ${total} unidade${total===1?'':'s'}`;packageChips.innerHTML=packageItems.length?packageItems.map((x,i)=&gt;`&lt;div class=&quot;package-chip&quot;&gt;&lt;span class=&quot;chip-qty&quot;&gt;${x.qty}×&lt;/span&gt;&lt;span class=&quot;chip-sku&quot;&gt;${x.product.sku}&lt;/span&gt;&lt;span class=&quot;chip-name&quot;&gt;${x.product.nome}&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;chip-remove&quot; data-remove=&quot;${i}&quot;&gt;×&lt;/button&gt;&lt;/div&gt;`).join(''):'&lt;span class=&quot;package-empty&quot;&gt;Nenhum produto adicionado&lt;/span&gt;'}
 function loadReference(p){
  current=p;
- lw.textContent=p.w+' cm';ll.textContent=p.l+' cm';lh.textContent=p.h+' cm';
- let c=cub(p.w,p.l,p.h);
+ let dims=packageDimensions()||{w:p.w,l:p.l,h:p.h};
+ lw.textContent=dims.w+' cm';ll.textContent=dims.l+' cm';lh.textContent=dims.h+' cm';
+ let c=cub(dims.w,dims.l,dims.h);
  let pw=packageWeight()||p.p;
  let refConsidered=Math.max(c,pw);
  lc.textContent=kg(refConsidered);
  lp.textContent=`${Math.round(pw*1000).toLocaleString('pt-BR')} g / ${kg(pw)}`;
  lpc.textContent=kg(c);
- leftPackage.textContent=p.embalagem||'Não informado';
- rightPackage.textContent=p.embalagem||'Não informado';
+ leftPackage.textContent=packageItems.length&gt;1?'Pacote combinado':(p.embalagem||'Não informado');
+ rightPackage.textContent=leftPackage.textContent;
  setWeightStatus('leftWeightStatus',pw,c);
  setWeightStatus('rightWeightStatus',0,0);
  let refFreight=freightFor(refConsidered);
  lfrete.textContent=money(refFreight);
  current.referenceFreight=refFreight;
+ current.packageDims=dims;
  clearCalc();w.focus();
 }
 function addPackageProduct(p){let amount=qtyValue(),x=packageItems.find(x=&gt;x.product.sku===p.sku);if(x)x.qty+=amount;else packageItems.push({product:p,qty:amount});renderPackage();qty.value='';q.value='';sugs.classList.remove('open');loadReference(p)}
@@ -5676,7 +5687,7 @@ function setWeightStatus(id,real,cubic){
  }
 }
 function paintField(el,v,ref){el.classList.remove('measure-ok','measure-over');if(!v)return;el.classList.add(v&gt;ref?'measure-over':'measure-ok');}
-function calc(){let a=N(w.value),b=N(l.value),c=N(h.value),grams=N(peso.value),p=grams/1000,cv=cub(a,b,c);if(current){paintField(w,a,current.w);paintField(l,b,current.l);paintField(h,c,current.h);}let consideredNow=(a&amp;&amp;b&amp;&amp;c)?Math.max(cv,p||0):0;rc.textContent=consideredNow?kg(consideredNow):'—';rp.textContent=grams?`${grams.toLocaleString('pt-BR')} g / ${kg(p)}`:'—';rpc.textContent=(a&amp;&amp;b&amp;&amp;c)?kg(cv):'—';setWeightStatus('rightWeightStatus',p,cv);if(current&amp;&amp;a&amp;&amp;b&amp;&amp;c){
+function calc(){let a=N(w.value),b=N(l.value),c=N(h.value),grams=N(peso.value),p=grams/1000,cv=cub(a,b,c);if(current){let ref=current.packageDims||current;paintField(w,a,ref.w);paintField(l,b,ref.l);paintField(h,c,ref.h);}let consideredNow=(a&amp;&amp;b&amp;&amp;c)?Math.max(cv,p||0):0;rc.textContent=consideredNow?kg(consideredNow):'—';rp.textContent=grams?`${grams.toLocaleString('pt-BR')} g / ${kg(p)}`:'—';rpc.textContent=(a&amp;&amp;b&amp;&amp;c)?kg(cv):'—';setWeightStatus('rightWeightStatus',p,cv);if(current&amp;&amp;a&amp;&amp;b&amp;&amp;c){
  let considered=Math.max(cv,p||0);
  let newFreight=freightFor(considered);
  frete.textContent=money(newFreight);
@@ -5692,14 +5703,15 @@ function calc(){let a=N(w.value),b=N(l.value),c=N(h.value),grams=N(peso.value),p
  frete.textContent='—';frete.className='';freteDelta.className='';
  freteDelta.textContent='Preencha as medidas para calcular';
 }if(current){
- let dims=[a? a-current.w:null,b? b-current.l:null,c? c-current.h:null];
+ let ref=current.packageDims||current;
+ let dims=[a? a-ref.w:null,b? b-ref.l:null,c? c-ref.h:null];
  let entries=[[dims[0],'dw','dwBox',' cm'],[dims[1],'dl','dlBox',' cm'],[dims[2],'dh','dhBox',' cm']];
  entries.forEach(([v,t,box,u])=&gt;{if(v===null){$(t).textContent='—';$(box).className='diff'}else{$(t).textContent=diffText(v,u);mark($(box),v)}});
  if(grams){let v=p-(packageWeight()||current.p);dp.textContent=diffText(v,' kg');mark(dpBox,v)}else{dp.textContent='—';dpBox.className='diff'}
  if(a&amp;&amp;b&amp;&amp;c){let v=cv-cub(current.w,current.l,current.h);dc.textContent=diffText(v,' kg');mark(dcBox,v)}else{dc.textContent='—';dcBox.className='diff'}
  
  if(a&amp;&amp;b&amp;&amp;c){
-   const registeredCubage=cub(current.w,current.l,current.h);
+   const registeredCubage=cub(ref.w,ref.l,ref.h);
    const cubageDelta=cv-registeredCubage;
    $('status').style.display='flex';
    $('status').className='status '+(cubageDelta&gt;0?'bad':'good');
