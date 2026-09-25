@@ -6999,9 +6999,9 @@ function stockSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','
 function stockDate(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return '—'}}
 async function loadStock(){
   const st=document.getElementById('stock-sync-status');if(st)st.textContent='Sincronizando...';
-  let {data,error}=await cloud.from('estoque_controle').select('id,produto,quantidade,volume,urgencia,atualizado_em,atualizado_por').order('urgencia',{ascending:false}).order('produto',{ascending:true});
+  let {data,error}=await cloud.from('estoque_controle').select('id,produto,quantidade,volume,urgencia,atualizado_em,atualizado_por').order('produto',{ascending:true});
   // Compatibilidade enquanto a migração SQL ainda não foi aplicada.
-  if(error&&String(error.message||'').toLowerCase().includes('atualizado_por'))({data,error}=await cloud.from('estoque_controle').select('id,produto,quantidade,volume,urgencia,atualizado_em').order('urgencia',{ascending:false}).order('produto',{ascending:true}));
+  if(error&&String(error.message||'').toLowerCase().includes('atualizado_por'))({data,error}=await cloud.from('estoque_controle').select('id,produto,quantidade,volume,urgencia,atualizado_em').order('produto',{ascending:true}));
   if(error){if(st){st.textContent='Tabela não configurada';st.className='status-pill status-warn'};console.error('Estoque:',error);stockRecords=[];renderStock();return}
   stockRecords=data||[];if(st){st.textContent='Sincronizado';st.className='status-pill status-ok'}renderStock();renderStockAudit()
 }
@@ -10345,6 +10345,7 @@ E('flex-refresh').onclick=load;E('flex-date').onchange=load;document.addEventLis
  document.addEventListener('DOMContentLoaded',()=>setTimeout(ordenar,1300));
  window.addEventListener('mimar:stock-updated',()=>setTimeout(ordenar,180));
  document.addEventListener('change',e=>{if(e.target.closest('#estoque'))setTimeout(ordenar,180)});
+ document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&/alterar estoque/i.test(b.textContent||''))setTimeout(ordenar,250)});
  window.addEventListener('focus',()=>{if(!editing())ordenar()});
  document.addEventListener('click',e=>{
    if(e.target.closest('#estoque-controle,[data-page="estoque"],[data-page="estoque-controle"]')&&!e.target.closest('input,textarea,select,[contenteditable="true"]'))setTimeout(ordenar,180)
