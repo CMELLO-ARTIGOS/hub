@@ -6962,9 +6962,11 @@ const STOCK_AUDIT_KEY='mimar_stock_audit_v1';
 const STOCK_OWNER_KEY='mimar_stock_current_owner_v1';
 const STOCK_PEOPLE_KEY='mimar_stock_people_v1';
 const DEFAULT_STOCK_PEOPLE=['Thiago','Leonardo','Rafael','Fagner'];
-function getStockPeople(){try{const saved=JSON.parse(localStorage.getItem(STOCK_PEOPLE_KEY)||'[]');return [...new Set([...DEFAULT_STOCK_PEOPLE,...(Array.isArray(saved)?saved:[])].map(x=>String(x||'').trim()).filter(Boolean))]}catch{return [...DEFAULT_STOCK_PEOPLE]}}
+let ACTIVE_STOCK_PEOPLE=[];
+function getStockPeople(){try{const saved=JSON.parse(localStorage.getItem(STOCK_PEOPLE_KEY)||'[]');return [...new Set([...ACTIVE_STOCK_PEOPLE,...DEFAULT_STOCK_PEOPLE,...(Array.isArray(saved)?saved:[])].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'))}catch{return [...new Set([...ACTIVE_STOCK_PEOPLE,...DEFAULT_STOCK_PEOPLE])].sort((a,b)=>a.localeCompare(b,'pt-BR'))}}
 function saveStockPeople(list){localStorage.setItem(STOCK_PEOPLE_KEY,JSON.stringify([...new Set(list.map(x=>String(x||'').trim()).filter(Boolean))]))}
 function renderStockPeople(preferred=''){const sel=document.getElementById('stock-current-owner');if(!sel)return;const people=getStockPeople(),wanted=(preferred||sel.value||localStorage.getItem(STOCK_OWNER_KEY)||'').trim();sel.innerHTML='<option value="">Selecione seu nome</option>'+people.map(n=>`<option value="${stockSafe(n)}">${stockSafe(n)}</option>`).join('');if(people.includes(wanted))sel.value=wanted}
+async function refreshStockPeopleFromCloud(preferred=''){try{const {data,error}=await cloud.from('colaboradores').select('nome').eq('ativo',true).order('nome');if(error)throw error;ACTIVE_STOCK_PEOPLE=(data||[]).map(x=>String(x.nome||'').trim()).filter(Boolean);renderStockPeople(preferred)}catch(e){console.warn('Não foi possível atualizar colaboradores do estoque:',e);renderStockPeople(preferred)}}
 function addStockPerson(name){name=String(name||'').trim().replace(/\s+/g,' ');if(!name)throw new Error('Digite o nome do colaborador.');if(name.length<2)throw new Error('Digite um nome válido.');const people=getStockPeople();const existing=people.find(p=>strip(p)===strip(name));const finalName=existing||name;if(!existing){people.push(name);saveStockPeople(people)}renderStockPeople(finalName);_mimarNativeSetItem.call(window.localStorage,STOCK_OWNER_KEY,finalName);return finalName}
 function getStockAudit(){try{return JSON.parse(localStorage.getItem(STOCK_AUDIT_KEY)||'{"items":{},"last":null}')}catch{return {items:{},last:null}}}
 function saveStockAudit(a){localStorage.setItem(STOCK_AUDIT_KEY,JSON.stringify(a))}
@@ -7592,7 +7594,7 @@ document.getElementById('rotation-tue-current')?.addEventListener('change',updat
 document.getElementById('rotation-fri-current')?.addEventListener('change',updateRotationPreview);
 document.getElementById('stock-owner-add-save')?.addEventListener('click',saveNewStockPerson);
 document.getElementById('stock-owner-new-name')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveNewStockPerson()}if(e.key==='Escape')document.getElementById('stock-owner-add-cancel')?.click()});
-(function initStockAuditUI(){renderStockPeople(localStorage.getItem(STOCK_OWNER_KEY)||'');renderStockAudit()})();
+(function initStockAuditUI(){renderStockPeople(localStorage.getItem(STOCK_OWNER_KEY)||'');refreshStockPeopleFromCloud(localStorage.getItem(STOCK_OWNER_KEY)||'');renderStockAudit();window.addEventListener('mimar:system-login',()=>setTimeout(()=>refreshStockPeopleFromCloud(localStorage.getItem(STOCK_OWNER_KEY)||''),250))})();
 </script>
 <script>
 (function(){
@@ -10341,6 +10343,8 @@ E('flex-refresh').onclick=load;E('flex-date').onchange=load;document.addEventLis
  }
  function schedule(){clearTimeout(timer);timer=setTimeout(()=>{if(!editing())ordenar()},120)}
  document.addEventListener('DOMContentLoaded',()=>setTimeout(ordenar,1300));
+ window.addEventListener('mimar:stock-updated',()=>setTimeout(ordenar,180));
+ document.addEventListener('change',e=>{if(e.target.closest('#estoque'))setTimeout(ordenar,180)});
  window.addEventListener('focus',()=>{if(!editing())ordenar()});
  document.addEventListener('click',e=>{
    if(e.target.closest('#estoque-controle,[data-page="estoque"],[data-page="estoque-controle"]')&&!e.target.closest('input,textarea,select,[contenteditable="true"]'))setTimeout(ordenar,180)
