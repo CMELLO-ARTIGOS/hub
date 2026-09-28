@@ -1082,8 +1082,13 @@ body{padding-top:18px!important}
 }
 
 /* ===== Gráfico pizza: aparece apenas durante a geração do PNG ===== */
+/* No PNG, exporta somente o card principal e os cards dos colaboradores.
+   Os resumos/gráficos inferiores e o rodapé permanecem visíveis apenas no sistema. */
+#report-card.exporting-png .exp-charts{display:none!important}
+#report-card.exporting-png .export-pie-card{display:none!important}
+#report-card.exporting-png .exp-card-footer{display:none!important}
 .png-only{display:none!important}
-#report-card.exporting-png .png-only{display:block!important}
+#report-card.exporting-png .png-only{display:none!important}
 .export-pie-card{
   margin-top:14px;
   background:#fff;
@@ -7640,9 +7645,17 @@ const PICKUP_DEFAULT=[
 ];
 const PICKUP_DATE_KEY='mimar_pickup_schedule_date_v1';
 function pickupTodayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+/* FIX 28/09/2026 · app_state devolve strings JSON serializadas.
+   Normaliza a data antes de comparar para não interpretar o mesmo dia como um novo dia
+   e reconstruir a agenda de coletas/horários. */
+function pickupReadStoredDate(){
+  const raw=_mimarNativeGetItem.call(window.localStorage,PICKUP_DATE_KEY);
+  if(raw==null)return '';
+  try{const parsed=JSON.parse(raw);return typeof parsed==='string'?parsed:String(parsed||'')}catch(e){return String(raw)}
+}
 let pickupSchedule=(()=>{
   try{
-    const savedDate=localStorage.getItem(PICKUP_DATE_KEY);
+    const savedDate=pickupReadStoredDate();
     const x=JSON.parse(localStorage.getItem(PICKUP_KEY)||'null');
     if(savedDate===pickupTodayKey() && Array.isArray(x)) return x;
     /* Novo dia: mantém contas e horários configurados; zera somente a confirmação de coleta. */
@@ -7656,7 +7669,7 @@ let pickupSchedule=(()=>{
 function pickupSaveLocal(){localStorage.setItem(PICKUP_DATE_KEY,pickupTodayKey());localStorage.setItem(PICKUP_KEY,JSON.stringify(pickupSchedule))}
 function pickupReloadFromStorage(){
   try{
-    const savedDate=_mimarNativeGetItem.call(window.localStorage,PICKUP_DATE_KEY);
+    const savedDate=pickupReadStoredDate();
     const raw=_mimarNativeGetItem.call(window.localStorage,PICKUP_KEY);
     const parsed=JSON.parse(raw||'null');
     if(savedDate===pickupTodayKey()&&Array.isArray(parsed))pickupSchedule=parsed;
@@ -7697,9 +7710,25 @@ document.getElementById('pickup-close').addEventListener('click',closePickupEdit
 document.getElementById('pickup-overlay').addEventListener('click',e=>{if(e.target.id==='pickup-overlay')closePickupEditor()});
 document.getElementById('pickup-add').addEventListener('click',()=>{collectPickupEditor();pickupSchedule.push({id:'conta-'+Date.now(),name:'Nova conta',start:'',end:'',collected:false,collectedAt:null});renderPickupEditor()});
 document.getElementById('pickup-editor').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;collectPickupEditor();pickupSchedule.splice(Number(b.dataset.remove),1);renderPickupEditor()});
-document.getElementById('pickup-save').addEventListener('click',()=>{collectPickupEditor();pickupSaveLocal();renderPickups();closePickupEditor()});
+document.getElementById('pickup-save').addEventListener('click',async()=>{
+ collectPickupEditor();
+ pickupSaveLocal();
+ renderPickups();
+ try{
+   /* Persiste explicitamente no app_state; não depende apenas do interceptor do localStorage. */
+   await Promise.all([
+     mimarCloudUpsert(PICKUP_DATE_KEY,JSON.stringify(pickupTodayKey())),
+     mimarCloudUpsert(PICKUP_KEY,JSON.stringify(pickupSchedule))
+   ]);
+   closePickupEditor();
+ }catch(err){
+   console.warn('Coletas: horário salvo localmente, mas a sincronização falhou.',err);
+   alert('O horário foi salvo neste computador, mas não foi possível confirmar a sincronização com o servidor. Tente novamente.');
+ }
+});
 renderPickups();setInterval(renderPickups,1000);
-setTimeout(()=>void pickupLoadCloudStatus(),1200);
+/* Reaplica também a agenda/horários que o app_state trouxe durante o boot. */
+setTimeout(()=>{pickupReloadFromStorage();void pickupLoadCloudStatus()},1200);
 window.addEventListener('focus',()=>void pickupLoadCloudStatus());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void pickupLoadCloudStatus()});
 
