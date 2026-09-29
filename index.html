@@ -11,6 +11,7 @@
 <meta content="width=device-width,initial-scale=1.0" name="viewport"/>
 <!-- VERSÃO 16/09/2026: SINCRONIZAÇÃO SUPABASE REFORÇADA (LEITURA MULTINAVEGADOR) -->
 <title>CMello Hub</title>
+<!-- ETAPA 2: Tarefas do Líder integradas a FULL/Estoque/Produção via Supabase -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -30,6 +31,18 @@ body.mimar-auth-granted #auth-overlay:not(.open){display:none!important}
 .cp-status.ok{background:#eef8df;color:#526700}.cp-status.review{background:#fff1e8;color:#a64520}.cp-status.incomplete{background:#f1f3f5;color:#5f6870}
 .cp-validation{margin:0 20px 14px;padding:11px 13px;border-radius:11px;background:#fff4eb;color:#8b431f;font-size:11px;font-weight:700;display:none}
 .cp-validation.show{display:block}.cp-row-review{background:#fffdfa}.cp-row-incomplete{background:#fafbfc}
+
+/* CMELLO HUB — Painel do Lider v2 */
+.leader-panel-v2{padding:22px!important;background:#fff;border-color:#e5eaf0!important}
+.leader-head-v2{margin-bottom:16px!important}.leader-head-v2 h2{font-size:25px;letter-spacing:-.5px;color:#101828}.leader-head-v2 p{margin:4px 0 0;color:#667085;font-size:13px}.leader-eyebrow{display:block;font-size:10px;font-weight:900;letter-spacing:1.2px;color:#0877e8;margin-bottom:5px}
+.leader-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}.leader-kpi{border:1px solid #e5eaf0;border-radius:13px;padding:12px 14px;background:#fbfcfe}.leader-kpi span{display:block;font-size:10px;font-weight:800;color:#667085;text-transform:uppercase;letter-spacing:.4px}.leader-kpi strong{display:block;font-size:25px;line-height:1.1;margin-top:5px;color:#101828}
+.leader-assign-card,.leader-team-card{border:1px solid #e5eaf0;border-radius:15px;padding:16px;background:#fff;margin-top:12px}.leader-section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.leader-section-title h3{margin:0;color:#101828;font-size:17px}.leader-section-title p{margin:3px 0 0;color:#667085;font-size:12px}
+.leader-form-v2{display:grid!important;grid-template-columns:1.05fr .72fr 1.12fr 1.12fr .58fr auto!important;gap:10px!important;align-items:end!important}.leader-form-v2 label{display:grid;gap:6px;font-size:9px!important;font-weight:900!important;color:#667085!important;letter-spacing:.35px}.leader-form-v2 select,.leader-form-v2 input{height:42px;padding:0 12px!important;border:1px solid #d8dee8!important;border-radius:10px!important;background:#fff;font-size:12px}.leader-form-v2 select:focus,.leader-form-v2 input:focus{outline:none;border-color:#0877e8!important;box-shadow:0 0 0 3px rgba(8,119,232,.08)}.leader-assign-btn{height:42px!important;white-space:nowrap;padding:0 18px!important}.leader-source-note{font-size:11px;color:#667085;margin:9px 0 0}
+.leader-team-card .team-status-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:0}.leader-team-card .team-status-card{padding:12px 13px;border-color:#e5eaf0;background:#fbfcfe}.leader-team-card .team-status-card b{font-size:14px;color:#101828}.leader-team-card .team-status-card span{font-size:11px;margin-top:3px;display:block}.leader-team-card .team-status-card:hover{border-color:#9fc9f7;background:#f7fbff;transform:translateY(-1px)}
+.leader-timeline-v2{margin-top:14px!important;border:1px solid #e5eaf0!important;border-radius:15px!important;padding:16px!important}.leader-timeline-v2 .routine-timeline-head{margin-bottom:10px}.leader-timeline-v2 .routine-timeline-head h3{color:#101828}.leader-timeline-controls select,.leader-timeline-controls input{height:40px;border-color:#d8dee8!important}.leader-timeline-controls .btn{height:40px}.leader-panel-v2 .timeline-empty{background:#f8fafc;color:#667085}
+@media(max-width:1100px){.leader-form-v2{grid-template-columns:1fr 1fr 1fr!important}.leader-assign-btn{width:100%}.leader-kpis{grid-template-columns:1fr 1fr}.leader-team-card .team-status-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.leader-form-v2{grid-template-columns:1fr!important}.leader-kpis,.leader-team-card .team-status-grid{grid-template-columns:1fr}.leader-panel-v2{padding:14px!important}}
+
 </style>
 <style>
 :root{--bg:#0e1319;--panel:#171e27;--panel2:#1e2732;--line:#2a3542;--text:#eef2f5;--muted:#8e99a8;--muted2:#627080;--green:#39c7a5;--green2:#245b50;--orange:#f2a641;--orange2:#644923;--blue:#6f9df7;--red:#e66b56;--gold:#f0c14b}
@@ -4602,6 +4615,36 @@ body.calc-colab-only .tabs .tab.mimar-permission-denied{display:none!important}
 .month-highlight .mh-name{font:900 30px/1.05 Inter!important;color:#0878e8!important;letter-spacing:-.8px!important;margin:2px 0 4px!important}
 .month-highlight .mh-message{font-size:10px!important;line-height:1.45!important;color:#5f6972!important;padding-top:10px!important}
 </style>
+
+<style id="cmello-permissoes-layout-v2">
+/* CMello Hub — acabamento Gestão > Colaboradores / Permissões */
+.role-badge.admin, .badge-admin, [data-role="admin"] .role-badge { background:#e8f2ff !important; color:#0874e8 !important; border-color:#b9d8ff !important; }
+.role-badge.lider, .badge-lider, [data-role="lider"] .role-badge, [data-role="líder"] .role-badge { background:#fff4d8 !important; color:#a76300 !important; border-color:#f4d58a !important; }
+.role-badge.colaborador, .badge-colaborador, [data-role="colaborador"] .role-badge { background:#f1f3f5 !important; color:#536273 !important; border-color:#e2e7ec !important; }
+
+/* Matriz de permissões: respiro e colunas legíveis */
+.permissions-matrix, .permission-matrix, .permissions-table { width:100% !important; border-collapse:separate !important; border-spacing:0 !important; table-layout:fixed !important; }
+.permissions-matrix th, .permission-matrix th, .permissions-table th { padding:12px 18px !important; vertical-align:middle !important; }
+.permissions-matrix td, .permission-matrix td, .permissions-table td { padding:15px 18px !important; vertical-align:middle !important; border-top:1px solid #edf0f3 !important; line-height:1.35 !important; }
+.permissions-matrix th:first-child, .permission-matrix th:first-child, .permissions-table th:first-child { width:58% !important; text-align:left !important; }
+.permissions-matrix th:nth-last-child(-n+2), .permission-matrix th:nth-last-child(-n+2), .permissions-table th:nth-last-child(-n+2) { width:21% !important; text-align:center !important; }
+.permissions-matrix td:nth-last-child(-n+2), .permission-matrix td:nth-last-child(-n+2), .permissions-table td:nth-last-child(-n+2) { text-align:center !important; }
+.permission-area, .perm-area, .permission-name { display:block !important; font-weight:700 !important; font-size:15px !important; color:#172033 !important; margin:0 0 4px !important; }
+.permission-description, .perm-description, .permission-desc { display:block !important; font-size:13px !important; font-weight:400 !important; color:#687386 !important; margin:0 !important; }
+.permissions-card, .permission-card, .permissions-panel { overflow:hidden !important; }
+.permission-rule, .permissions-rule { margin:18px 0 0 !important; padding:14px 16px !important; line-height:1.5 !important; }
+
+/* Fallback para linhas flex/grid usadas na versão atual */
+.permission-row { display:grid !important; grid-template-columns:minmax(300px,1fr) 120px 120px !important; gap:20px !important; align-items:center !important; padding:15px 18px !important; border-top:1px solid #edf0f3 !important; }
+.permission-row .permission-info { min-width:0 !important; }
+.permission-row .permission-info strong { display:block !important; margin-bottom:4px !important; }
+.permission-row .permission-info span, .permission-row .permission-info small { display:block !important; color:#687386 !important; line-height:1.35 !important; }
+.permission-row .permission-toggle { justify-self:center !important; }
+@media (max-width:900px){
+ .permission-row{grid-template-columns:1fr auto auto !important;gap:12px !important;}
+ .permissions-matrix td,.permission-matrix td,.permissions-table td{padding:13px 12px !important;}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -4629,6 +4672,7 @@ body.calc-colab-only .tabs .tab.mimar-permission-denied{display:none!important}
 <button class="tab" data-page="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span><span>Visão geral</span></button>
 <button class="tab" data-page="flex"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 18 18 5M12 5h6v6"/><path d="M5 7v11h11"/></svg></span><span>Flex</span></button>
 <button class="tab" data-page="erros"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2.8 20h18.4L12 3z"/><path d="M12 9v5M12 17.5v.5"/></svg></span><span>Erros</span></button>
+<button class="tab" data-page="expedicao-controle"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10h3l4 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><span>Expedição</span></button>
 <button class="tab admin-only" data-page="gestao" hidden id="gestao-tab" style="display:none!important"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h3M11 12h9M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg></span><span>Gestão <span style="font-size:10px;opacity:.65">🔒</span></span></button>
 <div class="month-highlight" id="month-highlight">
 <div class="mh-eyebrow"><span class="mh-trophy">🏆</span><span>Destaque do mês</span></div>
@@ -4648,6 +4692,10 @@ body.calc-colab-only .tabs .tab.mimar-permission-denied{display:none!important}
 </div>
 <div class="pickup-row" id="pickup-row"></div>
 </div>
+<section class="page" id="expedicao-controle">
+<div class="page-heading"><div><span class="eyebrow">GESTÃO E CONTROLE · EXPEDIÇÃO</span><h1>Expedição</h1><p>Volume diário de pedidos por conta, total do checkout e histórico de atualizações.</p></div><div class="page-accent"></div></div>
+<div id="expedicao-checkout-slot"></div>
+</section>
 <section class="page active" id="dashboard">
 <div class="page-heading"><div><span class="eyebrow">CMELLO · OPERAÇÃO</span><h1>Visão geral</h1><p>Acompanhe a operação do dia em um só lugar.</p></div><div class="page-accent"></div></div>
 <div class="central-dia-cmello" id="central-dia-cmello">
@@ -5980,14 +6028,19 @@ window.parent.postMessage({type:'cmello-calculator-ready'},'*');
 <div class="routine-login-card" id="routine-login-card"><h2>Conta não conectada</h2><p>Use o botão <b>Entrar no sistema</b> no topo da página. A Minha Rotina será identificada automaticamente pelo mesmo acesso.</p></div>
 <div id="routine-content" style="display:none">
 <div class="routine-grid">
-<div class="routine-step" id="routine-exp-step"><div aria-hidden="true" class="routine-check-marker">1</div><div class="routine-step-content"><div class="routine-step-head"><h3>Expedição</h3><span class="routine-status" id="routine-exp-status">Pendente</span></div><p>Selecione a conta ou atividade atual.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir</button></div><div class="task-meta" id="routine-exp-time"></div><div class="routine-timer" id="routine-exp-timer"><span class="routine-timer-dot"></span><span>00:00:00</span></div><div id="routine-exp-history" style="margin-top:12px"></div></div></div>
+<div class="routine-step" id="routine-exp-step"><div aria-hidden="true" class="routine-check-marker">1</div><div class="routine-step-content"><div class="routine-step-head"><h3>Expedição</h3><span class="routine-status" id="routine-exp-status">Pendente</span></div><p>Selecione a conta ou atividade atual.</p><div class="routine-account-line"><select class="routine-select" id="routine-exp-account"><option value="">Selecione a conta</option><option>Mimar</option><option>Utilize</option><option>Tem de Tudo</option><option>Shopee</option><option>Multi Shopee</option><option>Balde</option></select></div><div id="routine-exp-availability" style="margin-top:8px;font-size:12px;color:#667085"></div><label id="routine-exp-share-wrap" style="display:none;margin-top:9px;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#344054"><input id="routine-exp-share" type="checkbox"/> Compartilhar esta conta como segundo responsável</label><div class="routine-actions"><button class="btn btn-orange" id="routine-exp-start" type="button">Iniciar</button><button class="btn btn-green" id="routine-exp-done" type="button">✓ Concluir / liberar conta</button></div><div class="task-meta" id="routine-exp-time"></div><div class="routine-timer" id="routine-exp-timer"><span class="routine-timer-dot"></span><span>00:00:00</span></div><div id="routine-exp-history" style="margin-top:12px"></div></div></div>
 <div class="routine-step full" id="routine-tasks-step"><div aria-hidden="true" class="routine-check-marker">2</div><div class="routine-step-content"><div class="routine-step-head"><h3>Tarefas do Líder</h3><span class="routine-status">Após expedição</span></div><p>Próximos afazeres direcionados pelo líder.</p><div class="task-list" id="routine-task-list"></div></div></div>
 <div class="routine-step" id="routine-clean-step"><div aria-hidden="true" class="routine-check-marker">3</div><div class="routine-step-content"><div class="routine-step-head"><h3>Organização e Limpeza</h3><span class="routine-status" id="routine-clean-status">16:00</span></div><p class="routine-clean-note">Organize sua bancada e realize a limpeza do setor antes de encerrar o dia.</p><div class="routine-actions"><button class="btn btn-green" id="routine-clean-done" type="button">✓ Concluir organização</button></div><div class="task-meta" id="routine-clean-time-done"></div></div></div>
 </div>
 <div class="routine-complete" id="routine-complete">✓ Rotina do dia concluída.</div>
 <div class="routine-timeline" id="routine-timeline-card"><div class="routine-timeline-head"><div><h3>Minha timeline de hoje</h3><p>Registro automático das atividades realizadas no sistema.</p></div></div><div class="timeline-list" id="routine-timeline-list"></div></div>
 </div>
-<div class="leader-panel" id="routine-leader-panel"><div class="leader-head"><div><h2>Painel do Líder</h2><p style="margin:4px 0 0;color:#777">Distribua tarefas e acompanhe a situação da equipe.</p></div></div><div class="leader-form"><select id="leader-collab"><option value="">Selecione o colaborador</option></select><input id="leader-task" maxlength="180" placeholder="Ex.: Produzir Full 18/09 — 300 unidades" type="text"/><button class="btn btn-orange" id="leader-task-add" type="button">＋ Atribuir tarefa</button></div><div class="team-status-grid" id="routine-team-status"></div><div class="leader-timeline-panel"><div class="routine-timeline-head"><div><h3>Timeline do colaborador</h3><p>Clique em um colaborador acima ou selecione abaixo para consultar o dia.</p></div></div><div class="leader-timeline-controls"><select id="leader-timeline-collab"><option value="">Selecione o colaborador</option></select><input id="leader-timeline-date" type="date"/><button class="btn btn-orange" id="leader-timeline-view" type="button">Ver rotina</button></div><div class="leader-checklist-view" id="leader-checklist-view"><div class="timeline-empty">Selecione um colaborador para visualizar o checklist.</div></div><div class="timeline-list" id="leader-timeline-list"><div class="timeline-empty">Selecione um colaborador para visualizar a timeline.</div></div></div></div>
+<div class="leader-panel leader-panel-v2" id="routine-leader-panel">
+<div class="leader-head leader-head-v2"><div><span class="leader-eyebrow">GESTÃO DA EQUIPE</span><h2>Painel do Líder</h2><p>Atribua atividades e acompanhe somente o que precisa de atenção hoje.</p></div></div>
+<div class="leader-kpis"><div class="leader-kpi"><span>Tarefas hoje</span><strong id="leader-kpi-total">0</strong></div><div class="leader-kpi"><span>Em andamento</span><strong id="leader-kpi-progress">0</strong></div><div class="leader-kpi"><span>Parciais</span><strong id="leader-kpi-partial">0</strong></div><div class="leader-kpi"><span>Concluídas</span><strong id="leader-kpi-done">0</strong></div></div>
+<div class="leader-assign-card"><div class="leader-section-title"><div><h3>Nova atribuição</h3><p>Selecione a equipe e a atividade. Os próximos campos são liberados conforme a escolha.</p></div></div><div class="leader-form leader-form-v2"><label>COLABORADOR<select id="leader-collab"><option value="">Selecione o colaborador</option></select></label><label>ORIGEM<select id="leader-origin"><option value="">Selecione</option><option value="full">FULL</option><option value="estoque">ESTOQUE</option></select></label><label>FULL / PROGRAMAÇÃO<select id="leader-source"><option value="">Selecione a origem</option></select></label><label>PRODUTO<select id="leader-product"><option value="">Selecione o produto</option></select></label><label class="leader-meta-field">META<input id="leader-target" min="1" step="1" placeholder="100" type="number"/></label><button class="btn btn-orange leader-assign-btn" id="leader-task-add" type="button">＋ Atribuir</button></div><div id="leader-source-note" class="leader-source-note">Carregando atividades disponíveis...</div></div>
+<div class="leader-team-card"><div class="leader-section-title"><div><h3>Equipe hoje</h3><p>Mostra atividades e situações relevantes do dia. Clique em um colaborador para consultar a timeline.</p></div></div><div class="team-status-grid" id="routine-team-status"></div></div>
+<div class="leader-timeline-panel leader-timeline-v2"><div class="routine-timeline-head"><div><h3>Timeline do colaborador</h3><p>Consulte atividades, quantidades e status sem sair do painel.</p></div></div><div class="leader-timeline-controls"><select id="leader-timeline-collab"><option value="">Selecione o colaborador</option></select><input id="leader-timeline-date" type="date"/><button class="btn btn-orange" id="leader-timeline-view" type="button">Ver rotina</button></div><div class="leader-checklist-view" id="leader-checklist-view"><div class="timeline-empty">Selecione um colaborador para visualizar o checklist.</div></div><div class="timeline-list" id="leader-timeline-list"><div class="timeline-empty">Selecione um colaborador para visualizar a timeline.</div></div></div></div>
 </div>
 </section>
 <section class="page" id="erros">
@@ -6980,6 +7033,7 @@ function mimarStartOperationalRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'expedicao'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
     .on('postgres_changes',{event:'*',schema:'public',table:'importacoes'},()=>{if(typeof loadCloudData==='function')void loadCloudData()})
     .on('postgres_changes',{event:'*',schema:'public',table:'coletas_diarias'},payload=>{const row=payload.new||payload.old;if(!row?.data||row.data===pickupTodayKey())void pickupLoadCloudStatus()})
+    .on('postgres_changes',{event:'*',schema:'public',table:'coletas_config'},()=>void pickupLoadCloudStatus())
     .on('postgres_changes',{event:'*',schema:'public',table:'flex_lancamentos'},()=>{if(typeof window.cmelloFlexReload==='function')void window.cmelloFlexReload()})
     .on('postgres_changes',{event:'*',schema:'public',table:'flex_fechamentos'},()=>{if(typeof window.cmelloFlexReload==='function')void window.cmelloFlexReload()})
     .on('postgres_changes',{event:'*',schema:'public',table:'ponto_diario'},()=>{if(typeof window.cmelloPontoLoadAdmin==='function'&&document.getElementById('ponto-admin-person')?.value)void window.cmelloPontoLoadAdmin()})
@@ -7695,9 +7749,22 @@ function renderPickupEditor(){const ed=document.getElementById('pickup-editor');
 function collectPickupEditor(){document.querySelectorAll('.pickup-editor-row').forEach((r,i)=>{if(!pickupSchedule[i])return;pickupSchedule[i].name=r.querySelector('[data-field="name"]').value.trim()||'Conta';pickupSchedule[i].start=r.querySelector('[data-field="start"]').value||'';pickupSchedule[i].end=r.querySelector('[data-field="end"]').value||''})}
 async function pickupLoadCloudStatus(){
  try{
-  const {data,error}=await cloud.from('coletas_diarias').select('coleta_id,coletado,coletado_em').eq('data',pickupTodayKey());if(error)throw error;
-  const map=new Map((data||[]).map(r=>[String(r.coleta_id),r]));
-  pickupSchedule=pickupSchedule.map(a=>{const r=map.get(String(a.id));return {...a,collected:!!r?.coletado,collectedAt:r?.coletado_em?new Date(r.coletado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):null}});
+  /* A configuração permanente (conta + horários) vem do Supabase. O registro diário guarda apenas o status da coleta. */
+  const [cfgRes,dayRes]=await Promise.all([
+    cloud.from('coletas_config').select('coleta_id,nome_conta,horario_inicio,horario_fim,ativo,ordem').eq('ativo',true).order('ordem',{ascending:true}),
+    cloud.from('coletas_diarias').select('coleta_id,coletado,coletado_em').eq('data',pickupTodayKey())
+  ]);
+  if(cfgRes.error)throw cfgRes.error;if(dayRes.error)throw dayRes.error;
+  const dayMap=new Map((dayRes.data||[]).map(r=>[String(r.coleta_id),r]));
+  if(Array.isArray(cfgRes.data)&&cfgRes.data.length){
+    pickupSchedule=cfgRes.data.map(c=>{const r=dayMap.get(String(c.coleta_id));return {
+      id:String(c.coleta_id),name:c.nome_conta||'Conta',
+      start:c.horario_inicio?String(c.horario_inicio).slice(0,5):'',end:c.horario_fim?String(c.horario_fim).slice(0,5):'',
+      collected:!!r?.coletado,collectedAt:r?.coletado_em?new Date(r.coletado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):null
+    }});
+  }else{
+    pickupSchedule=pickupSchedule.map(a=>{const r=dayMap.get(String(a.id));return {...a,collected:!!r?.coletado,collectedAt:r?.coletado_em?new Date(r.coletado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):null}});
+  }
   _mimarCloudApplying=true;try{_mimarNativeSetItem.call(localStorage,PICKUP_DATE_KEY,JSON.stringify(pickupTodayKey()));_mimarNativeSetItem.call(localStorage,PICKUP_KEY,JSON.stringify(pickupSchedule))}finally{_mimarCloudApplying=false}
   renderPickups();
  }catch(err){console.warn('Coletas Supabase:',err)}
@@ -7724,15 +7791,17 @@ document.getElementById('pickup-save').addEventListener('click',async()=>{
  pickupSaveLocal();
  renderPickups();
  try{
-   /* Persiste explicitamente no app_state; não depende apenas do interceptor do localStorage. */
-   await Promise.all([
-     mimarCloudUpsert(PICKUP_DATE_KEY,JSON.stringify(pickupTodayKey())),
-     mimarCloudUpsert(PICKUP_KEY,JSON.stringify(pickupSchedule))
-   ]);
+   const {data:{session}}=await cloud.auth.getSession();if(!session?.user)throw new Error('Sessão expirada.');
+   const now=new Date().toISOString();
+   const rows=pickupSchedule.map((a,i)=>({coleta_id:String(a.id),nome_conta:a.name||'Conta',horario_inicio:a.start||null,horario_fim:a.end||null,ativo:true,ordem:i+1,atualizado_por:session.user.id,atualizado_em:now}));
+   const {error}=await cloud.from('coletas_config').upsert(rows,{onConflict:'coleta_id'});if(error)throw error;
+   /* Mantém o cache legado somente por compatibilidade; a fonte oficial agora é coletas_config. */
+   await Promise.allSettled([mimarCloudUpsert(PICKUP_DATE_KEY,JSON.stringify(pickupTodayKey())),mimarCloudUpsert(PICKUP_KEY,JSON.stringify(pickupSchedule))]);
+   await pickupLoadCloudStatus();
    closePickupEditor();
  }catch(err){
-   console.warn('Coletas: horário salvo localmente, mas a sincronização falhou.',err);
-   alert('O horário foi salvo neste computador, mas não foi possível confirmar a sincronização com o servidor. Tente novamente.');
+   console.warn('Coletas: falha ao persistir horários no Supabase.',err);
+   alert('Não foi possível salvar os horários no servidor: '+(err?.message||err));
  }
 });
 renderPickups();setInterval(renderPickups,1000);
@@ -8401,12 +8470,39 @@ const PRODUCTION_TEST_MODE=false;
   let stockInitialAdjustments=load(STOCK_INITIAL_KEY,[]);
   function loadObject(k,seed){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v&&typeof v==='object'&&!Array.isArray(v)?v:seed}catch(e){return seed}}
   let stockBalance=loadObject(STOCK_BALANCE_KEY,{});
+  let programsCloudReady=false;
+  let programsSyncTimer=null;
   function save(){
     localStorage.setItem(FULL_CAMPAIGNS_KEY,JSON.stringify(fullCampaigns));
     localStorage.setItem(STOCK_PROGRAM_KEY,JSON.stringify(stockPrograms));
     localStorage.setItem(STOCK_KEY,JSON.stringify(stockData));
     localStorage.setItem(STOCK_BALANCE_KEY,JSON.stringify(stockBalance));
     localStorage.setItem(STOCK_INITIAL_KEY,JSON.stringify(stockInitialAdjustments));
+    if(programsCloudReady){clearTimeout(programsSyncTimer);programsSyncTimer=setTimeout(()=>syncProgramsCloud().catch(e=>console.error('Falha ao sincronizar programação:',e)),120)}
+  }
+  async function syncProgramsCloud(){
+    if(typeof cloud==='undefined'||!currentUser)return;
+    const fullRows=fullCampaigns.map(f=>({id:String(f.id),codigo:f.code||'',nome:f.name||'',data:f.date||todayISO(),observacao:f.note||null,produtos:Array.isArray(f.products)?f.products:[],ativo:true,criado_por:currentUser?.id||null,atualizado_em:new Date().toISOString()}));
+    const stockRows=stockPrograms.map(x=>({id:String(x.id),produto:x.product||'',data:x.date||todayISO(),observacao:x.note||null,ativo:true,criado_por:currentUser?.id||null,atualizado_em:new Date().toISOString()}));
+    if(fullRows.length){const q=await cloud.from('programacao_full').upsert(fullRows,{onConflict:'id'});if(q.error)throw q.error}
+    if(stockRows.length){const q=await cloud.from('programacao_estoque').upsert(stockRows,{onConflict:'id'});if(q.error)throw q.error}
+    const [fq,sq]=await Promise.all([cloud.from('programacao_full').select('id').eq('ativo',true),cloud.from('programacao_estoque').select('id').eq('ativo',true)]);
+    if(!fq.error){const keep=new Set(fullCampaigns.map(x=>String(x.id)));for(const r of (fq.data||[])){if(!keep.has(String(r.id)))await cloud.from('programacao_full').update({ativo:false,atualizado_em:new Date().toISOString()}).eq('id',r.id)}}
+    if(!sq.error){const keep=new Set(stockPrograms.map(x=>String(x.id)));for(const r of (sq.data||[])){if(!keep.has(String(r.id)))await cloud.from('programacao_estoque').update({ativo:false,atualizado_em:new Date().toISOString()}).eq('id',r.id)}}
+  }
+  async function initProgramsCloud(){
+    if(typeof cloud==='undefined')return;
+    try{
+      const [fq,sq]=await Promise.all([cloud.from('programacao_full').select('*').eq('ativo',true).order('data'),cloud.from('programacao_estoque').select('*').eq('ativo',true).order('data')]);
+      if(!fq.error && (fq.data||[]).length){fullCampaigns=fq.data.map(r=>({id:r.id,code:r.codigo||'',name:r.nome||'',date:r.data,note:r.observacao||'',products:Array.isArray(r.produtos)?r.produtos:[]}))}
+      else if(!fq.error && fullCampaigns.length){programsCloudReady=true;await syncProgramsCloud();programsCloudReady=false}
+      if(!sq.error && (sq.data||[]).length){stockPrograms=sq.data.map(r=>({id:r.id,product:r.produto,date:r.data,note:r.observacao||''}))}
+      else if(!sq.error && stockPrograms.length){programsCloudReady=true;await syncProgramsCloud();programsCloudReady=false}
+      localStorage.setItem(FULL_CAMPAIGNS_KEY,JSON.stringify(fullCampaigns));localStorage.setItem(STOCK_PROGRAM_KEY,JSON.stringify(stockPrograms));
+      selectedFullId=fullCampaigns.some(x=>x.id===selectedFullId)?selectedFullId:(fullCampaigns[0]?.id||null);
+      programsCloudReady=true;renderStockPrograms();syncCurrentFull();renderStockProd();
+      window.dispatchEvent(new CustomEvent('cmello:programacao-atualizada'));
+    }catch(e){console.error('Programação Supabase:',e);programsCloudReady=true}
   }
   function num(v){return Math.max(0,Number(v)||0)}
   async function saveProductionCloud(record){
@@ -9151,6 +9247,7 @@ const PRODUCTION_TEST_MODE=false;
   renderStockPrograms();
   syncCurrentFull();
   renderStockProd();
+  setTimeout(()=>initProgramsCloud(),250);
 })();
 
 </script>
@@ -9293,7 +9390,7 @@ function render(){
 </script>
 <script id="rotina-contas-v13-script">
 (()=>{
-const R={profile:null,day:null,tasks:[],sessions:[],profiles:[],hydrating:false};
+const R={profile:null,day:null,tasks:[],sessions:[],occupancies:[],profiles:[],hydrating:false};
 const CACHE_PREFIX='mimar_rotina_cache_v5';
 function cacheKey(){return R.profile?.id?`${CACHE_PREFIX}:${R.profile.id}:${today()}`:null}
 function saveRoutineCache(){const k=cacheKey();if(!k)return;try{localStorage.setItem(k,JSON.stringify({day:R.day||null,savedAt:Date.now()}))}catch{}}
@@ -9313,7 +9410,7 @@ async function getProfile(){
   const {data:{session}}=await cloud.auth.getSession();
   if(!session?.user)return null;
   const user=session.user;
-  const {data,error}=await cloud.from('colaboradores').select('id,nome,ativo').eq('id',user.id).maybeSingle();
+  const {data,error}=await cloud.from('colaboradores').select('id,nome,ativo,perfil').eq('id',user.id).maybeSingle();
   if(!error && data && data.ativo!==false)return data;
   // Conta criada para apresentação: o vínculo já existe no banco; este fallback
   // evita que a tela fique vazia caso o schema novo ainda não tenha atualizado no Data API.
@@ -9326,10 +9423,24 @@ async function getProfile(){
 }
 async function ensureDay(){if(!R.profile)return;let {data}=await cloud.from('rotina_diaria').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).maybeSingle();if(!data){const ins=await cloud.from('rotina_diaria').insert({colaborador_id:R.profile.id,data:today()}).select().single();if(ins.error)throw ins.error;data=ins.data}R.day=data;saveRoutineCache()}
 async function loadExpSessions(){
-  if(!R.profile){R.sessions=[];return}
-  const q=await cloud.from('rotina_expedicao_sessoes').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('inicio',{ascending:true});
-  if(q.error){console.error('Falha ao carregar sessões de expedição:',q.error);R.sessions=[];return}
-  R.sessions=q.data||[];
+  if(!R.profile){R.sessions=[];R.occupancies=[];return}
+  const [mine,occ]=await Promise.all([
+    cloud.from('rotina_expedicao_sessoes').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('inicio',{ascending:true}),
+    cloud.rpc('expedicao_contas_ocupadas')
+  ]);
+  if(mine.error){console.error('Falha ao carregar sessões de expedição:',mine.error);R.sessions=[]}else R.sessions=mine.data||[];
+  if(occ.error){console.error('Falha ao carregar ocupações de expedição:',occ.error);R.occupancies=[]}else R.occupancies=occ.data||[];
+}
+function expOccupants(conta){return (R.occupancies||[]).filter(x=>String(x.conta||'').trim().toLowerCase()===String(conta||'').trim().toLowerCase())}
+function renderExpAvailability(){
+  const sel=$('routine-exp-account'),box=$('routine-exp-availability'),wrap=$('routine-exp-share-wrap'),share=$('routine-exp-share');if(!sel||!box)return;
+  const conta=sel.value, people=expOccupants(conta), mine=people.some(x=>String(x.colaborador_id)===String(R.profile?.id));
+  [...sel.options].forEach(o=>{if(!o.value)return;const ps=expOccupants(o.value);const base=o.value;o.textContent=ps.length?`${base} — ${ps.map(x=>x.colaborador_nome).join(' + ')}`:base;o.disabled=ps.length>=2&&!ps.some(x=>String(x.colaborador_id)===String(R.profile?.id));});
+  if(!conta){box.textContent='Selecione uma conta para verificar a disponibilidade.';if(wrap)wrap.style.display='none';return}
+  if(mine){box.innerHTML='<b style="color:#0074e1">Você está trabalhando nesta conta.</b>';if(wrap)wrap.style.display='none';return}
+  if(!people.length){box.innerHTML='<b style="color:#3f6212">Disponível</b> · Nenhum responsável ativo.';if(wrap)wrap.style.display='none';if(share)share.checked=false;return}
+  if(people.length===1){box.innerHTML=`<b style="color:#b54708">Em uso por ${escapeHtml(people[0].colaborador_nome)}</b> · Para trabalhar junto, marque a opção de compartilhamento.`;if(wrap)wrap.style.display='flex';return}
+  box.innerHTML=`<b style="color:#b42318">Indisponível</b> · Responsáveis: ${people.map(x=>escapeHtml(x.colaborador_nome)).join(' + ')}.`;if(wrap)wrap.style.display='none';if(share)share.checked=false;
 }
 async function loadTasks(){if(!R.profile){R.tasks=[];return}const q=await cloud.from('tarefas_lider').select('*').eq('colaborador_id',R.profile.id).eq('data',today()).order('created_at',{ascending:true});if(q.error){console.error('Falha ao carregar tarefas do líder:',q.error);throw q.error}R.tasks=q.data||[];saveRoutineCache()}
 function state(step,status){step.classList.toggle('done',status==='concluido');step.classList.toggle('active',status==='andamento')}
@@ -9352,13 +9463,15 @@ function render(){
   state($('routine-exp-step'),expStatus);
   $('routine-exp-status').textContent=activeSession?'Em andamento':completedSessions.length?'✓ '+completedSessions.length+' concluída'+(completedSessions.length===1?'':'s'):'Pendente';
   $('routine-exp-status').className='routine-status '+(completedSessions.length&&!activeSession?'done':activeSession?'active':'');
-  if(latestSession?.conta)$('routine-exp-account').value=latestSession.conta;
+  // Só fixa a conta enquanto existe sessão ativa; após concluir o seletor fica livre.
+  if(activeSession?.conta)$('routine-exp-account').value=activeSession.conta;
   $('routine-exp-time').textContent=activeSession?`Início ${fmtTime(activeSession.inicio)}`:(latestSession?`Última conclusão ${fmtTime(latestSession.fim)}`:'');
   setTimer('routine-exp-timer',activeSession?.inicio||null,activeSession?.fim||null,activeSession?'andamento':(latestSession?'concluido':'pendente'));
   const expStart=$('routine-exp-start'),expDone=$('routine-exp-done'),expSelect=$('routine-exp-account');
   if(expStart){expStart.style.display=activeSession?'none':'';expStart.disabled=!!activeSession;expStart.textContent=completedSessions.length?'＋ Iniciar outra conta':'Iniciar'}
   if(expDone){expDone.style.display=activeSession?'':'none'}
   if(expSelect)expSelect.disabled=!!activeSession;
+  renderExpAvailability();
   const expHistory=$('routine-exp-history');
   if(expHistory)expHistory.innerHTML=completedSessions.length
     ? `<div style="font-size:12px;font-weight:800;color:#667085;margin-bottom:6px">CONTAS FINALIZADAS HOJE</div>`+completedSessions.map(x=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #edf0f3;font-size:13px"><b>${escapeHtml(x.conta)}</b><span style="color:#667085">${fmtTime(x.inicio)} → ${fmtTime(x.fim)}</span></div>`).join('')
@@ -9377,10 +9490,19 @@ function render(){
 
   const list=$('routine-task-list');
   // O checklist mostra somente o que ainda exige ação. Tarefas concluídas ficam no histórico/timeline.
-  const activeTasks=R.tasks.filter(t=>t.status!=='concluido');
-  list.innerHTML=activeTasks.length?activeTasks.map(t=>`<div class="task-item"><div><div class="task-title">${escapeHtml(t.descricao)}</div><div class="task-meta">${t.status==='andamento'?'Em andamento':'Nova tarefa do líder'}</div><div class="routine-timer ${t.status==='andamento'?'running':''}" data-task-timer="${t.id}"><span class="routine-timer-dot"></span><span>${t.iniciado_em?clock(elapsed(t.iniciado_em,t.concluido_em)):'00:00:00'}</span></div></div><div class="routine-actions">${t.status==='pendente'?`<button class="btn btn-orange rt-start" data-id="${t.id}" type="button">Iniciar</button>`:`<button class="btn btn-green rt-done" data-id="${t.id}" type="button">✓ Concluir</button>`}</div></div>`).join(''):'<div class="task-empty">Nenhuma tarefa no momento. Quando a liderança atribuir uma atividade, ela aparecerá aqui.</div>';
+  const activeTasks=R.tasks.filter(t=>!['concluido','nao_realizada'].includes(t.status));
+  list.innerHTML=activeTasks.length?activeTasks.map(t=>{
+    const structured=['full','estoque'].includes(t.origem);
+    const done=Number(t.quantidade_realizada||0),meta=Number(t.quantidade_meta||0),saldo=Math.max(0,meta-done);
+    const origin=String(t.origem||'').toUpperCase();
+    const metaText=structured?`${origin} · Meta ${meta} · Realizado ${done} · Saldo ${saldo}`:(t.status==='andamento'?'Em andamento':'Nova tarefa do líder');
+    const controls=t.status==='pendente'
+      ?`<button class="btn btn-orange rt-start" data-id="${t.id}" type="button">Iniciar</button>`
+      :(structured?`<input class="task-qty-input" data-task-qty="${t.id}" min="1" step="1" type="number" placeholder="Qtd feita" style="width:105px;padding:9px;border:1px solid #dfe3e8;border-radius:9px"><button class="btn btn-green rt-launch" data-id="${t.id}" type="button">＋ Lançar</button>${done===0?`<button class="btn btn-dark rt-zero" data-id="${t.id}" type="button">Não realizada</button>`:''}`:`<button class="btn btn-green rt-done" data-id="${t.id}" type="button">✓ Concluir</button>`);
+    return `<div class="task-item"><div><div class="task-title">${escapeHtml(t.descricao)}</div><div class="task-meta">${escapeHtml(metaText)}</div><div class="routine-timer ${['andamento','parcial'].includes(t.status)?'running':''}" data-task-timer="${t.id}"><span class="routine-timer-dot"></span><span>${t.iniciado_em?clock(elapsed(t.iniciado_em,t.concluido_em)):'00:00:00'}</span></div></div><div class="routine-actions" style="flex-wrap:wrap">${controls}</div></div>`;
+  }).join(''):'<div class="task-empty">Nenhuma tarefa no momento. Quando a liderança atribuir uma atividade, ela aparecerá aqui.</div>';
   const tl=$('routine-timeline-list');if(tl)tl.innerHTML=timelineHtml(d,R.tasks,true);
-  const allTasks=R.tasks.every(x=>x.status==='concluido');
+  const allTasks=R.tasks.every(x=>['concluido','nao_realizada'].includes(x.status));
   $('routine-complete').classList.toggle('show',d.expedicao_status==='concluido'&&cleanValid&&allTasks);
 }
 function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -9494,100 +9616,129 @@ async function boot(){
     // em seguida sem zerar visualmente os contadores.
     render();
     if(R.profile){
-      try{await ensureDay();await loadTasks()}catch(e){console.error('Dados da rotina:',e)}
+      try{await ensureDay();await loadExpSessions();await loadTasks()}catch(e){console.error('Dados da rotina:',e)}
     }
     saveRoutineCache();render();
     try{await renderLeader()}catch(e){console.warn('Painel do líder:',e)}
   }catch(e){console.error('Rotina:',e);render()}
 }
+$('routine-exp-account')?.addEventListener('change',()=>{const sh=$('routine-exp-share');if(sh)sh.checked=false;renderExpAvailability()});
 $('routine-exp-start')?.addEventListener('click',async()=>{
   const conta=$('routine-exp-account').value;if(!conta)return alert('Selecione a conta/atividade.');
   if((R.sessions||[]).some(x=>x.status==='andamento'&&!x.fim))return alert('Conclua a conta atual antes de iniciar outra.');
-  const stamp=now();
-  const q=await cloud.from('rotina_expedicao_sessoes').insert({colaborador_id:R.profile.id,data:today(),conta,inicio:stamp,status:'andamento'}).select().single();
-  if(q.error)return alert('Não foi possível iniciar a expedição: '+q.error.message);
+  await loadExpSessions();
+  const people=expOccupants(conta),share=!!$('routine-exp-share')?.checked;
+  if(people.length>=2)return alert('Esta conta já está sendo trabalhada por dois colaboradores.');
+  if(people.length===1&&!share)return alert(`Esta conta já está sendo feita por ${people[0].colaborador_nome}. Marque “Compartilhar” para entrar como segundo responsável.`);
+  const q=await cloud.rpc('assumir_conta_expedicao',{p_conta:conta,p_compartilhar:share});
+  if(q.error){await loadExpSessions();render();return alert('Não foi possível assumir a conta: '+q.error.message)}
+  const started=Array.isArray(q.data)?q.data[0]:q.data, stamp=started?.inicio||now();
   await updateDay({expedicao_status:'andamento',expedicao_conta:conta,expedicao_inicio:stamp,expedicao_fim:null});
+  if($('routine-exp-share'))$('routine-exp-share').checked=false;
   await loadExpSessions();render();
 });
 $('routine-exp-done')?.addEventListener('click',async()=>{
   const active=(R.sessions||[]).find(x=>x.status==='andamento'&&!x.fim);if(!active)return;
-  const stamp=now();
-  const q=await cloud.from('rotina_expedicao_sessoes').update({status:'concluido',fim:stamp,updated_at:stamp}).eq('id',active.id).eq('colaborador_id',R.profile.id).select().single();
-  if(q.error)return alert('Não foi possível concluir a expedição: '+q.error.message);
+  const q=await cloud.rpc('liberar_conta_expedicao',{p_sessao_id:active.id});
+  if(q.error)return alert('Não foi possível concluir/liberar a conta: '+q.error.message);
+  const ended=Array.isArray(q.data)?q.data[0]:q.data, stamp=ended?.fim||now();
   await updateDay({expedicao_status:'concluido',expedicao_conta:active.conta,expedicao_inicio:active.inicio,expedicao_fim:stamp});
-  await loadExpSessions();render();
+  await loadExpSessions();
+  const sel=$('routine-exp-account'); if(sel) sel.value='';
+  const sh=$('routine-exp-share'); if(sh) sh.checked=false;
+  render();
 });
 $('routine-clean-done')?.addEventListener('click',async()=>{const h=new Date().getHours();if(h<16)return alert('Este checklist deve ser realizado a partir das 16:00, antes de encerrar o dia.');await updateDay({limpeza_status:'concluido',limpeza_inicio:null,limpeza_fim:now()})});
 $('routine-task-list')?.addEventListener('click',async e=>{
   const b=e.target.closest('[data-id]');if(!b)return;
-  const id=Number(b.dataset.id);
-  if(routineTaskSaving.has(id)||!R.profile)return;
-  const current=R.tasks.find(x=>Number(x.id)===id);
-  if(!current)return;
-  const concluding=b.classList.contains('rt-done');
-  const expected=concluding?'andamento':'pendente';
-  // Supabase é a única fonte de verdade: não alteramos o status local antes da confirmação.
-  routineTaskSaving.add(id);
-  const oldText=b.textContent;b.disabled=true;b.textContent=concluding?'Salvando conclusão...':'Iniciando...';
-  let persisted=false;
+  const id=Number(b.dataset.id);if(routineTaskSaving.has(id)||!R.profile)return;
+  const current=R.tasks.find(x=>Number(x.id)===id);if(!current)return;
+  routineTaskSaving.add(id);const oldText=b.textContent;b.disabled=true;
   try{
-    const stamp=now();
-    const patch=concluding
-      ?{status:'concluido',concluido_em:stamp,updated_at:stamp}
-      :{status:'andamento',iniciado_em:current.iniciado_em||stamp,concluido_em:null,updated_at:stamp};
-    const q=await cloud.from('tarefas_lider')
-      .update(patch)
-      .eq('id',id)
-      .eq('colaborador_id',R.profile.id)
-      .eq('status',expected)
-      .select('*')
-      .maybeSingle();
-    if(q.error)throw q.error;
-    if(!q.data){
-      await loadTasks();render();
-      const fresh=R.tasks.find(x=>Number(x.id)===id);
-      if(concluding&&fresh?.status==='concluido')return;
-      throw new Error('O registro não foi alterado no Supabase. O estado da tarefa mudou em outra sessão ou sua permissão de atualização foi bloqueada.');
+    if(b.classList.contains('rt-launch')){
+      const input=document.querySelector(`[data-task-qty="${id}"]`),qty=Math.round(Number(input?.value||0));
+      if(qty<=0)throw new Error('Informe quantas unidades foram produzidas.');
+      b.textContent='Lançando...';
+      const uuid=(crypto?.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`);
+      const q=await cloud.rpc('registrar_producao_tarefa',{p_tarefa_id:id,p_quantidade:qty,p_lancamento_uuid:uuid});if(q.error)throw q.error;
+      if(typeof loadCloudData==='function')await loadCloudData();
+    }else if(b.classList.contains('rt-zero')){
+      if(!confirm('Marcar esta tarefa como não realizada? Nenhuma produção será lançada.'))return;
+      b.textContent='Salvando...';const q=await cloud.rpc('encerrar_tarefa_sem_producao',{p_tarefa_id:id});if(q.error)throw q.error;
+    }else{
+      const concluding=b.classList.contains('rt-done');
+      const expected=concluding?'andamento':'pendente';
+      b.textContent=concluding?'Salvando conclusão...':'Iniciando...';
+      const stamp=now();const patch=concluding?{status:'concluido',concluido_em:stamp,updated_at:stamp}:{status:'andamento',iniciado_em:current.iniciado_em||stamp,concluido_em:null,updated_at:stamp};
+      const q=await cloud.from('tarefas_lider').update(patch).eq('id',id).eq('colaborador_id',R.profile.id).eq('status',expected).select('*').maybeSingle();
+      if(q.error)throw q.error;if(!q.data)throw new Error('A tarefa mudou em outra sessão. Atualize e tente novamente.');
     }
-    if(concluding && (q.data.status!=='concluido'||!q.data.concluido_em))
-      throw new Error('O Supabase não confirmou a conclusão da tarefa.');
-    if(!concluding && (q.data.status!=='andamento'||!q.data.iniciado_em))
-      throw new Error('O Supabase não confirmou o início da tarefa.');
-    persisted=true;
-    // Só agora substituímos a tela pelo registro confirmado pelo banco.
-    await loadTasks();
-    saveRoutineCache();render();
-    void renderLeader();
-  }catch(err){
-    console.error('Falha ao atualizar tarefa:',err);
-    try{await loadTasks();render()}catch(refreshErr){console.warn('Falha apenas ao redesenhar a rotina:',refreshErr)}
-    if(!persisted) alert('Não foi possível '+(concluding?'concluir':'iniciar')+' a tarefa no Supabase: '+(err?.message||err));
-    else alert('A tarefa foi salva no Supabase, mas a tela teve uma falha ao atualizar. Atualize a página.');
-  }finally{
-    routineTaskSaving.delete(id);
-    if(document.body.contains(b)){b.disabled=false;b.textContent=oldText}
-  }
+    await loadTasks();render();void renderLeader();
+  }catch(err){console.error('Falha ao atualizar tarefa:',err);try{await loadTasks();render()}catch{}alert('Não foi possível atualizar a tarefa: '+(err?.message||err));}
+  finally{routineTaskSaving.delete(id);if(document.body.contains(b)){b.disabled=false;b.textContent=oldText}}
 });
-async function renderLeader(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const p=await cloud.from('colaboradores').select('id,nome,ativo').eq('ativo',true).order('nome');R.profiles=p.data||[];
+
+let leaderPrograms={fulls:[],stocks:[]};
+function canManageTeam(){const p=String(R.profile?.perfil||'').toLowerCase();return !!isAdmin||['lider','liderança','lideranca','gestao','gestão','admin'].includes(p)}
+async function loadLeaderSources(){
+  const note=$('leader-source-note');if(note)note.textContent='Carregando FULLs e Estoque em vigor...';
+  const [fq,sq]=await Promise.all([cloud.from('programacao_full').select('*').eq('ativo',true).order('data'),cloud.from('programacao_estoque').select('*').eq('ativo',true).order('data')]);
+  leaderPrograms.fulls=fq.error?[]:(fq.data||[]);leaderPrograms.stocks=sq.error?[]:(sq.data||[]);
+  refreshLeaderSourceSelect();if(note)note.textContent=`${leaderPrograms.fulls.length} FULL(s) · ${leaderPrograms.stocks.length} produto(s) de Estoque disponíveis no Supabase.`;
+}
+function refreshLeaderSourceSelect(){
+  const origin=$('leader-origin')?.value,src=$('leader-source'),prod=$('leader-product');if(!src||!prod)return;
+  if(origin==='full')src.innerHTML='<option value="">Selecione o FULL</option>'+leaderPrograms.fulls.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml((f.codigo||'FULL')+' · '+(f.nome||'')+' · '+(f.data||''))}</option>`).join('');
+  else if(origin==='estoque')src.innerHTML='<option value="estoque">Produção de Estoque em vigor</option>';
+  else src.innerHTML='<option value="">Selecione a origem</option>';
+  refreshLeaderProductSelect();
+}
+function refreshLeaderProductSelect(){
+  const origin=$('leader-origin')?.value,source=$('leader-source')?.value,prod=$('leader-product');if(!prod)return;
+  let items=[];
+  if(origin==='full'&&source){const f=leaderPrograms.fulls.find(x=>String(x.id)===String(source));items=(f?.produtos||[]).map(p=>({id:p.id,name:p.name,target:Number(p.target||0)}));}
+  if(origin==='estoque')items=leaderPrograms.stocks.map(x=>({id:x.id,name:x.produto,target:0}));
+  prod.innerHTML='<option value="">Selecione o produto</option>'+items.map(x=>`<option value="${escapeHtml(x.id)}" data-name="${escapeHtml(x.name)}" data-target="${x.target}">${escapeHtml(x.name)}${x.target?' · meta do FULL '+x.target:''}</option>`).join('');
+}
+
+async function renderLeader(){if(!canManageTeam())return;const p=await cloud.from('colaboradores').select('id,nome,ativo,perfil').eq('ativo',true).order('nome');R.profiles=p.data||[];
+if(!leaderPrograms.fulls.length&&!leaderPrograms.stocks.length)await loadLeaderSources();
 const leaderSel=$('leader-collab');
 const leaderPrev=leaderSel?.value||'';
 if(leaderSel){
   leaderSel.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');
   if(leaderPrev && R.profiles.some(x=>String(x.id)===String(leaderPrev))) leaderSel.value=leaderPrev;
 }
-const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;else if(R.profile?.id&&R.profiles.some(x=>String(x.id)===String(R.profile.id)))tls.value=R.profile.id;else if(R.profiles.length===1)tls.value=R.profiles[0].id;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};$('routine-team-status').innerHTML=R.profiles.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Aguardando início';if(d.limpeza_status==='concluido'&&ts.every(x=>x.status==='concluido')&&d.expedicao_status==='concluido')st='Rotina concluída';else if(ts.some(x=>x.status==='andamento'))st='Executando tarefa';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido'&&ts.some(x=>x.status==='pendente'))st='Tarefa atribuída';else if(d.expedicao_status==='concluido')st='Aguardando tarefa';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver rotina"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="task-empty">Nenhum colaborador cadastrado.</div>';const selectedCid=$('leader-timeline-collab')?.value;if(selectedCid){const selectedDate=$('leader-timeline-date')?.value||today();if(window.__mimarLeaderLoadedKey!==selectedCid+'|'+selectedDate){window.__mimarLeaderLoadedKey=selectedCid+'|'+selectedDate;showLeaderTimeline(selectedCid,selectedDate).catch(console.warn);}}}
+const tls=$('leader-timeline-collab');if(tls){const prev=tls.value;tls.innerHTML='<option value="">Selecione o colaborador</option>'+R.profiles.map(x=>`<option value="${x.id}">${escapeHtml(x.nome)}</option>`).join('');if(prev&&R.profiles.some(x=>String(x.id)===String(prev)))tls.value=prev;else if(R.profile?.id&&R.profiles.some(x=>String(x.id)===String(R.profile.id)))tls.value=R.profile.id;else if(R.profiles.length===1)tls.value=R.profiles[0].id;}const tld=$('leader-timeline-date');if(tld&&!tld.value)tld.value=today();const days=await cloud.from('rotina_diaria').select('*').eq('data',today());const tasks=await cloud.from('tarefas_lider').select('*').eq('data',today());const dm=new Map((days.data||[]).map(x=>[x.colaborador_id,x]));const tm=new Map();for(const t of tasks.data||[]){if(!tm.has(t.colaborador_id))tm.set(t.colaborador_id,[]);tm.get(t.colaborador_id).push(t)};const allTasks=tasks.data||[];const totalTasks=allTasks.length;const progressTasks=allTasks.filter(x=>['andamento','em_andamento'].includes(String(x.status||'').toLowerCase())).length;const partialTasks=allTasks.filter(x=>String(x.status||'').toLowerCase()==='parcial').length;const doneTasks=allTasks.filter(x=>String(x.status||'').toLowerCase()==='concluido').length;if($('leader-kpi-total'))$('leader-kpi-total').textContent=totalTasks;if($('leader-kpi-progress'))$('leader-kpi-progress').textContent=progressTasks;if($('leader-kpi-partial'))$('leader-kpi-partial').textContent=partialTasks;if($('leader-kpi-done'))$('leader-kpi-done').textContent=doneTasks;const relevant=R.profiles.filter(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];return ts.length||d.expedicao_status==='andamento'||d.expedicao_status==='concluido'||d.limpeza_status==='concluido'});$('routine-team-status').innerHTML=relevant.map(p=>{const d=dm.get(p.id)||{},ts=tm.get(p.id)||[];let st='Atividade registrada';if(ts.some(x=>String(x.status||'').toLowerCase()==='parcial'))st='Tarefa parcial';else if(ts.some(x=>['andamento','em_andamento'].includes(String(x.status||'').toLowerCase())))st='Executando tarefa';else if(ts.some(x=>String(x.status||'').toLowerCase()==='pendente'))st='Tarefa atribuída';else if(ts.length&&ts.every(x=>String(x.status||'').toLowerCase()==='concluido'))st='Tarefas concluídas';else if(d.expedicao_status==='andamento')st='Em expedição · '+(d.expedicao_conta||'');else if(d.expedicao_status==='concluido')st='Expedição concluída';return `<div class="team-status-card" data-timeline-collab="${p.id}" title="Ver timeline de ${escapeHtml(p.nome)}"><b>${escapeHtml(p.nome)}</b><span>${escapeHtml(st)}</span></div>`}).join('')||'<div class="timeline-empty" style="grid-column:1/-1">Nenhuma atividade atribuída ou em andamento hoje.</div>';const selectedCid=$('leader-timeline-collab')?.value;if(selectedCid){const selectedDate=$('leader-timeline-date')?.value||today();if(window.__mimarLeaderLoadedKey!==selectedCid+'|'+selectedDate){window.__mimarLeaderLoadedKey=selectedCid+'|'+selectedDate;showLeaderTimeline(selectedCid,selectedDate).catch(console.warn);}}}
 $('leader-timeline-view')?.addEventListener('click',()=>showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today()));
 $('leader-timeline-collab')?.addEventListener('change',()=>{window.__mimarLeaderLoadedKey='';showLeaderTimeline($('leader-timeline-collab')?.value,$('leader-timeline-date')?.value||today())});
 $('leader-timeline-date')?.addEventListener('change',()=>{window.__mimarLeaderLoadedKey='';const cid=$('leader-timeline-collab')?.value;if(cid)showLeaderTimeline(cid,$('leader-timeline-date')?.value||today())});
 $('routine-team-status')?.addEventListener('click',e=>{const c=e.target.closest('[data-timeline-collab]');if(!c)return;const sel=$('leader-timeline-collab'),dt=$('leader-timeline-date');if(sel)sel.value=c.dataset.timelineCollab;if(dt&&!dt.value)dt.value=today();showLeaderTimeline(c.dataset.timelineCollab,dt?.value||today());});
-$('leader-task-add')?.addEventListener('click',async()=>{if(!isAdmin)return alert('Somente o líder/administrador pode atribuir tarefas.');const cid=$('leader-collab').value,desc=$('leader-task').value.trim();if(!cid||!desc)return alert('Selecione o colaborador e descreva a tarefa.');const q=await cloud.from('tarefas_lider').insert({colaborador_id:cid,data:today(),descricao:desc,status:'pendente'});if(q.error)return alert(q.error.message);$('leader-task').value='';await renderLeader();if(R.profile?.id===cid){await loadTasks();render()}});
+$('leader-origin')?.addEventListener('change',refreshLeaderSourceSelect);
+$('leader-source')?.addEventListener('change',refreshLeaderProductSelect);
+$('leader-product')?.addEventListener('change',()=>{const o=$('leader-product')?.selectedOptions?.[0];if(o?.dataset?.target&&!$('leader-target').value)$('leader-target').value=o.dataset.target});
+window.addEventListener('cmello:programacao-atualizada',()=>loadLeaderSources().catch(console.warn));
+$('leader-task-add')?.addEventListener('click',async()=>{
+  if(!canManageTeam())return alert('Somente liderança/gestão pode atribuir tarefas.');
+  const cid=$('leader-collab').value,origin=$('leader-origin').value,source=$('leader-source').value,productSel=$('leader-product'),productId=productSel.value,product=productSel.selectedOptions?.[0]?.dataset?.name||productSel.selectedOptions?.[0]?.textContent||'',meta=Math.round(Number($('leader-target').value||0));
+  if(!cid||!origin||!productId||meta<=0)return alert('Selecione colaborador, origem, produto e informe a quantidade/meta da tarefa.');
+  const full=origin==='full'?leaderPrograms.fulls.find(x=>String(x.id)===String(source)):null;
+  const desc=origin==='full'?`FULL ${full?.codigo||''} · ${product}`:`ESTOQUE · ${product}`;
+  const q=await cloud.from('tarefas_lider').insert({colaborador_id:cid,data:today(),descricao:desc,status:'pendente',origem:origin,origem_id:origin==='full'?source:productId,produto_id:productId,produto:product,quantidade_meta:meta,quantidade_realizada:0,criado_por:currentUser?.id||null}).select().single();
+  if(q.error)return alert('Não foi possível atribuir: '+q.error.message);
+  $('leader-target').value='';await renderLeader();if(R.profile?.id===cid){await loadTasks();render()}
+});
 try{
   cloud.channel('cmello-expedicao-sessoes-live')
     .on('postgres_changes',{event:'*',schema:'public',table:'rotina_expedicao_sessoes'},async payload=>{
       const row=payload.new||payload.old||{};
-      if(R.profile && row.colaborador_id===R.profile.id && (!row.data||row.data===today())){await loadExpSessions();render();}
+      if(R.profile && (!row.data||row.data===today())){await loadExpSessions();render();}
     }).subscribe();
 }catch(e){console.warn('Realtime expedição:',e)}
+try{cloud.channel('cmello-programacao-live')
+ .on('postgres_changes',{event:'*',schema:'public',table:'programacao_full'},()=>loadLeaderSources().catch(console.warn))
+ .on('postgres_changes',{event:'*',schema:'public',table:'programacao_estoque'},()=>loadLeaderSources().catch(console.warn)).subscribe();
+}catch(e){console.warn('Realtime programação:',e)}
 // Atualiza a rotina imediatamente quando a liderança enviar/alterar uma tarefa.
 try{
   cloud.channel('mimar-rotina-live')
@@ -9632,7 +9783,7 @@ function setStatus(t,bad=false){const e=document.getElementById('access-status')
 window.mimarSetAccessStatus=setStatus;
 async function invokeAccess(body){const {data:{session}}=await cloud.auth.getSession();if(!session?.access_token)throw new Error('Sessão expirada. Entre novamente no sistema.');const {data,error}=await cloud.functions.invoke('manage-users',{body,headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw new Error(error.message||'Falha na função de acessos.');if(data?.error)throw new Error(data.error);return data}
 async function loadAccess(){if(!window.isAdmin&&!document.body.classList.contains('admin-mode'))return;const body=document.getElementById('access-body');setStatus('Atualizando acessos...');try{const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('Tempo excedido ao carregar acessos.')),12000));const data=await Promise.race([invokeAccess({action:'list'}),timeout]);renderAccess(data.users||[]);setStatus(`${(data.users||[]).length} acesso(s) cadastrado(s).`)}catch(e){if(body)body.innerHTML=`<tr><td colspan="6" style="padding:18px;color:#b42318"><b>Não foi possível carregar os acessos.</b><br>${String(e?.message||e)}</td></tr>`;setStatus('Falha ao carregar acessos: '+(e?.message||e),true)}}
-function renderAccess(users){window.mimarAccessUsersById=new Map((users||[]).map(u=>[String(u.id),u]));const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions"><button data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button data-access-act="permissions">Permissões</button><button data-access-act="errors">Erros</button><button data-access-act="reset">Nova senha</button><button data-access-act="delete" class="access-delete-btn">Remover</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}
+function renderAccess(users){window.mimarAccessUsersById=new Map((users||[]).map(u=>[String(u.id),u]));const b=document.getElementById('access-body');if(!b)return;b.innerHTML=users.length?users.map(u=>`<tr data-user-id="${accessSafe(u.id)}"><td><b>${accessSafe(u.nome)}</b></td><td>${accessSafe(u.usuario)}</td><td><span class="access-badge ${u.perfil==='lider'?'leader':u.perfil==='admin'?'admin':''}">${accessSafe(u.perfil)}</span></td><td>${accessSafe((u.permissoes||[]).join(', ')||'—')}</td><td>${u.ativo!==false?'Ativo':'Desativado'}</td><td><div class="access-actions access-actions-compact"><div class="access-action-menu"><button type="button" class="access-action-trigger" data-access-menu> Ações <span aria-hidden="true">▾</span></button><div class="access-action-popover" hidden><button type="button" data-access-act="errors">Erros</button><button type="button" data-access-act="reset">Nova senha</button><button type="button" data-access-act="toggle" data-active="${u.ativo!==false}">${u.ativo!==false?'Desativar':'Ativar'}</button><button type="button" data-access-act="delete" class="access-delete-btn">Remover</button></div></div><button type="button" class="access-permissions-direct" data-access-act="permissions">Permissões</button></div></td></tr>`).join(''):'<tr><td colspan="6">Nenhum acesso cadastrado.</td></tr>'}
 window.mimarInvokeAccess=invokeAccess;window.mimarLoadAccess=loadAccess;
 async function createOne(name,user,password,role,permissions){return invokeAccess({action:'create',nome:name,usuario:user,senha:password,perfil:role,permissoes:permissions})}
 const MIMAR_INITIAL_TEAM=[
@@ -9684,7 +9835,16 @@ document.getElementById('access-create')?.addEventListener('click',async()=>{con
 document.getElementById('access-bulk-create')?.addEventListener('click',async()=>{const names=document.getElementById('access-bulk-names').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);if(!names.length)return;const btn=document.getElementById('access-bulk-create');btn.disabled=true;let ok=0,fail=[];for(const name of names){const first=name.split(/\\s+/)[0];const role=/^elisabete$/i.test(first)?'lider':'colaborador';const perms=role==='lider'?['dashboard','card','producao','estoque','medidas','rodizios','rotina','gestao']:['dashboard','card','producao','estoque','rotina'];try{await createOne(name,slugUser(first),first+'1234@',role,perms);ok++}catch(e){fail.push(name+': '+e.message)}}btn.disabled=false;setStatus(`${ok} criado(s).${fail.length?' Falhas: '+fail.join(' | '):''}`,!!fail.length);await loadAccess()});
 document.getElementById('access-refresh')?.addEventListener('click',loadAccess);
 document.getElementById('access-body')?.addEventListener('click',async e=>{
+ const menuBtn=e.target.closest('[data-access-menu]');
+ if(menuBtn){
+   e.preventDefault();e.stopPropagation();
+   const pop=menuBtn.parentElement?.querySelector('.access-action-popover');
+   document.querySelectorAll('.access-action-popover').forEach(x=>{if(x!==pop)x.hidden=true});
+   if(pop)pop.hidden=!pop.hidden;
+   return;
+ }
  const btn=e.target.closest('[data-access-act]');if(!btn)return;
+ btn.closest('.access-action-popover')?.setAttribute('hidden','');
  const tr=btn.closest('tr'),id=tr?.dataset.userId;if(!id)return;
  const act=btn.dataset.accessAct;
  try{
@@ -11445,6 +11605,412 @@ window.cmelloOpenCollaboratorErrors=async(id,name)=>{current.id=id;current.name=
  window.addEventListener('storage',e=>{if(e.key===KEY&&typeof renderCard==='function')renderCard()});
 })();
 </script>
+
+<style id="cmello-checkout-expedicao-style-20260929">
+#checkout-expedicao-panel{display:none;margin-top:18px}
+#checkout-expedicao-panel.active{display:block}
+.checkout-shell{background:#fff;border:1px solid #e5e9ef;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(22,34,52,.05)}
+.checkout-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}
+.checkout-head h2{margin:3px 0 5px;font-size:21px;color:#202936}.checkout-head p{margin:0;color:#738095;font-size:12px}.checkout-head .eyebrow{color:#0877e6;font-weight:800;letter-spacing:1.2px;font-size:10px}
+.checkout-meta{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.checkout-meta label{font-size:11px;font-weight:700;color:#677387;display:grid;gap:5px}.checkout-meta input{border:1px solid #d9e0e8;border-radius:10px;padding:10px 12px;font:700 13px Inter;background:#fbfcfe;color:#202936}
+.checkout-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.checkout-row{display:grid;grid-template-columns:1fr 120px;align-items:center;gap:12px;padding:14px 15px;border:1px solid #e7ebf0;border-radius:14px;background:#fbfcfd}.checkout-row b{font-size:13px;color:#27313f}.checkout-row small{display:block;color:#8a95a5;margin-top:3px}.checkout-row input{width:100%;box-sizing:border-box;border:1px solid #cfd8e3;border-radius:10px;padding:10px;text-align:right;font:800 17px Inter;color:#0877e6;background:#fff}.checkout-row input:focus{outline:2px solid rgba(205,239,43,.55);border-color:#a9c400}
+.checkout-total{margin-top:15px;border-radius:16px;background:#172131;color:#fff;padding:17px 19px;display:flex;align-items:center;justify-content:space-between}.checkout-total span{font-size:12px;font-weight:700;letter-spacing:.6px}.checkout-total b{font-size:27px}.checkout-total b em{font-style:normal;font-size:12px;font-weight:600;color:#cbd4df;margin-left:5px}
+.checkout-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}.checkout-updated{font-size:11px;color:#7c8797}.checkout-actions button{border:0;border-radius:11px;padding:11px 17px;font-weight:800;cursor:pointer}.checkout-save{background:#d9f22f;color:#172131}.checkout-reload{background:#eef2f6;color:#334155}.checkout-status{font-size:11px;font-weight:700;min-height:16px;margin-top:9px}.checkout-status.ok{color:#178246}.checkout-status.err{color:#c33d2f}
+.checkout-history{margin-top:18px;border-top:1px solid #e7ebf0;padding-top:18px}.checkout-history-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.checkout-history-head h3{margin:0;font-size:15px;color:#27313f}.checkout-history-head span{font-size:10px;color:#7c8797}.checkout-history-table{overflow:auto;max-height:270px;border:1px solid #e7ebf0;border-radius:12px}.checkout-history-table table{width:100%;border-collapse:collapse}.checkout-history-table th,.checkout-history-table td{padding:9px 11px;border-bottom:1px solid #eef1f4;text-align:left;font-size:10px;white-space:nowrap}.checkout-history-table th{position:sticky;top:0;background:#f8fafc;color:#667085;font-size:9px}.checkout-history-empty{padding:18px;color:#8a95a5;text-align:center;font-size:11px}
+@media(max-width:760px){.checkout-head{display:block}.checkout-meta{margin-top:15px}.checkout-grid{grid-template-columns:1fr}.checkout-row{grid-template-columns:1fr 105px}}
+</style>
+<script id="cmello-checkout-expedicao-20260929">
+(function(){
+ const canais=[
+  ['utilize_ml','Utilize — ML','Mercado Livre'],['utilize_shp','Utilize — SHP','Shopee'],['mimar_ml','Mimar — ML','Mercado Livre'],['tem_de_tudo_ml','Tem de Tudo — ML','Mercado Livre'],['tem_de_tudo_shp','Tem de Tudo — SHP','Shopee'],['multi_ml','Multi — ML','Mercado Livre'],['multi_shp','Multi — SHP','Shopee']
+ ];
+ const $=id=>document.getElementById(id);
+ const localDate=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`};
+ function ensure(){
+  const g=$('expedicao-controle'); if(!g||$('checkout-expedicao-panel'))return;
+  const menu=null;
+  if(menu&&!menu.querySelector('[data-clean="checkout"]')){
+   const b=document.createElement('button');b.type='button';b.dataset.clean='checkout';b.innerHTML='<small>EXPEDIÇÃO</small><b>Checkout</b><span>Pedidos por canal no início do dia.</span>';menu.appendChild(b);
+  }
+  const p=document.createElement('div');p.id='checkout-expedicao-panel';p.innerHTML=`<div class="checkout-shell">
+   <div class="checkout-head"><div><span class="eyebrow">GESTÃO E CONTROLE · EXPEDIÇÃO</span><h2>Checkout da Expedição</h2><p>Registre pela manhã a quantidade de pedidos de cada canal. O total é calculado automaticamente.</p></div><div class="checkout-meta"><label>Data do checkout<input id="checkout-data" type="date"></label></div></div>
+   <div class="checkout-grid">${canais.map(([k,n,s])=>`<label class="checkout-row"><span><b>${n}</b><small>${s}</small></span><input inputmode="numeric" min="0" step="1" type="number" placeholder="" data-checkout-canal="${k}"></label>`).join('')}</div>
+   <div class="checkout-total"><span>TOTAL DO CHECKOUT</span><b id="checkout-total">0 <em>pedidos</em></b></div>
+   <div class="checkout-actions"><div><div class="checkout-updated" id="checkout-updated">Ainda não atualizado nesta data.</div><div class="checkout-status" id="checkout-status"></div></div><div><button class="checkout-reload" id="checkout-reload" type="button">↻ Atualizar</button> <button class="checkout-save" id="checkout-save" type="button">Salvar checkout</button></div></div>
+   <div class="checkout-history"><div class="checkout-history-head"><h3>Histórico de alterações</h3><span>Data selecionada</span></div><div class="checkout-history-table" id="checkout-history"><div class="checkout-history-empty">Sem alterações registradas.</div></div></div>
+  </div>`;
+  const slot=$('expedicao-checkout-slot'); if(slot) slot.appendChild(p); else { const heading=g.querySelector('.page-heading'); (heading?heading.parentNode:g).insertBefore(p, heading?heading.nextSibling:g.firstChild); }
+  $('checkout-data').value=localDate();
+  p.querySelectorAll('[data-checkout-canal]').forEach(i=>i.addEventListener('input',sum));
+  $('checkout-data').addEventListener('change',load); $('checkout-reload').addEventListener('click',load); $('checkout-save').addEventListener('click',save);
+ }
+ function sum(){let t=0;document.querySelectorAll('#checkout-expedicao-panel [data-checkout-canal]').forEach(i=>t+=Math.max(0,parseInt(i.value||0,10)||0));$('checkout-total').innerHTML=`${t.toLocaleString('pt-BR')} <em>pedidos</em>`}
+ async function authorName(id){if(!id)return '';try{const {data}=await cloud.from('colaboradores').select('nome').eq('id',id).maybeSingle();return data?.nome||''}catch{return ''}}
+ async function load(){
+  const date=$('checkout-data')?.value||localDate(), st=$('checkout-status'); if(!st)return; st.className='checkout-status';st.textContent='Carregando...';
+  try{const {data,error}=await cloud.from('checkout_expedicao_diario').select('canal,quantidade,atualizado_em,atualizado_por').eq('data',date);if(error)throw error;
+   const map=Object.fromEntries((data||[]).map(r=>[r.canal,r])); document.querySelectorAll('#checkout-expedicao-panel [data-checkout-canal]').forEach(i=>i.value=map[i.dataset.checkoutCanal]?.quantidade??'');sum();
+   const rows=(data||[]).filter(r=>r.atualizado_em).sort((a,b)=>new Date(b.atualizado_em)-new Date(a.atualizado_em));
+   if(rows[0]){const n=await authorName(rows[0].atualizado_por),dt=new Date(rows[0].atualizado_em);$('checkout-updated').textContent=`Última atualização: ${dt.toLocaleString('pt-BR')} ${n?'· '+n:''}`}
+   else $('checkout-updated').textContent='Ainda não atualizado nesta data.'; await loadHistory(date); st.textContent='';
+  }catch(e){console.error(e);st.className='checkout-status err';st.textContent='Não foi possível carregar o checkout.'}
+ }
+ async function loadHistory(date){
+  const box=$('checkout-history');if(!box)return;
+  try{const {data,error}=await cloud.from('checkout_expedicao_historico').select('canal,quantidade_anterior,quantidade_nova,alterado_por,alterado_em').eq('data',date).order('alterado_em',{ascending:false}).limit(100);if(error)throw error;
+   if(!(data||[]).length){box.innerHTML='<div class="checkout-history-empty">Sem alterações registradas nesta data.</div>';return}
+   const names={};for(const r of data||[]){if(r.alterado_por&&!names[r.alterado_por])names[r.alterado_por]=await authorName(r.alterado_por)||'—'}
+   const labels=Object.fromEntries(canais.map(x=>[x[0],x[1]]));
+   box.innerHTML='<table><thead><tr><th>Horário</th><th>Conta</th><th>Anterior</th><th>Novo</th><th>Responsável</th></tr></thead><tbody>'+data.map(r=>`<tr><td>${new Date(r.alterado_em).toLocaleString('pt-BR')}</td><td>${labels[r.canal]||r.canal}</td><td>${r.quantidade_anterior==null?'—':r.quantidade_anterior}</td><td><b>${r.quantidade_nova}</b></td><td>${names[r.alterado_por]||'—'}</td></tr>`).join('')+'</tbody></table>';
+  }catch(e){console.warn('Histórico checkout:',e);box.innerHTML='<div class="checkout-history-empty">Histórico indisponível para este perfil.</div>'}
+ }
+ async function save(){
+  const st=$('checkout-status'),btn=$('checkout-save'),date=$('checkout-data').value; st.className='checkout-status';st.textContent='Salvando...';btn.disabled=true;
+  try{const {data:{user}}=await cloud.auth.getUser(); if(!user)throw new Error('Sessão não encontrada');
+   const rows=[...document.querySelectorAll('#checkout-expedicao-panel [data-checkout-canal]')].map(i=>({data:date,canal:i.dataset.checkoutCanal,quantidade:Math.max(0,parseInt(i.value||0,10)||0),atualizado_por:user.id,atualizado_em:new Date().toISOString()}));
+   const {error}=await cloud.from('checkout_expedicao_diario').upsert(rows,{onConflict:'data,canal'}); if(error)throw error;
+   st.className='checkout-status ok';st.textContent='Checkout salvo e sincronizado.';await load();
+  }catch(e){console.error(e);st.className='checkout-status err';st.textContent=e?.message?.includes('row-level security')?'Seu perfil não tem permissão para alterar o checkout.':'Erro ao salvar o checkout.'}finally{btn.disabled=false}
+ }
+ function openCheckout(btn){
+  const g=$('gestao');if(!g)return;ensure();
+  g.querySelectorAll('.gestao-panel[data-gestao-panel],#gestao-tab-equipe,#gestao-tab-logs,#gestao-tab-flex,#gestao-ponto-panel,#gestao-operator-log').forEach(x=>x.style.setProperty('display','none','important'));
+  g.querySelectorAll('.cmello-route-active,.active').forEach(x=>{if(x.closest('#gestao-area-intro'))return;x.classList.remove('cmello-route-active')});
+  $('gestao-area-intro')?.querySelectorAll(':scope > button').forEach(x=>x.classList.toggle('active',x===btn));
+  const p=$('checkout-expedicao-panel');p.style.setProperty('display','block','important');p.classList.add('active');load();
+ }
+ document.addEventListener('click',e=>{const b=e.target.closest('#gestao-area-intro > button[data-clean="checkout"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();openCheckout(b)},true);
+ document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="gestao"]'))setTimeout(ensure,120)},true);
+ document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="expedicao-controle"]'))setTimeout(()=>{ensure();const p=$('checkout-expedicao-panel');if(p){p.style.setProperty('display','block','important');p.classList.add('active');load();}},120)},true);
+ document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{ensure();const p=$('checkout-expedicao-panel');if(p&&$('expedicao-controle')?.classList.contains('active')){p.style.setProperty('display','block','important');p.classList.add('active');load();}},2100));window.addEventListener('mimar:system-login',()=>setTimeout(ensure,700));
+})();
+</script>
+
+<style id="cmello-expedicao-controle-style">
+#expedicao-controle #checkout-expedicao-panel{display:block!important;margin:0 0 18px}
+#expedicao-controle .page-heading{margin-bottom:18px}
+.tab[data-page="expedicao-controle"]:before{content:""!important}
+</style>
+
+<style id="cmello-dashboard-final-polish">
+/* Remove definitivamente a faixa superior antiga do login/header. */
+header{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
+.wrap{padding-top:18px!important}
+.pickup-strip{margin-top:0!important}
+/* Dashboard executivo mais compacto e clicável */
+#cmello-dash-v1 .cd-kpi{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+#cmello-dash-v1 .cd-kpi:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,24,40,.08);border-color:#cfd8e6!important}
+#cmello-dash-v1 .cd-kpi:after{content:'Abrir';position:absolute;right:14px;bottom:12px;font-size:8px;font-weight:900;color:#98a2b3;opacity:0;transition:.16s}
+#cmello-dash-v1 .cd-kpi:hover:after{opacity:1}
+#cmello-dash-v1 .cd-kpi{position:relative}
+#cmello-dash-v1 .cd-main{grid-template-columns:minmax(0,1.8fr) minmax(290px,.8fr)!important}
+#cmello-dash-v1 .cd-bottom{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+#cmello-dash-v1 .cd-panel{min-height:0!important}
+#cmello-dash-v1 .cd-bars{min-height:190px!important;height:190px!important}
+#cmello-dash-v1 .cd-accounts{max-height:230px!important;overflow:auto!important}
+@media(max-width:900px){.wrap{padding-top:14px!important}#cmello-dash-v1 .cd-main,#cmello-dash-v1 .cd-bottom{grid-template-columns:1fr!important}}
+</style>
+<script id="cmello-dashboard-final-actions">
+(()=>{
+ const tab=(page)=>document.querySelector(`.tab[data-page="${page}"]`);
+ function openPage(page){ const b=tab(page); if(b){b.click(); return true} return false }
+ function scrollToPickup(){ const p=document.getElementById('pickup-strip'); if(!p)return; p.scrollIntoView({behavior:'smooth',block:'start'}); p.animate([{boxShadow:'0 0 0 0 rgba(0,116,225,0)'},{boxShadow:'0 0 0 4px rgba(0,116,225,.18)'},{boxShadow:'0 0 0 0 rgba(0,116,225,0)'}],{duration:1100}); }
+ function focusRoutineExp(){ if(!openPage('minha-rotina'))return; setTimeout(()=>document.getElementById('routine-exp-step')?.scrollIntoView({behavior:'smooth',block:'center'}),120); }
+ function focusProduction(kind){ if(!openPage('producao-controle'))return; setTimeout(()=>{
+   const root=document.getElementById('producao-controle');
+   const candidates=[...root.querySelectorAll('button,[data-view],[data-tab],select option')];
+   const re=kind==='full'?/^full$/i:/estoque/i;
+   const hit=candidates.find(x=>re.test((x.textContent||x.value||'').trim()));
+   if(hit){ if(hit.tagName==='OPTION'){hit.parentElement.value=hit.value;hit.parentElement.dispatchEvent(new Event('change',{bubbles:true}))} else hit.click(); }
+   root.scrollIntoView({behavior:'smooth',block:'start'});
+ },140); }
+ function bind(){
+   const d=document.getElementById('cmello-dash-v1'); if(!d||d.dataset.finalBound)return;
+   d.dataset.finalBound='1';
+   const cards=d.querySelectorAll('.cd-kpi');
+   if(cards[0]){cards[0].dataset.go='';cards[0].onclick=e=>{e.stopPropagation();openPage('expedicao-controle')}}
+   if(cards[1]){cards[1].dataset.go='';cards[1].onclick=e=>{e.stopPropagation();openPage('card-page')}}
+   if(cards[2]){cards[2].dataset.go='';cards[2].onclick=e=>{e.stopPropagation();focusProduction('full')}}
+   if(cards[3]){cards[3].dataset.go='';cards[3].onclick=e=>{e.stopPropagation();focusProduction('estoque')}}
+   if(cards[4]){cards[4].dataset.go='';cards[4].onclick=e=>{e.stopPropagation();scrollToPickup()}}
+   if(cards[5]){cards[5].dataset.go='';cards[5].onclick=e=>{e.stopPropagation();focusRoutineExp()}}
+   const chart=d.querySelector('.cd-main .cd-panel:first-child'); if(chart){chart.style.cursor='pointer';chart.title='Abrir controle da Expedição';chart.onclick=()=>openPage('expedicao-controle')}
+   const accounts=d.querySelector('.cd-main .cd-panel:nth-child(2)'); if(accounts){accounts.style.cursor='pointer';accounts.title='Abrir Minha Rotina · Expedição';accounts.onclick=()=>focusRoutineExp()}
+ }
+ document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,1400));
+ const mo=new MutationObserver(()=>bind()); document.addEventListener('DOMContentLoaded',()=>mo.observe(document.body,{childList:true,subtree:true}));
+})();
+</script>
+\n<style id="cmello-permissions-matrix-v1">
+/* DEMO — Gestão > Colaboradores: permissões mais intuitivas */
+#permission-dashboard .perm-card{width:min(920px,94vw)!important;max-height:90vh;overflow:auto}
+.cmello-perm-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
+.cmello-perm-toolbar button{border:1px solid #d8dee5;background:#fff;border-radius:9px;padding:8px 11px;font:800 10px Inter;cursor:pointer;color:#344054}
+.cmello-perm-toolbar button:hover{background:#f7f9fb;border-color:#aeb8c4}
+.cmello-perm-table{border:1px solid #e5e9ee;border-radius:14px;overflow:hidden;background:#fff}
+.cmello-perm-head,.cmello-perm-row{display:grid;grid-template-columns:minmax(220px,1fr) 110px 110px;align-items:center}
+.cmello-perm-head{background:#f7f9fb;color:#667085;font:900 9px Inter;text-transform:uppercase;letter-spacing:.05em}
+.cmello-perm-head>div,.cmello-perm-row>div{padding:10px 14px}
+.cmello-perm-head>div:not(:first-child),.cmello-perm-row>div:not(:first-child{text-align:center;border-left:1px solid #eef1f4}
+.cmello-perm-row{border-top:1px solid #eef1f4}
+.cmello-perm-row:hover{background:#fbfcfd}
+.cmello-perm-area b{display:block;font:900 11px Inter;color:#273640}.cmello-perm-area small{display:block;margin-top:3px;color:#7a858d;font:600 9px/1.35 Inter}
+.cmello-switch{position:relative;display:inline-flex;width:38px;height:22px;vertical-align:middle}.cmello-switch input{opacity:0;width:0;height:0}.cmello-switch span{position:absolute;inset:0;border-radius:999px;background:#d7dde3;cursor:pointer;transition:.18s}.cmello-switch span:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0002;transition:.18s}.cmello-switch input:checked+span{background:#0074e1}.cmello-switch input:checked+span:before{transform:translateX(16px)}.cmello-switch input:disabled+span{opacity:.35;cursor:not-allowed}
+.cmello-admin-access{padding:14px;border:1px solid #cfe1f5;background:#f3f8fe;border-radius:12px;color:#31516f;font:700 10px/1.45 Inter;margin:12px 0}
+#permission-dashboard .perm-grid{display:none!important}
+@media(max-width:650px){.cmello-perm-head,.cmello-perm-row{grid-template-columns:minmax(150px,1fr) 82px 82px}.cmello-perm-head>div,.cmello-perm-row>div{padding:9px 8px}}
+</style>
+<script id="cmello-permissions-matrix-script-v1">
+(()=>{
+ const modules=[
+  ['dashboard','Visão Geral','Dashboard e indicadores da operação',false],
+  ['flex','Flex','Lançamentos e acompanhamento do Flex',true],
+  ['erros','Erros','Ocorrências e análise de erros',true],
+  ['expedicao','Expedição','Checkout, volume por canal e histórico',true],
+  ['card','Card do Dia','Resumo operacional diário',false],
+  ['producao','Produção','Full e produção de estoque',true],
+  ['estoque','Estoque','Consulta e alterações de estoque',true],
+  ['calculadora','Calculadora Medidas','Cálculo operacional de medidas',true],
+  ['medidas','Medidas','Cadastro de medidas, peso e cubagem',true],
+  ['rodizios','Rodízios','Escalas e responsáveis',true],
+  ['rotina','Minha Rotina','Atividades individuais e tarefas',true],
+  ['gestao','Gestão','Colaboradores, acessos e configurações',true]
+ ];
+ const modal=document.getElementById('permission-dashboard'); if(!modal)return;
+ const oldGrid=document.getElementById('perm-grid');
+ const note=modal.querySelector('.perm-note');
+ const table=document.createElement('div'); table.id='cmello-perm-matrix';
+ oldGrid?.insertAdjacentElement('afterend',table);
+ const toolbar=document.createElement('div');toolbar.className='cmello-perm-toolbar';toolbar.innerHTML='<button type="button" data-preset="view">Somente visualizar</button><button type="button" data-preset="leader">Perfil liderança</button><button type="button" data-preset="clear">Remover acessos</button>';
+ table.insertAdjacentElement('beforebegin',toolbar);
+ if(note)note.innerHTML='<b>Regra de acesso:</b> “Alterar” depende de “Visualizar”. Ao retirar a visualização de uma área, a alteração também é removida. Administradores possuem acesso total.';
+ let targetId='', current=[];
+ const role=document.getElementById('perm-role');
+ const readState=()=>{const p=[];table.querySelectorAll('[data-view]:checked').forEach(x=>p.push(x.dataset.view));table.querySelectorAll('[data-edit]:checked').forEach(x=>p.push(x.dataset.edit+':edit'));return [...new Set(p)]};
+ function draw(perms){current=Array.isArray(perms)?perms:[];const admin=role.value==='admin';table.innerHTML=admin?'<div class="cmello-admin-access"><b>Administrador · Acesso total</b><br>Este perfil pode visualizar e alterar todas as áreas do CMello Hub. Não é necessário configurar permissões individualmente.</div>':`<div class="cmello-perm-table"><div class="cmello-perm-head"><div>Área do sistema</div><div>Visualizar</div><div>Alterar</div></div>${modules.filter(m=>m[0]!=='gestao').map(([k,n,d,editable])=>{const v=current.includes(k),e=current.includes(k+':edit');return `<div class="cmello-perm-row"><div class="cmello-perm-area"><b>${n}</b><small>${d}</small></div><div><label class="cmello-switch"><input type="checkbox" data-view="${k}" ${v?'checked':''}><span></span></label></div><div>${editable?`<label class="cmello-switch"><input type="checkbox" data-edit="${k}" ${e?'checked':''} ${v?'':'disabled'}><span></span></label>`:'<span style="color:#98a2b3;font-weight:800">—</span>'}</div></div>`}).join('')}</div>`}
+ table.addEventListener('change',e=>{const v=e.target.closest('[data-view]');if(v){const ed=table.querySelector(`[data-edit="${v.dataset.view}"]`);if(ed){ed.disabled=!v.checked;if(!v.checked)ed.checked=false}}const ed=e.target.closest('[data-edit]');if(ed&&ed.checked){const vw=table.querySelector(`[data-view="${ed.dataset.edit}"]`);if(vw)vw.checked=true}});
+ toolbar.addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(!b||role.value==='admin')return;if(b.dataset.preset==='clear')draw([]);if(b.dataset.preset==='view')draw(modules.filter(m=>m[0]!=='gestao').map(m=>m[0]));if(b.dataset.preset==='leader'){const base=['dashboard','card','producao','estoque','calculadora','medidas','rodizios','rotina','expedicao'];draw(base.concat(['producao:edit','estoque:edit','calculadora:edit','medidas:edit','rodizios:edit','rotina:edit','expedicao:edit']))}});
+ const originalOpen=window.openPermissionDashboard;
+ window.openPermissionDashboard=(tr,id)=>{if(!window.isAdmin&&!document.body.classList.contains('admin-mode')){alert('Somente administradores podem alterar permissões.');return}targetId=id;const u=window.mimarAccessUsersById?.get(String(id));const nome=u?.nome||tr.querySelector('td b')?.textContent?.trim()||'Colaborador';let perfil=String(u?.perfil||tr.children[2]?.textContent||'colaborador').trim().toLowerCase();if(perfil.includes('lider'))perfil='lider';else if(perfil.includes('admin'))perfil='admin';else perfil='colaborador';document.getElementById('perm-title').textContent=`Acesso de ${nome}`;document.getElementById('perm-user-name').value=nome;role.value=perfil;draw(Array.isArray(u?.permissoes)?u.permissoes:[]);modal.classList.add('show')};
+ role.addEventListener('change',()=>draw(role.value==='admin'?modules.map(m=>m[0]).concat(modules.filter(m=>m[3]).map(m=>m[0]+':edit')):current.filter(p=>p!=='gestao'&&p!=='gestao:edit')));
+ const save=document.getElementById('perm-save');save.onclick=async()=>{if(!targetId)return;const btn=save;let perms=role.value==='admin'?modules.map(m=>m[0]).concat(modules.filter(m=>m[3]).map(m=>m[0]+':edit')):readState().filter(p=>!p.startsWith('gestao'));try{btn.disabled=true;btn.textContent='Salvando...';await window.mimarInvokeAccess({action:'update-permissions',id:targetId,perfil:role.value,permissoes:perms});modal.classList.remove('show');await window.mimarLoadAccess();window.mimarSetAccessStatus?.('Permissões atualizadas com sucesso.')}catch(err){alert(err?.message||err)}finally{btn.disabled=false;btn.textContent='Salvar permissões'}};
+ // Permissão da nova aba Expedição sem tocar no fluxo de autenticação.
+ const applyExp=()=>{if(window.isAdmin)return;const allowed=(window.mimarPermissions||[]).includes('expedicao');document.querySelectorAll('.tab[data-page="expedicao"]').forEach(x=>x.style.display=allowed?'flex':'none')};
+ window.addEventListener('mimar:system-login',()=>setTimeout(applyExp,500));window.addEventListener('load',()=>setTimeout(applyExp,1300));
+})();
+</script>\n
+<style id="cmello-access-actions-compact-v1">
+#gestao #access-management .access-actions-compact{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important;position:relative}
+#gestao #access-management .access-action-menu{position:relative;display:inline-flex}
+#gestao #access-management .access-action-trigger,#gestao #access-management .access-permissions-direct{white-space:nowrap!important;height:36px!important;min-height:36px!important;padding:0 12px!important;font-size:11px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;border-radius:9px!important}
+#gestao #access-management .access-permissions-direct{border-color:#b2ccff!important;color:#175cd3!important;background:#f5f8ff!important}
+#gestao #access-management .access-action-popover{position:absolute;z-index:120;right:0;top:calc(100% + 6px);width:170px;padding:6px;background:#fff;border:1px solid #e4e7ec;border-radius:11px;box-shadow:0 12px 30px rgba(16,24,40,.14)}
+#gestao #access-management .access-action-popover[hidden]{display:none!important}
+#gestao #access-management .access-action-popover button{display:block!important;width:100%!important;text-align:left!important;border:0!important;background:transparent!important;padding:9px 10px!important;border-radius:7px!important;font-size:11px!important}
+#gestao #access-management .access-action-popover button:hover{background:#f5f7fa!important}
+#gestao #access-management .access-action-popover .access-delete-btn{margin-top:4px!important;border-top:1px solid #f2f4f7!important;border-radius:0 0 7px 7px!important;color:#b42318!important;background:transparent!important}
+</style>
+<script id="cmello-access-actions-menu-fix">
+(function(){
+ const closeMenus=(except)=>document.querySelectorAll('.access-action-popover').forEach(p=>{if(p!==except)p.hidden=true;});
+ document.addEventListener('click',function(e){
+   const trigger=e.target.closest('[data-access-menu]');
+   if(trigger){
+     e.preventDefault();
+     e.stopPropagation();
+     const menu=trigger.closest('.access-action-menu');
+     const pop=menu?.querySelector('.access-action-popover');
+     if(!pop)return;
+     const willOpen=pop.hidden;
+     closeMenus(pop);
+     pop.hidden=!willOpen;
+     if(willOpen){
+       const r=trigger.getBoundingClientRect();
+       const width=170;
+       let left=Math.min(window.innerWidth-width-10,Math.max(10,r.right-width));
+       let top=r.bottom+6;
+       pop.style.position='fixed';
+       pop.style.left=left+'px';
+       pop.style.right='auto';
+       pop.style.top=top+'px';
+       pop.style.zIndex='20050';
+       requestAnimationFrame(()=>{
+         const pr=pop.getBoundingClientRect();
+         if(pr.bottom>window.innerHeight-10){pop.style.top=Math.max(10,r.top-pr.height-6)+'px'}
+       });
+     }
+     return;
+   }
+   if(e.target.closest('.access-action-popover')){
+     // A ação original da Gestão continua tratando Erros, Nova senha, Ativar/Desativar e Remover.
+     setTimeout(()=>closeMenus(),0);
+     return;
+   }
+   closeMenus();
+ });
+ window.addEventListener('scroll',()=>closeMenus(),true);
+ window.addEventListener('resize',()=>closeMenus());
+})();
+</script>
+
+<style id="cmello-access-actions-polish-v2">
+#gestao #access-management .access-table th:last-child,
+#gestao #access-management .access-table td:last-child{min-width:230px!important;width:230px!important;padding-left:16px!important;padding-right:16px!important}
+#gestao #access-management .access-actions-compact{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;min-width:198px!important}
+#gestao #access-management .access-action-trigger,
+#gestao #access-management .access-permissions-direct{box-sizing:border-box!important;height:40px!important;min-height:40px!important;padding:0 15px!important;font-size:12px!important;font-weight:700!important;line-height:1!important;border-radius:10px!important;white-space:nowrap!important}
+#gestao #access-management .access-action-trigger{min-width:82px!important;gap:7px!important}
+#gestao #access-management .access-permissions-direct{min-width:104px!important}
+#gestao #access-management .access-action-trigger span{display:inline-flex!important;align-items:center!important;margin-left:1px!important;font-size:10px!important}
+#gestao #access-management .access-action-popover{box-sizing:border-box!important;width:190px!important;padding:8px!important;border-radius:12px!important;overflow:visible!important}
+#gestao #access-management .access-action-popover button{box-sizing:border-box!important;min-height:38px!important;padding:10px 12px!important;font-size:12px!important;line-height:1.25!important}
+</style>
+<script id="cmello-access-actions-capture-fix-v2">
+(function(){
+ function closeAll(except){document.querySelectorAll('.access-action-popover').forEach(p=>{if(p!==except)p.hidden=true;});}
+ document.addEventListener('click',function(e){
+   const trigger=e.target.closest('#gestao #access-management [data-access-menu]');
+   if(!trigger)return;
+   e.preventDefault();
+   e.stopPropagation();
+   e.stopImmediatePropagation();
+   const pop=trigger.closest('.access-action-menu')?.querySelector('.access-action-popover');
+   if(!pop)return;
+   const open=pop.hidden;
+   closeAll(pop);
+   if(!open){pop.hidden=true;return;}
+   pop.hidden=false;
+   const r=trigger.getBoundingClientRect(), w=190;
+   pop.style.position='fixed';
+   pop.style.width=w+'px';
+   pop.style.left=Math.min(window.innerWidth-w-12,Math.max(12,r.left))+'px';
+   pop.style.right='auto';
+   pop.style.top=(r.bottom+8)+'px';
+   pop.style.zIndex='99999';
+   requestAnimationFrame(()=>{
+     const pr=pop.getBoundingClientRect();
+     if(pr.bottom>window.innerHeight-12) pop.style.top=Math.max(12,r.top-pr.height-8)+'px';
+   });
+ },true);
+ document.addEventListener('click',function(e){if(!e.target.closest('.access-action-popover'))closeAll();});
+})();
+</script>
+
+<style id="cmello-gestao-clean-v1">
+/* CMello Hub — cabeçalho clean de Colaboradores e Acessos */
+.cmello-clean-access-header{position:relative!important;padding:24px 28px 20px!important;min-height:auto!important;background:#fff!important;border-radius:18px 18px 0 0!important;}
+.cmello-clean-access-header:after{content:"";position:absolute;left:28px;bottom:0;width:46px;height:3px;border-radius:999px;background:#0878ed;}
+.cmello-clean-access-header h1,.cmello-clean-access-header h2,.cmello-clean-access-header h3{margin:0 0 5px!important;font-size:28px!important;line-height:1.15!important;letter-spacing:-.45px!important;color:#101828!important;}
+.cmello-clean-access-header p{margin:0!important;font-size:15px!important;line-height:1.5!important;color:#667085!important;}
+.cmello-clean-access-header .cmello-access-icon-hidden{display:none!important;}
+</style>
+<script id="cmello-gestao-clean-v1-js">
+(function(){
+ function clean(){
+  const els=[...document.querySelectorAll('h1,h2,h3,h4')];
+  const title=els.find(e=>e.textContent.trim()==='Colaboradores e Acessos');
+  if(!title) return;
+  let box=title.parentElement;
+  // Prefer the compact header row containing title/subtitle, not the entire page card.
+  for(let i=0;i<3 && box;i++){
+    const txt=(box.innerText||'');
+    if(txt.includes('Gerencie usuários, perfis e permissões do sistema.') && txt.length<220) break;
+    box=box.parentElement;
+  }
+  if(!box) return;
+  box.classList.add('cmello-clean-access-header');
+  // Hide decorative icon block(s) before the title, without touching controls after it.
+  const walker=[...box.children];
+  for(const child of walker){
+    if(child===title || child.contains(title)) continue;
+    const t=(child.innerText||'').trim();
+    const r=child.getBoundingClientRect();
+    if(!t && r.width<=90 && r.height<=90){child.classList.add('cmello-access-icon-hidden');}
+  }
+  // Common case: title is inside text wrapper and icon is its previous sibling.
+  let wrap=title.parentElement;
+  if(wrap && wrap.previousElementSibling){
+    const prev=wrap.previousElementSibling;
+    if(!(prev.innerText||'').trim()) prev.classList.add('cmello-access-icon-hidden');
+  }
+ }
+ document.addEventListener('DOMContentLoaded',()=>{clean();setTimeout(clean,250);setTimeout(clean,1000)});
+ new MutationObserver(()=>clean()).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<style id="cmello-consolidado-2909">
+/* Gestão > Colaboradores — acabamento consolidado */
+#gestao #access-management .access-head{padding:22px 26px!important;gap:28px!important;border-bottom:1px solid #eef1f4!important}
+#gestao #access-management .access-head>div:first-child{padding-left:0!important;min-height:0!important}
+#gestao #access-management .access-head>div:first-child:before{content:none!important;display:none!important}
+#gestao #access-management .access-head .mgmt-eyebrow{display:none!important}
+#gestao #access-management .access-head h2{font-size:24px!important;line-height:1.15!important;margin:0 0 6px!important;color:#101828!important;letter-spacing:-.35px!important}
+#gestao #access-management .access-head p{font-size:13px!important;line-height:1.45!important;color:#667085!important;margin:0!important}
+#gestao #access-management .access-head-actions{gap:10px!important}
+#gestao #access-management .access-head-actions input{height:44px!important;border-radius:11px!important;padding:0 15px!important;font-size:13px!important}
+#gestao #access-management .access-head-actions .btn{height:44px!important;border-radius:11px!important;padding:0 17px!important;font-size:11px!important}
+/* Perfis */
+#gestao #access-management .access-badge.admin{background:#e8f2ff!important;color:#0874e8!important;border:1px solid #b9d8ff!important}
+#gestao #access-management .access-badge.leader{background:#fff4d8!important;color:#a76300!important;border:1px solid #f4d58a!important}
+#gestao #access-management .access-badge:not(.admin):not(.leader){background:#f1f3f5!important;color:#536273!important;border:1px solid #e2e7ec!important}
+/* Ações e permissões */
+#gestao #access-management .access-table th:last-child,#gestao #access-management .access-table td:last-child{min-width:230px!important;width:230px!important}
+#gestao #access-management .access-actions-compact{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;overflow:visible!important}
+#gestao #access-management .access-action-trigger,#gestao #access-management .access-permissions-direct{height:40px!important;min-width:94px!important;padding:0 15px!important;border-radius:10px!important;font-size:12px!important;font-weight:800!important;line-height:1!important}
+#gestao #access-management .access-permissions-direct{min-width:112px!important}
+#gestao #access-management .access-action-trigger span{margin-left:2px!important}
+#gestao #access-management .access-table-wrap,#gestao #access-management table,#gestao #access-management tbody,#gestao #access-management tr,#gestao #access-management td{overflow:visible!important}
+#gestao #access-management .access-action-popover{position:fixed!important;width:190px!important;padding:7px!important;border-radius:12px!important;box-shadow:0 18px 45px rgba(16,24,40,.18)!important;z-index:2147483000!important}
+#gestao #access-management .access-action-popover button{width:100%!important;min-height:38px!important;padding:0 11px!important;text-align:left!important;border-radius:8px!important;font-size:12px!important}
+/* Matriz de permissões — respiro e colunas claras */
+#permission-dashboard .perm-card{width:min(980px,95vw)!important;padding:26px!important}
+#permission-dashboard .perm-head{margin-bottom:18px!important}
+#permission-dashboard .perm-profile{gap:16px!important;margin-bottom:16px!important}
+#permission-dashboard .cmello-perm-toolbar{margin:16px 0 12px!important;gap:10px!important}
+#permission-dashboard .cmello-perm-toolbar button{padding:9px 13px!important;font-size:10px!important}
+#permission-dashboard .cmello-perm-table{border-radius:14px!important;overflow:hidden!important}
+#permission-dashboard .cmello-perm-head,#permission-dashboard .cmello-perm-row{grid-template-columns:minmax(360px,1fr) 130px 130px!important}
+#permission-dashboard .cmello-perm-head>div{padding:13px 18px!important}
+#permission-dashboard .cmello-perm-row>div{padding:15px 18px!important;min-width:0!important}
+#permission-dashboard .cmello-perm-area{display:flex!important;flex-direction:column!important;gap:5px!important}
+#permission-dashboard .cmello-perm-area b{font-size:13px!important;line-height:1.25!important;color:#17212b!important}
+#permission-dashboard .cmello-perm-area small{margin:0!important;font-size:10px!important;line-height:1.45!important;color:#7a858d!important}
+#permission-dashboard .cmello-perm-head>div:not(:first-child),#permission-dashboard .cmello-perm-row>div:not(:first-child){display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #eef1f4!important}
+#permission-dashboard .perm-note{margin-top:16px!important;padding:13px 15px!important;line-height:1.5!important}
+@media(max-width:760px){#permission-dashboard .cmello-perm-head,#permission-dashboard .cmello-perm-row{grid-template-columns:minmax(190px,1fr) 86px 86px!important}#permission-dashboard .cmello-perm-head>div,#permission-dashboard .cmello-perm-row>div{padding:11px 9px!important}}
+</style>
+<script id="cmello-coletas-persistencia-2909">
+(()=>{
+  /* Coletas: Supabase é a fonte oficial da programação; localStorage é apenas fallback. */
+  const originalLoad=window.pickupLoadCloudStatus;
+  const originalSave=window.pickupSaveLocal;
+  let loading=false;
+  async function durableLoad(){
+    if(loading || !window.cloud || typeof window.pickupTodayKey!=='function') return;
+    loading=true;
+    try{
+      const [cfg,day]=await Promise.all([
+        cloud.from('coletas_config').select('coleta_id,nome_conta,horario_inicio,horario_fim,ativo,ordem').eq('ativo',true).order('ordem',{ascending:true}),
+        cloud.from('coletas_diarias').select('coleta_id,coletado,coletado_em').eq('data',pickupTodayKey())
+      ]);
+      if(cfg.error) throw cfg.error;
+      if(day.error) throw day.error;
+      if(Array.isArray(cfg.data) && cfg.data.length){
+        const dm=new Map((day.data||[]).map(r=>[String(r.coleta_id),r]));
+        window.pickupSchedule=cfg.data.map(c=>{const d=dm.get(String(c.coleta_id));return {id:String(c.coleta_id),name:c.nome_conta||'Conta',start:c.horario_inicio?String(c.horario_inicio).slice(0,5):'',end:c.horario_fim?String(c.horario_fim).slice(0,5):'',collected:!!d?.coletado,collectedAt:d?.coletado_em?new Date(d.coletado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):null}});
+        try{localStorage.setItem('mimar_pickup_schedule_date_v1',pickupTodayKey());localStorage.setItem('mimar_pickup_schedule_demo_v1',JSON.stringify(window.pickupSchedule))}catch(_){ }
+        window.renderPickups?.();
+      } else if(typeof originalLoad==='function') await originalLoad();
+    }catch(e){console.warn('Coletas · persistência:',e); if(typeof originalLoad==='function') try{await originalLoad()}catch(_){}}
+    finally{loading=false}
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(durableLoad,1800));
+  window.addEventListener('focus',durableLoad);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)durableLoad()});
+  window.addEventListener('mimar:system-login',()=>setTimeout(durableLoad,500));
+})();
+</script>
 </body>
 </html>
 <style id="measure-guide-image-fix">@media(max-width:1000px){.measure-guide{display:flex!important;padding:10px!important}.measure-guide-image{max-height:430px;object-fit:contain}}@media(max-width:640px){.measure-guide{display:flex!important}.measure-guide-image{max-height:none}}
@@ -11643,5 +12209,147 @@ body:not(:has(#gestao.active)) .pickup-strip{display:block!important}
  document.addEventListener('click',function(e){if(e.target.closest('.tab[data-page="gestao"]'))setTimeout(init,80)},true);
  document.addEventListener('DOMContentLoaded',()=>{setTimeout(init,350);setTimeout(()=>{normalize();const b=$('gestao-ponto-btn');if(b)b.onclick=null},1800)});
  window.addEventListener('mimar:system-login',()=>setTimeout(()=>{init();normalize();const b=$('gestao-ponto-btn');if(b)b.onclick=null},500));
+})();
+</script>
+<style id="cmello-dashboard-interativo-v1">
+#dashboard .cmello-dash-v1{display:block;margin:0 0 18px}.cmello-dash-v1 *{box-sizing:border-box}.cd-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:0 0 12px}.cd-head h2{margin:0;font-size:21px;color:#101828}.cd-head p{margin:3px 0 0;color:#667085;font-size:11px}.cd-period{display:flex;padding:3px;background:#f2f4f7;border-radius:10px;gap:2px}.cd-period button{border:0;background:transparent;padding:7px 11px;border-radius:7px;font:800 10px Inter;color:#667085;cursor:pointer}.cd-period button.active{background:#fff;color:#0074e1;box-shadow:0 2px 8px rgba(16,24,40,.08)}.cd-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}.cd-kpi{position:relative;border:1px solid #e4e7ec;background:#fff;border-radius:13px;padding:12px 13px;min-height:88px;cursor:pointer;transition:.16s;overflow:hidden}.cd-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,24,40,.07)}.cd-kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#0074e1}.cd-kpi:nth-child(2):before,.cd-kpi:nth-child(5):before{background:#c9eb19}.cd-kpi small{display:block;color:#667085;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}.cd-kpi strong{display:block;color:#101828;font-size:24px;line-height:1;margin:8px 0 5px}.cd-kpi span{display:block;color:#667085;font-size:8px}.cd-main{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:10px;margin-top:10px}.cd-panel{border:1px solid #e4e7ec;background:#fff;border-radius:14px;padding:14px;min-width:0}.cd-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.cd-panel-head h3{margin:0;color:#101828;font-size:14px}.cd-panel-head span{font-size:8px;color:#667085}.cd-bars{height:145px;display:flex;align-items:flex-end;gap:9px;padding:8px 3px 0;border-bottom:1px solid #eaecf0}.cd-bar-group{flex:1;display:flex;justify-content:center;align-items:flex-end;height:100%;position:relative}.cd-bar{width:min(48%,34px);min-height:3px;border-radius:6px 6px 2px 2px;background:#0074e1;transition:.2s;position:relative}.cd-bar em{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:800 8px Inter;color:#344054;font-style:normal}.cd-bar-label{position:absolute;bottom:-27px;left:50%;transform:translateX(-50%);font-size:7px;color:#667085;white-space:nowrap}.cd-legend{display:flex;gap:12px;margin-top:33px;font-size:8px;color:#667085}.cd-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#0074e1;margin-right:4px}.cd-accounts{display:grid;gap:6px;max-height:208px;overflow:auto}.cd-account{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:8px 10px;border:1px solid #eaecf0;border-radius:9px}.cd-account b{font-size:10px;color:#344054}.cd-account strong{font-size:10px;color:#101828}.cd-account small{font-size:8px;color:#667085}.cd-status{font-size:7px!important;font-weight:900!important}.cd-status.on{color:#067647!important}.cd-status.off{color:#667085!important}.cd-bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.cd-progress{height:8px;background:#f2f4f7;border-radius:999px;overflow:hidden;margin:8px 0 7px}.cd-progress i{display:block;height:100%;background:#0074e1;border-radius:inherit}.cd-rhythm{display:flex;justify-content:space-between;gap:7px}.cd-rhythm div{flex:1;background:#f8fafc;border-radius:8px;padding:8px}.cd-rhythm small{font-size:7px;color:#667085;display:block}.cd-rhythm b{font-size:13px;color:#101828}.cd-alerts{display:grid;grid-template-columns:1fr 1fr;gap:6px}.cd-alert{display:flex;align-items:center;gap:7px;border:1px solid #eaecf0;border-radius:8px;padding:8px 9px;font-size:9px;color:#475467}.cd-alert i{width:7px;height:7px;border-radius:50%;background:#f79009;flex:0 0 auto}.cd-alert.ok i{background:#12b76a}.cd-alert.bad i{background:#f04438}.cd-updated{font-size:8px;color:#98a2b3;margin-top:8px;text-align:right}@media(max-width:1250px){.cd-kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:850px){.cd-main,.cd-bottom{grid-template-columns:1fr}.cd-kpis{grid-template-columns:repeat(2,1fr)}.cd-alerts{grid-template-columns:1fr}}
+</style>
+<script id="cmello-dashboard-interativo-v1-script">
+(()=>{const $=id=>document.getElementById(id),fmt=n=>(Number(n)||0).toLocaleString('pt-BR'),localDay=(d=new Date())=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)};
+function shell(){if($('cmello-dash-v1'))return;const page=$('dashboard');if(!page)return;const old=page.querySelector('.central-dia-cmello');const box=document.createElement('div');box.id='cmello-dash-v1';box.className='cmello-dash-v1';box.innerHTML=`<div class="cd-head"><div><h2>Central da Operação</h2><p>Visão consolidada do CMello Hub em tempo real.</p></div><div class="cd-period"><button class="active" data-cdp="today">Hoje</button><button data-cdp="yesterday">Ontem</button><button data-cdp="week">Semana</button><button data-cdp="month">Mês</button></div></div><div class="cd-kpis"><div class="cd-kpi" data-go="expedicao-controle"><small>Checkout</small><strong id="cd-checkout">0</strong><span>pedidos informados</span></div><div class="cd-kpi" data-go="card"><small>Expedidos</small><strong id="cd-expedidos">0</strong><span>volume processado</span></div><div class="cd-kpi" data-go="producao"><small>Produção Full</small><strong id="cd-full">0</strong><span>unidades produzidas</span></div><div class="cd-kpi" data-go="producao"><small>Produção Estoque</small><strong id="cd-stockprod">0</strong><span>unidades produzidas</span></div><div class="cd-kpi"><small>Coletas</small><strong id="cd-coletas">0/0</strong><span id="cd-coletas-sub">status de hoje</span></div><div class="cd-kpi" data-go="rotina"><small>Contas em operação</small><strong id="cd-contas">0</strong><span>contas ativas agora</span></div></div><div class="cd-main"><div class="cd-panel"><div class="cd-panel-head"><div><h3>Volume por canal</h3><span>Distribuição do checkout informado</span></div><b id="cd-chart-total">0 pedidos</b></div><div class="cd-bars" id="cd-bars"></div><div class="cd-legend"><span><i class="cd-dot"></i>Pedidos informados no checkout</span></div></div><div class="cd-panel"><div class="cd-panel-head"><div><h3>Contas da Expedição</h3><span>Operadores ativos neste momento</span></div></div><div class="cd-accounts" id="cd-accounts"></div></div></div><div class="cd-bottom"><div class="cd-panel"><div class="cd-panel-head"><div><h3>Ritmo da Expedição</h3><span>Checkout informado × volume expedido</span></div><b id="cd-coverage">—</b></div><div class="cd-progress"><i id="cd-progress" style="width:0%"></i></div><div class="cd-rhythm"><div><small>Checkout</small><b id="cd-r-check">0</b></div><div><small>Expedidos</small><b id="cd-r-exp">0</b></div><div><small>Diferença</small><b id="cd-r-diff">0</b></div></div></div><div class="cd-panel"><div class="cd-panel-head"><div><h3>Atenção da Gestão</h3><span>Pontos que merecem acompanhamento</span></div></div><div class="cd-alerts" id="cd-alerts"></div></div></div><div class="cd-updated" id="cd-updated"></div>`;page.insertBefore(box,old||page.firstChild);if(old)old.style.display='none';box.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(!c)return;document.querySelector(`.tab[data-page="${c.dataset.go}"]`)?.click()});box.querySelectorAll('[data-cdp]').forEach(b=>b.onclick=()=>{box.querySelectorAll('[data-cdp]').forEach(x=>x.classList.toggle('active',x===b));load(b.dataset.cdp)})}
+function range(p){let end=new Date(),start=new Date();if(p==='yesterday'){start.setDate(start.getDate()-1);end=new Date(start)}else if(p==='week'){start.setDate(start.getDate()-6)}else if(p==='month'){start=new Date(start.getFullYear(),start.getMonth(),1)}return[localDay(start),localDay(end)]}
+async function q(table,select='*'){let r=window.cloud.from(table).select(select);return r}
+async function load(p='today'){shell();if(!window.cloud)return;const [a,b]=range(p);try{const dayNow=localDay();const req=[cloud.from('checkout_expedicao_diario').select('data,canal,quantidade,atualizado_em').gte('data',a).lte('data',b),cloud.from('expedicao').select('data,quantidade,marketplace').gte('data',a).lte('data',b),cloud.from('producao').select('quantidade,tipo,data').gte('data',a).lte('data',b),cloud.from('coletas_diarias').select('coleta_id,coletado,coletado_em').eq('data',dayNow),cloud.from('coletas_config').select('coleta_id,nome_conta').eq('ativo',true),cloud.from('rotina_expedicao_sessoes').select('colaborador_id,conta,status,inicio,fim').eq('data',dayNow).is('fim',null),cloud.from('colaboradores').select('id,nome').eq('ativo',true),cloud.from('estoque_controle').select('urgencia')];const rr=await Promise.all(req);rr.forEach(x=>{if(x.error)console.warn('Dashboard fonte:',x.error)});const [ck,ex,pr,co,cfg,se,people,stock]=rr;const checkout=(ck.data||[]).reduce((s,x)=>s+(+x.quantidade||0),0);const exped=(ex.data||[]).reduce((s,x)=>s+(+x.quantidade||0),0);let full=0,stockProd=0;(pr.data||[]).forEach(x=>{/full/i.test(x.tipo||'')?full+=+x.quantidade||0:/estoque/i.test(x.tipo||'')?stockProd+=+x.quantidade||0:0});$('cd-checkout').textContent=fmt(checkout);$('cd-expedidos').textContent=fmt(exped);$('cd-full').textContent=fmt(full);$('cd-stockprod').textContent=fmt(stockProd);const cs=co.data||[],totalCollections=(cfg.data||[]).length||cs.length,done=cs.filter(x=>x.coletado===true).length;$('cd-coletas').textContent=done+'/'+totalCollections;$('cd-coletas-sub').textContent=totalCollections?'concluídas hoje':'sem coletas configuradas';const sessions=(se.data||[]).filter(x=>!x.fim&&String(x.status||'').toLowerCase()!=='concluido');const accountNames=new Set(sessions.map(x=>normalizeAccount(x.conta)).filter(Boolean));$('cd-contas').textContent=fmt(accountNames.size);$('cd-r-check').textContent=fmt(checkout);$('cd-r-exp').textContent=fmt(exped);const diff=exped-checkout;$('cd-r-diff').textContent=(diff>0?'+':'')+fmt(diff);const cov=checkout?exped/checkout*100:0;$('cd-coverage').textContent=checkout?cov.toFixed(1).replace('.',',')+'%':'Aguardando checkout';$('cd-progress').style.width=Math.min(100,Math.max(0,cov))+'%';renderBars(ck.data||[]);const names=new Map((people.data||[]).map(x=>[String(x.id),x.nome]));renderAccounts(sessions,names);const urgent=(stock.data||[]).filter(x=>/urgente/i.test(x.urgencia||'')).length,attention=(stock.data||[]).filter(x=>/aten[cç][aã]o/i.test(x.urgencia||'')).length;renderAlerts({checkout,exped,totalCollections,done,sessions,urgent,attention});const latest=(ck.data||[]).map(x=>x.atualizado_em).filter(Boolean).sort().pop();$('cd-updated').textContent='Dashboard atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+(latest?' · checkout alterado '+new Date(latest).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'')}catch(e){console.warn('Dashboard interativo:',e);$('cd-alerts').innerHTML='<div class="cd-alert bad"><i></i><span>Não foi possível carregar uma ou mais fontes do dashboard.</span></div>'}}
+const labels={utilize_ml:'Utilize ML',utilize_shp:'Utilize SHP',mimar_ml:'Mimar ML',tem_de_tudo_ml:'Tem Tudo ML',tem_de_tudo_shp:'Tem Tudo SHP',multi_ml:'Multi ML',multi_shp:'Multi SHP'};
+function renderBars(rows){const sums={};rows.forEach(x=>sums[x.canal]=(sums[x.canal]||0)+(+x.quantidade||0));const entries=Object.entries(labels),max=Math.max(1,...entries.map(([k])=>sums[k]||0));$('cd-bars').innerHTML=entries.map(([k,l])=>{const v=sums[k]||0;return`<div class="cd-bar-group"><i class="cd-bar" title="${l}: ${fmt(v)}" style="height:${Math.max(3,v/max*100)}%"><em>${v?fmt(v):''}</em></i><span class="cd-bar-label">${l}</span></div>`}).join('');$('cd-chart-total').textContent=fmt(Object.values(sums).reduce((a,b)=>a+b,0))+' pedidos'}
+function normalizeAccount(v){return String(v||'').split('—')[0].trim()}
+function renderAccounts(rows,names){const map={};rows.forEach(x=>{const k=normalizeAccount(x.conta)||'Conta';(map[k]??=[]).push(names.get(String(x.colaborador_id))||'Operador')});const e=Object.entries(map);$('cd-accounts').innerHTML=e.length?e.slice(0,8).map(([k,v])=>`<div class="cd-account"><b>${k}</b><strong>${v.length} operador${v.length>1?'es':''}</strong><small>${[...new Set(v)].join(' + ')}</small><small class="cd-status on">● Em operação</small></div>`).join(''):'<div class="cd-account"><b>Nenhuma conta ativa</b><strong>0 operadores</strong><small>As contas aparecerão quando forem assumidas em Minha Rotina.</small><small class="cd-status off">○ Aguardando</small></div>'}
+function renderAlerts(x){const arr=[];if(!x.checkout)arr.push(['bad','Checkout do dia ainda não informado']);if(x.totalCollections&&x.done<x.totalCollections)arr.push(['',(x.totalCollections-x.done)+' coleta(s) ainda não concluída(s)']);if(!x.sessions.length)arr.push(['','Nenhuma conta de Expedição ativa agora']);if(x.urgent)arr.push(['bad',x.urgent+' produto(s) com estoque urgente']);if(x.attention)arr.push(['',x.attention+' produto(s) em atenção no estoque']);if(x.checkout&&x.exped>=x.checkout)arr.push(['ok','Expedição alcançou o volume do checkout informado']);if(!arr.length)arr.push(['ok','Nenhuma atenção operacional identificada']);$('cd-alerts').innerHTML=arr.slice(0,6).map(a=>`<div class="cd-alert ${a[0]}"><i></i><span>${a[1]}</span></div>`).join('')}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>load(),1000));window.addEventListener('focus',()=>load(document.querySelector('[data-cdp].active')?.dataset.cdp||'today'));window.cmelloDashboardReload=load;
+})();
+</script>
+
+
+<style id="cmello-permissoes-layout-corrigido-v2">
+/* Correção visual definitiva da matriz de permissões */
+#permission-dashboard .perm-card{width:min(1040px,96vw)!important;max-width:1040px!important;padding:26px!important;box-sizing:border-box!important}
+#permission-dashboard #cmello-perm-matrix{width:100%!important;min-width:0!important}
+#permission-dashboard .cmello-perm-table{width:100%!important;box-sizing:border-box!important;border:1px solid #e4e7ec!important;border-radius:14px!important;overflow:hidden!important}
+#permission-dashboard .cmello-perm-head,
+#permission-dashboard .cmello-perm-row{display:grid!important;grid-template-columns:minmax(360px,1fr) 125px 125px!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important}
+#permission-dashboard .cmello-perm-head>div{display:flex!important;align-items:center!important;min-height:44px!important;padding:0 20px!important;box-sizing:border-box!important}
+#permission-dashboard .cmello-perm-head>div:nth-child(2),
+#permission-dashboard .cmello-perm-head>div:nth-child(3){justify-content:center!important}
+#permission-dashboard .cmello-perm-row{min-height:72px!important;border-top:1px solid #edf0f3!important;background:#fff!important}
+#permission-dashboard .cmello-perm-row>div{display:flex!important;align-items:center!important;padding:14px 20px!important;box-sizing:border-box!important;min-width:0!important}
+#permission-dashboard .cmello-perm-row>div:nth-child(2),
+#permission-dashboard .cmello-perm-row>div:nth-child(3){justify-content:center!important;border-left:1px solid #edf0f3!important}
+#permission-dashboard .cmello-perm-area{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:6px!important}
+#permission-dashboard .cmello-perm-area b{display:block!important;width:100%!important;margin:0!important;font:800 14px/1.25 Inter,Arial,sans-serif!important;color:#182230!important;white-space:normal!important}
+#permission-dashboard .cmello-perm-area small{display:block!important;width:100%!important;margin:0!important;font:500 11px/1.4 Inter,Arial,sans-serif!important;color:#667085!important;white-space:normal!important}
+#permission-dashboard .cmello-perm-toolbar{margin:16px 0 14px!important;gap:10px!important}
+#permission-dashboard .cmello-perm-toolbar button{min-height:38px!important;padding:0 14px!important}
+#permission-dashboard .perm-note{margin-top:16px!important;padding:14px 16px!important;line-height:1.5!important}
+/* Cores dos perfis */
+#gestao #access-management .role-badge[data-role="admin"],
+#gestao #access-management .access-role.admin,
+#gestao #access-management .badge-admin{background:#eaf3ff!important;color:#0068cf!important;border-color:#bddbff!important}
+#gestao #access-management .role-badge[data-role="lider"],
+#gestao #access-management .access-role.lider,
+#gestao #access-management .badge-lider{background:#fff4d8!important;color:#a15c00!important;border-color:#f6d78d!important}
+@media(max-width:760px){
+ #permission-dashboard .cmello-perm-head,#permission-dashboard .cmello-perm-row{grid-template-columns:minmax(210px,1fr) 92px 92px!important}
+ #permission-dashboard .cmello-perm-head>div,#permission-dashboard .cmello-perm-row>div{padding-left:12px!important;padding-right:12px!important}
+}
+</style>
+
+<!-- CMello Hub · ajuste final Gestão / Permissões 29-09-2026 -->
+<style id="cmello-ajuste-acoes-fechar-permissoes-final">
+/* Cabeçalho clean: remove definitivamente o ícone legado, inclusive estilos carregados depois */
+#gestao #access-management .access-head>div:first-child{padding-left:0!important;min-height:auto!important}
+#gestao #access-management .access-head>div:first-child:before{content:none!important;display:none!important}
+
+/* Ações | Permissões — caixas alinhadas, texto centralizado e respiro consistente */
+#gestao #access-management .access-table th:last-child,
+#gestao #access-management .access-table td:last-child{width:280px!important;min-width:280px!important;padding-left:18px!important;padding-right:18px!important}
+#gestao #access-management .access-actions-compact{
+  display:grid!important;
+  grid-template-columns:112px 128px!important;
+  align-items:center!important;
+  justify-content:start!important;
+  column-gap:12px!important;
+  width:max-content!important;
+  overflow:visible!important;
+}
+#gestao #access-management .access-action-menu{display:block!important;width:112px!important;position:relative!important}
+#gestao #access-management .access-action-trigger,
+#gestao #access-management .access-permissions-direct{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  height:42px!important;
+  min-height:42px!important;
+  margin:0!important;
+  padding:0 16px!important;
+  border-radius:11px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  white-space:nowrap!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1!important;
+}
+#gestao #access-management .access-action-trigger span{display:inline-flex!important;margin:0!important;font-size:10px!important;line-height:1!important;transform:translateY(1px)}
+#gestao #access-management .access-permissions-direct{width:128px!important}
+
+/* Modal: botão X fica preso à tela e não some ao rolar o conteúdo */
+#permission-dashboard.show{overflow:hidden!important}
+#permission-dashboard .perm-card{position:relative!important}
+#permission-dashboard #perm-x{
+  position:fixed!important;
+  top:18px!important;
+  right:18px!important;
+  z-index:2147483647!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  padding:0!important;
+  margin:0!important;
+  border:1px solid #d0d5dd!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#344054!important;
+  box-shadow:0 8px 24px rgba(16,24,40,.16)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font:500 27px/1 Arial,sans-serif!important;
+  cursor:pointer!important;
+}
+#permission-dashboard #perm-x:hover{background:#f8fafc!important;border-color:#98a2b3!important;color:#101828!important}
+/* O X sai do fluxo do cabeçalho; reserva só um pequeno respiro no título */
+#permission-dashboard .perm-head{padding-right:0!important}
+
+@media(max-width:700px){
+ #gestao #access-management .access-table th:last-child,
+ #gestao #access-management .access-table td:last-child{width:244px!important;min-width:244px!important;padding-left:12px!important;padding-right:12px!important}
+ #gestao #access-management .access-actions-compact{grid-template-columns:100px 116px!important;column-gap:8px!important}
+ #gestao #access-management .access-action-menu{width:100px!important}
+ #gestao #access-management .access-permissions-direct{width:116px!important}
+ #gestao #access-management .access-action-trigger,
+ #gestao #access-management .access-permissions-direct{padding:0 11px!important}
+ #permission-dashboard #perm-x{top:10px!important;right:10px!important;width:40px!important;height:40px!important;min-width:40px!important}
+}
+</style>
+<script id="cmello-fechar-permissoes-esc-final">
+(()=>{
+ const modal=document.getElementById('permission-dashboard');
+ const close=document.getElementById('perm-x');
+ if(!modal||!close)return;
+ close.setAttribute('aria-label','Fechar permissões');
+ close.setAttribute('title','Fechar');
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))close.click()});
 })();
 </script>
